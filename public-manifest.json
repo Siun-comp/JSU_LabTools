@@ -1,5 +1,5 @@
 {
-  "version": "0.3.2",
+  "version": "0.4.2",
   "files": [
     {
       "source": "portal/index.html",
@@ -64,6 +64,30 @@
     {
       "source": "portal/info/sequence.html",
       "target": "info/sequence.html"
+    },
+    {
+      "source": "tools/dilution-calculator/index.html",
+      "target": "tools/dilution-calculator/index.html"
+    },
+    {
+      "source": "tools/dilution-calculator/tool.css",
+      "target": "tools/dilution-calculator/tool.css"
+    },
+    {
+      "source": "tools/dilution-calculator/core.mjs",
+      "target": "tools/dilution-calculator/core.mjs"
+    },
+    {
+      "source": "tools/dilution-calculator/app.mjs",
+      "target": "tools/dilution-calculator/app.mjs"
+    },
+    {
+      "source": "tools/dilution-calculator/clipboard.mjs",
+      "target": "tools/dilution-calculator/clipboard.mjs"
+    },
+    {
+      "source": "portal/info/dilution.html",
+      "target": "info/dilution.html"
     }
   ]
 }
