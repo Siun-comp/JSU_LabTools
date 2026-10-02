@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "files": [
     {
       "source": "portal/index.html",
@@ -20,7 +20,30 @@
     {
       "source": "portal/.nojekyll",
       "target": ".nojekyll"
+    },
+    {
+      "source": "tools/oligo-mix/index.html",
+      "target": "tools/oligo-mix/index.html"
+    },
+    {
+      "source": "tools/oligo-mix/tool.css",
+      "target": "tools/oligo-mix/tool.css"
+    },
+    {
+      "source": "tools/oligo-mix/core.mjs",
+      "target": "tools/oligo-mix/core.mjs"
+    },
+    {
+      "source": "tools/oligo-mix/app.mjs",
+      "target": "tools/oligo-mix/app.mjs"
+    },
+    {
+      "source": "tools/oligo-mix/clipboard.mjs",
+      "target": "tools/oligo-mix/clipboard.mjs"
+    },
+    {
+      "source": "portal/info/oligo-mix.html",
+      "target": "info/oligo-mix.html"
     }
   ]
 }
-
