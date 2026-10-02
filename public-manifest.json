@@ -1,5 +1,5 @@
 {
-  "version": "0.2.2",
+  "version": "0.3.2",
   "files": [
     {
       "source": "portal/index.html",
@@ -48,6 +48,22 @@
     {
       "source": "tools/oligo-mix/paste.mjs",
       "target": "tools/oligo-mix/paste.mjs"
+    },
+    {
+      "source": "tools/sequence/core.mjs",
+      "target": "tools/sequence/core.mjs"
+    },
+    {
+      "source": "tools/sequence/app.mjs",
+      "target": "tools/sequence/app.mjs"
+    },
+    {
+      "source": "tools/sequence/dialog.css",
+      "target": "tools/sequence/dialog.css"
+    },
+    {
+      "source": "portal/info/sequence.html",
+      "target": "info/sequence.html"
     }
   ]
 }
