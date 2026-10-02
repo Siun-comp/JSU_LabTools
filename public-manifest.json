@@ -1,0 +1,26 @@
+{
+  "version": "0.1.0",
+  "files": [
+    {
+      "source": "portal/index.html",
+      "target": "index.html"
+    },
+    {
+      "source": "portal/assets/portal.css",
+      "target": "assets/portal.css"
+    },
+    {
+      "source": "portal/assets/brand.svg",
+      "target": "assets/brand.svg"
+    },
+    {
+      "source": "portal/info/plot.html",
+      "target": "info/plot.html"
+    },
+    {
+      "source": "portal/.nojekyll",
+      "target": ".nojekyll"
+    }
+  ]
+}
+

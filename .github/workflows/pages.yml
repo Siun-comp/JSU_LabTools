@@ -1,0 +1,53 @@
+name: JSU LabTools Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      published_baseline_sha:
+        description: Previously published commit SHA for file preservation comparison
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: jsu-labtools-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Preserve prior public file list
+        env:
+          JSU_EVENT_NAME: ${{ github.event_name }}
+          JSU_BEFORE_SHA: ${{ github.event.before }}
+          JSU_PUBLISHED_BASELINE_SHA: ${{ inputs.published_baseline_sha }}
+        run: node scripts/check-public-history.mjs
+      - name: Build complete public artifact
+        run: node scripts/build.mjs
+      - name: Verify artifact
+        run: node scripts/verify.mjs
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
+
