@@ -17,7 +17,7 @@ for(const path of ['index.html','info/plot.html','info/oligo-mix.html']){
  const run=html.match(/<a\b[^>]*class="execute"[^>]+>/)[0];
  for(const attr of ['target="_blank"','rel="noopener noreferrer"','referrerpolicy="no-referrer"'])assert(run.includes(attr),'Safe new tab');
  assert(html.includes('v'+manifest.version)&&html.includes('2026-10-02'),'Portal version/date');
- if(path==='info/oligo-mix.html')assert(html.includes('<dt>도구 버전</dt><dd>v0.4.0')&&html.includes('<dt>계산 알고리즘</dt><dd>v0.4.0')&&html.includes('확인 전'),'Tool/algorithm versions and pending Excel');
+ if(path==='info/oligo-mix.html')assert(html.includes('<dt>도구 버전</dt><dd>v0.5.0')&&html.includes('<dt>계산 알고리즘</dt><dd>v0.5.0')&&html.includes('확인 전'),'Tool/algorithm versions and pending Excel');
  else assert(html.includes('v1.3.0'),'Existing Plot version');
  for(const m of html.matchAll(/(?:href|src)="([^"]+)"/g)){if(m[1].startsWith('http')||m[1].startsWith('#'))continue;await readFile(resolve(dirname(resolve(dist,path)),m[1]));}
 }

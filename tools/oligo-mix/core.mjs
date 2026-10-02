@@ -1,5 +1,5 @@
-// Oligo Mix algorithm 0.4.0. Decimal input and unit factors use exact rational numbers.
-export const VERSION = '0.4.0';
+// Oligo Mix algorithm 0.5.0. Decimal input and unit factors use exact rational numbers.
+export const VERSION = '0.5.0';
 const MASS_EXP={g:9,mg:6,'µg':3,ng:0,pg:-3,fg:-6},VOLUME_EXP={L:6,mL:3,'µL':0};
 export const MASS_CONCENTRATION_UNITS=Object.keys(MASS_EXP).flatMap(m=>Object.keys(VOLUME_EXP).map(v=>m+'/'+v));
 export const MASS_AMOUNT_UNITS=Object.keys(MASS_EXP).map(m=>m+'/rxn');
@@ -125,4 +125,33 @@ export function proposePreparation(result,step){
  const s=parse(step,'피펫 조정 간격');
  const volumes=result.rows.map(r=>{const ratio=div(r._batch,s),whole=ratio.n/ratio.d,remainder=ratio.n%ratio.d;return decimal(mul(q(whole+(remainder*2n>=ratio.d?1n:0n)),s));});
  return {volumes,te:remainingTE(result,volumes)};
+}
+function nearest(amount,step){
+ const ratio=div(amount,step),whole=ratio.n/ratio.d;
+ return mul(q(whole+(ratio.n%ratio.d*2n>=ratio.d?1n:0n)),step);
+}
+function profile(amount,{mode='fine',step}={}){
+ if(mode==='custom'){parse(step,'조정 간격');return {label:'직접 설정',step:String(step).trim()};}
+ if(!['fine','general'].includes(mode))throw Error('지원하지 않는 피펫 조정 방식입니다.');
+ const presets=[['2','0','≤2 µL','0.002','0.01'],['20','2','>2–20 µL','0.02','0.1'],['200','20','>20–200 µL','0.2','1'],['1000','200','>200–1000 µL','2','10']];
+ for(const [max,min,label,fine,general] of presets)if(cmp(amount,parse(max,'구간 상한'))<=0n)return {label,step:mode==='fine'?fine:general,min,max};
+ throw Error('1000µL 초과량은 자동 피펫 구간 밖입니다. 간격 직접 입력을 선택하세요.');
+}
+export function pipetteProfile(volume,options){return profile(parse(volume,'피펫 기준 부피',true),options);}
+export function preparationProfiles(result,options){return result.rows.map(r=>profile(r._batch,options));}
+export function balancePreparation(result,volumes,options){
+ const rawTE=remainingTE(result,volumes),teProfile=pipetteProfile(rawTE,options);
+ const raw=parse(rawTE,'잔여 TE',true),rounded=nearest(raw,parse(teProfile.step,'TE 조정 간격')),difference=sub(rounded,raw);
+ return {rawTE,te:decimal(rounded),teProfile,difference:number(difference),differencePercent:number(mul(div(difference,result._total),q(100n)))};
+}
+export function proposePipettePreparation(result,options){
+ const profiles=preparationProfiles(result,options);
+ const volumes=result.rows.map((r,i)=>decimal(nearest(r._batch,parse(profiles[i].step,'성분 조정 간격'))));
+ return {volumes,profiles,...balancePreparation(result,volumes,options)};
+}
+export function reverseConcentration({concentration,volume,reaction,unit='µM'}){
+ if(!STOCK_UNITS.includes(unit))throw Error('지원하지 않는 농도 단위입니다.');
+ const c=parse(concentration,'넣는 용액 농도',true),v=parse(volume,'1반응당 투입 부피',true),r=parse(reaction,'최종 반응 전체 부피');
+ if(cmp(v,r)>0n)throw Error('투입 부피는 최종 반응 전체 부피를 초과할 수 없습니다.');
+ return {concentration:number(div(mul(c,v),r)),unit};
 }

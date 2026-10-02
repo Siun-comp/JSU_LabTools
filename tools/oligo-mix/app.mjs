@@ -1,4 +1,4 @@
-import {calculate,adjusted,checkPipette,proposePreparation,remainingTE,displayFormat,MASS_CONCENTRATION_UNITS,MASS_AMOUNT_UNITS,MOLAR_UNITS,COPY_CONCENTRATION_UNITS,COPY_AMOUNT_UNITS} from './core.mjs';
+import {calculate,adjusted,checkPipette,proposePipettePreparation,balancePreparation,preparationProfiles,reverseConcentration,STOCK_UNITS,displayFormat,MASS_CONCENTRATION_UNITS,MASS_AMOUNT_UNITS,MOLAR_UNITS,COPY_CONCENTRATION_UNITS,COPY_AMOUNT_UNITS} from './core.mjs';
 import {excelClipboard,nextComponentName} from './clipboard.mjs';
 import {parseOligoPaste} from './paste.mjs';
 const $=id=>document.getElementById(id),f=displayFormat;
@@ -46,24 +46,33 @@ function render(){
  $('summary').textContent=`최종 반응 ${f(result.reaction)} µL · Mix ${f(result.mix)} µL/반응 · ${result.count}반응 · 전체 Mix ${f(result.total)} µL. 이론 부피이며 분주 조정 미적용.`;
  const notes=result.rows.filter(r=>r.conversionNote).map(r=>r.name+': '+r.conversionNote);if(notes.length)$('summary').textContent+=' '+notes.join(' / ');
  const ab=$('adjust-body');ab.replaceChildren();for(const [i,r] of [...result.rows,{name:'TE',batch:result.batchTE}].entries()){
-  const tr=document.createElement('tr');cell(tr,r.sourceIndex?`${r.sourceIndex}. ${r.name}`:r.name);cell(tr,f(r.batch));const proposed=cell(tr,'—');proposed.dataset.proposal=i;
+  const tr=document.createElement('tr');cell(tr,r.sourceIndex?`${r.sourceIndex}. ${r.name}`:r.name);cell(tr,f(r.batch));const setting=cell(tr,'—');setting.dataset.profile=i;const proposed=cell(tr,'—');proposed.dataset.proposal=i;
   const td=cell(tr,''),el=document.createElement('input');el.type='text';el.inputMode='decimal';el.autocomplete='off';el.placeholder=i===result.rows.length?'Stock 선택 후 자동 계산':'부피 제안 후 직접 수정';
-  el.setAttribute('aria-label',i===result.rows.length?'TE 잔여 전체량 µL':`${r.sourceIndex}행 ${r.name} 최종 선택량 µL`);el.dataset.index=i;if(i===result.rows.length)el.readOnly=true;td.append(el);ab.append(tr);
+  el.setAttribute('aria-label',i===result.rows.length?'TE 반올림 전체량 µL':`${r.sourceIndex}행 ${r.name} 최종 선택량 µL`);el.dataset.index=i;if(i===result.rows.length)el.readOnly=true;td.append(el);ab.append(tr);
  }
  clearAdjustment();$('results').hidden=false;$('message').textContent='이론 배합량을 계산했습니다.';
 }
 function adjustmentInputs(){return [...$('adjust-body').querySelectorAll('input')];}
 function clearAdjustment(){$('adjust-status').textContent='';$('adjust-output').replaceChildren();}
-function deriveTE(){const inputs=adjustmentInputs();inputs.at(-1).value='';inputs.at(-1).value=remainingTE(result,inputs.slice(0,-1).map(el=>el.value));}
+function adjustmentOptions(){return {mode:$('adjust-mode').value,step:$('step').value};}
+function setProfile(i,p){$('adjust-body').querySelector(`[data-profile="${i}"]`).textContent=`${p.label} · ${f(Number(p.step))}µL`;}
+function deriveTE(){
+ const inputs=adjustmentInputs();inputs.at(-1).value='';
+ const balance=balancePreparation(result,inputs.slice(0,-1).map(el=>el.value),adjustmentOptions());inputs.at(-1).value=balance.te;setProfile(result.rows.length,balance.teProfile);return balance;
+}
 function reviewAdjustment(){
  clearAdjustment();if(!result)return;
  try{
-  deriveTE();const volumes=adjustmentInputs().map(el=>el.value),settings={step:$('step').value,min:$('minimum').value,max:$('maximum').value};
-  const a=adjusted(result,volumes.slice(0,-1),volumes.at(-1)),checks=volumes.map(v=>checkPipette(v,settings));
+  const balance=deriveTE(),volumes=adjustmentInputs().map(el=>el.value),profiles=preparationProfiles(result,adjustmentOptions());
+  profiles.forEach((p,i)=>setProfile(i,p));
+  const settings=$('adjust-mode').value==='custom'?profiles.map(p=>({...p,min:$('minimum').value,max:$('maximum').value})):profiles;
+  const teSettings=$('adjust-mode').value==='custom'?{...balance.teProfile,min:$('minimum').value,max:$('maximum').value}:balance.teProfile;
+  const a=adjusted(result,volumes.slice(0,-1),volumes.at(-1)),checks=volumes.map((v,i)=>checkPipette(v,i===result.rows.length?teSettings:settings[i]));
   const messages=checks.flatMap((c,i)=>c.valid?[]:[`${i===result.rows.length?'TE':result.rows[i].name}: ${c.note}`]);
   volumes.slice(0,-1).forEach((v,i)=>{if(Number(v)===0)messages.push(`${result.rows[i].name}: 0µL로 미분주합니다. 목표량이 충족되지 않습니다.`);});
   $('adjust-status').textContent=messages.join('\n');
-  const out=$('adjust-output'),p=document.createElement('p');p.textContent=`선택 전체 Mix ${f(a.total)} µL / 목표 ${f(result.total)} µL · ${messages.length?'간격·범위 또는 미분주 항목을 확인하세요':settings.min.trim()&&settings.max.trim()?'입력한 간격·범위 확인 완료':'간격 확인 완료 · 최소/최대 범위 미입력'}. 장비 정확도 보증은 아닙니다.`;out.append(p);
+  const out=$('adjust-output'),p=document.createElement('p');p.textContent=`선택 전체 Mix ${f(a.total)} µL / 목표 ${f(result.total)} µL · 합계 차이 ${f(balance.difference)} µL (${f(balance.differencePercent)}%).`;out.append(p);
+  const teNote=document.createElement('p');teNote.className='note';teNote.textContent=`TE 잔여 ${f(Number(balance.rawTE))} → ${f(Number(balance.te))}µL. 아래 농도는 반올림 후 실제 합계를 기준으로 계산합니다.${$('adjust-mode').value==='custom'&&!$('minimum').value.trim()&&!$('maximum').value.trim()?' 최소/최대 범위 미입력.':''}`;out.append(teNote);
   const table=document.createElement('table'),thead=document.createElement('thead'),head=document.createElement('tr');table.className='result-table';['성분','예상 최종 농도 / 반응당 양','목표 대비 편차 (%)'].forEach(v=>cell(head,v,'th'));thead.append(head);table.append(thead);
   const body=document.createElement('tbody');for(const [i,r] of a.rows.entries()){const tr=document.createElement('tr');[`${result.rows[i].sourceIndex}. ${r.name}`,f(r.achieved)+' '+r.targetUnit,f(r.deviationPercent)].forEach(v=>cell(tr,v));body.append(tr);}table.append(body);
   const wrap=document.createElement('div');wrap.className='table-wrap';wrap.tabIndex=0;wrap.setAttribute('role','region');wrap.setAttribute('aria-label','조정 후 예상 농도');wrap.append(table);out.append(wrap);
@@ -71,14 +80,30 @@ function reviewAdjustment(){
 }
 $('suggest-adjustment').addEventListener('click',()=>{
  clearAdjustment();if(!result)return;try{
-  const proposed=proposePreparation(result,$('step').value),values=[...proposed.volumes,proposed.te],inputs=adjustmentInputs();
+  const proposed=proposePipettePreparation(result,adjustmentOptions()),values=[...proposed.volumes,proposed.te],inputs=adjustmentInputs();
   for(const [i,v] of values.entries()){$('adjust-body').querySelector(`[data-proposal="${i}"]`).textContent=f(Number(v));inputs[i].value=v;}
   reviewAdjustment();
  }catch(error){$('adjust-status').textContent=error.message;}
 });
 $('adjust-body').addEventListener('input',reviewAdjustment);
-for(const id of ['step','minimum','maximum'])$(id).addEventListener('input',()=>{clearAdjustment();if(id==='step'){for(const el of adjustmentInputs())el.value='';for(const el of $('adjust-body').querySelectorAll('[data-proposal]'))el.textContent='—';}else if(result&&adjustmentInputs()[0]?.value)reviewAdjustment();});
+function resetAdjustment(){clearAdjustment();for(const el of adjustmentInputs())el.value='';for(const el of $('adjust-body').querySelectorAll('[data-proposal],[data-profile]'))el.textContent='—';}
+$('adjust-mode').addEventListener('change',()=>{$('custom-pipette').hidden=$('adjust-mode').value!=='custom';resetAdjustment();});
+for(const id of ['step','minimum','maximum'])$(id).addEventListener('input',()=>{if(id==='step')resetAdjustment();else if(result&&adjustmentInputs()[0]?.value)reviewAdjustment();else clearAdjustment();});
 $('check-adjustment').addEventListener('click',reviewAdjustment);
+// Independent, explicit-input quick calculator. No main-form prefill or write-back.
+for(const unit of STOCK_UNITS){const option=document.createElement('option');option.value=unit;option.textContent=unit;$('reverse-unit').append(option);}$('reverse-unit').value='µM';
+$('open-reverse').addEventListener('click',()=>{$('reverse-dialog').showModal();$('reverse-concentration').focus();});
+$('close-reverse').addEventListener('click',()=>$('reverse-dialog').close());
+$('reverse-dialog').addEventListener('close',()=>$('open-reverse').focus());
+function clearReverse(){$('reverse-status').textContent='';$('reverse-output').replaceChildren();}
+$('reverse-form').addEventListener('input',clearReverse);
+$('reverse-form').addEventListener('submit',event=>{
+ event.preventDefault();clearReverse();try{
+  const answer=reverseConcentration({concentration:$('reverse-concentration').value,volume:$('reverse-volume').value,reaction:$('reverse-reaction').value,unit:$('reverse-unit').value});
+  const value=document.createElement('p');value.className='quick-value';value.textContent=`최종 농도 ${f(answer.concentration)} ${answer.unit}`;$('reverse-output').append(value);
+  const calculation=document.createElement('p');calculation.className='note';calculation.textContent=`${$('reverse-concentration').value.trim()} ${answer.unit} × ${$('reverse-volume').value.trim()}µL ÷ ${$('reverse-reaction').value.trim()}µL`;$('reverse-output').append(calculation);
+ }catch(error){$('reverse-status').textContent=error.message;}
+});
 function clearPaste(){pasteData=null;$('apply-paste').disabled=true;$('paste-preview').replaceChildren();$('paste-status').textContent='';}
 for(const id of ['paste-text','paste-header','paste-type','paste-mode'])$(id).addEventListener('input',clearPaste);
 $('preview-paste').addEventListener('click',()=>{
