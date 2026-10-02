@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.2.1",
   "files": [
     {
       "source": "portal/index.html",
@@ -44,6 +44,10 @@
     {
       "source": "portal/info/oligo-mix.html",
       "target": "info/oligo-mix.html"
+    },
+    {
+      "source": "tools/oligo-mix/paste.mjs",
+      "target": "tools/oligo-mix/paste.mjs"
     }
   ]
 }

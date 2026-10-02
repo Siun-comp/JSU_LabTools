@@ -17,19 +17,19 @@ for(const path of ['index.html','info/plot.html','info/oligo-mix.html']){
  const run=html.match(/<a\b[^>]*class="execute"[^>]+>/)[0];
  for(const attr of ['target="_blank"','rel="noopener noreferrer"','referrerpolicy="no-referrer"'])assert(run.includes(attr),'Safe new tab');
  assert(html.includes('v'+manifest.version)&&html.includes('2026-10-02'),'Portal version/date');
- if(path==='info/oligo-mix.html')assert(html.includes('v0.3.1')&&html.includes('v0.3.0')&&html.includes('확인 전'),'Tool/algorithm versions and pending Excel');
+ if(path==='info/oligo-mix.html')assert(html.includes('<dt>도구 버전</dt><dd>v0.4.0')&&html.includes('<dt>계산 알고리즘</dt><dd>v0.4.0')&&html.includes('확인 전'),'Tool/algorithm versions and pending Excel');
  else assert(html.includes('v1.3.0'),'Existing Plot version');
  for(const m of html.matchAll(/(?:href|src)="([^"]+)"/g)){if(m[1].startsWith('http')||m[1].startsWith('#'))continue;await readFile(resolve(dirname(resolve(dist,path)),m[1]));}
 }
 const home=await readFile(resolve(dist,'index.html'),'utf8');
 const rows=[...home.matchAll(/<tr class="planned">([\s\S]*?)<\/tr>/g)];
-assert.equal(rows.length,3,'Three pending tools');
+assert.equal(rows.length,4,'Four pending tools');
 for(const row of rows){assert(!/<a\b|v\d+\.\d+/.test(row[1]),'No links/versions for planned tools');assert(row[1].includes('준비중'),'Actual pending status');}
 assert(home.includes('P6 검토 대기'),'P6 deferred');
-assert.equal((home.match(/class="tool-glyph"/g)||[]).length,5,'Five selected entries');
-assert(home.includes('실행 가능 2개')&&home.includes('준비중 3개'),'Counts');
+assert(home.includes('LoB · LoD · LoQ 분석')&&home.includes('복사·보완 계획'),'LoBDQ plan only; no execution link');
+assert.equal((home.match(/class="tool-glyph"/g)||[]).length,6,'Six selected entries');
+assert(home.includes('실행 가능 2개')&&home.includes('준비중 4개'),'Counts');
 const localRun=home.match(/<a\b[^>]*href="tools\/oligo-mix\/index.html"[^>]+>/)[0];
 for(const attr of ['target="_blank"','rel="noopener noreferrer"','referrerpolicy="no-referrer"'])assert(localRun.includes(attr),'Safe independent Oligo tab');
 assert(home.includes('Excel 확인 전'),'Unverified Excel visible');
-console.log('PASS: full artifact and source bytes, local links, preserved Plot, independent Oligo link/version/pending Excel, 3 pending tools, no experimental portal inputs/scripts.');
-
+console.log('PASS: full artifact and source bytes, local links, preserved Plot, independent Oligo link/version/pending Excel, 4 pending tools, no experimental portal inputs/scripts.');

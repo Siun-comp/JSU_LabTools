@@ -1,5 +1,5 @@
-// Oligo Mix algorithm 0.3.0. Decimal input and unit factors use exact rational numbers.
-export const VERSION = '0.3.0';
+// Oligo Mix algorithm 0.4.0. Decimal input and unit factors use exact rational numbers.
+export const VERSION = '0.4.0';
 const MASS_EXP={g:9,mg:6,'µg':3,ng:0,pg:-3,fg:-6},VOLUME_EXP={L:6,mL:3,'µL':0};
 export const MASS_CONCENTRATION_UNITS=Object.keys(MASS_EXP).flatMap(m=>Object.keys(VOLUME_EXP).map(v=>m+'/'+v));
 export const MASS_AMOUNT_UNITS=Object.keys(MASS_EXP).map(m=>m+'/rxn');
@@ -58,7 +58,7 @@ export function calculate(input){
  if(cmp(mix,rxn)>0n)throw Error('반응당 Mix 부피는 최종 반응 전체 부피를 초과할 수 없습니다.');
  const countText=String(input.count??'').trim(),count=Number(countText);
  if(!/^\d+$/.test(countText)||!Number.isSafeInteger(count)||count<1)throw Error('반응 수: 1 이상 안전한 정수를 입력하세요.');
- if(!Array.isArray(input.rows)||input.rows.length>15)throw Error('Oligo는 최대 15개입니다.');
+ if(!Array.isArray(input.rows))throw Error('Oligo 목록이 필요합니다.');
  const n=q(BigInt(count)),rows=[];
  for(const [i,row] of input.rows.entries()){
   if(row.enabled===false)continue;
@@ -82,7 +82,7 @@ export function calculate(input){
   }
   const ctInput=parse(target,`${i+1}행 목표 농도/반응당 양`),csInput=parse(stock,`${i+1}행 Stock 농도`),ct=mul(ctInput,tu.factor),cs=mul(csInput,su.factor);
   const dose=tu.mode==='amount'?ct:mul(ct,rxn),v=div(dose,cs);
-  rows.push({name,type:row.type,target:number(ctInput),stock:number(csInput),targetUnit,stockUnit,perReaction:number(v),batch:number(mul(v,n)),mixConcentration:number(div(dose,mix)),mixUnit,conversionNote,_ct:ct,_cs:cs,_targetMode:tu.mode,_targetFactor:tu.factor,_batch:mul(v,n)});
+  rows.push({name,sourceIndex:i+1,type:row.type,target:number(ctInput),stock:number(csInput),targetUnit,stockUnit,perReaction:number(v),batch:number(mul(v,n)),mixConcentration:number(div(dose,mix)),mixUnit,conversionNote,_ct:ct,_cs:cs,_targetMode:tu.mode,_targetFactor:tu.factor,_batch:mul(v,n)});
  }
  if(!rows.length)throw Error('계산에 포함할 Oligo를 하나 이상 입력하세요.');
  const used=sum(rows.map(r=>div(r._batch,n))),te=sub(mix,used);
@@ -99,9 +99,30 @@ export function adjusted(result,volumes,teVolume){
  return {rows,te:number(te),total:number(total),shortage,ready:shortage===0};
 }
 export function checkPipette(volume,{step,min,max}){
- const v=parse(volume,'분주량',true),s=parse(step,'피펫 조정 간격'),lo=parse(min,'최소 분주량',true),hi=parse(max,'최대 분주량');
- if(cmp(lo,hi)>0n)throw Error('최소 분주량이 최대 분주량보다 큽니다.');
+ const v=parse(volume,'분주량',true),s=parse(step,'피펫 조정 간격');
+ const hasMin=String(min??'').trim()!=='',hasMax=String(max??'').trim()!=='';
+ if(hasMin!==hasMax)throw Error('최소·최대 분주량은 둘 다 입력하거나 둘 다 비워 두세요.');
+ const lo=hasMin?parse(min,'최소 분주량',true):null,hi=hasMax?parse(max,'최대 분주량'):null;
+ if(lo&&cmp(lo,hi)>0n)throw Error('최소 분주량이 최대 분주량보다 큽니다.');
  if(v.n===0n)return {valid:true,note:'미분주 (0 µL)'};
- const ratio=div(v,s),range=cmp(v,lo)>=0n&&cmp(v,hi)<=0n;
- return {valid:range&&ratio.d===1n,note:!range?'설정한 1회 분주 범위 밖':ratio.d!==1n?'조정 간격의 배수가 아님':'설정 범위·간격 충족'};
+ const ratio=div(v,s),range=!lo||(cmp(v,lo)>=0n&&cmp(v,hi)<=0n);
+ return {valid:range&&ratio.d===1n,note:!range?'설정한 1회 분주 범위 밖':ratio.d!==1n?'조정 간격의 배수가 아님':lo?'설정 범위·간격 충족':'조정 간격 충족 · 최소/최대 범위 미입력'};
+}
+function decimal(x){
+ let d=x.d,twos=0,fives=0;while(d%2n===0n){d/=2n;twos++;}while(d%5n===0n){d/=5n;fives++;}
+ if(d!==1n)throw Error('유한 십진수로 표현할 수 없는 부피입니다.');
+ const places=Math.max(twos,fives),digits=(x.n*2n**BigInt(places-twos)*5n**BigInt(places-fives)).toString().padStart(places+1,'0');
+ return places?(digits.slice(0,-places)+'.'+digits.slice(-places)).replace(/\.?0+$/,''):digits;
+}
+export function validateOligoNumber(value,label){return number(parse(value,label));}
+export function remainingTE(result,volumes){
+ if(volumes.length!==result.rows.length)throw Error('조정량 행 수가 다릅니다.');
+ const te=sub(result._total,sum(volumes.map((v,i)=>parse(v,`${i+1}행 선택 부피`,true))));
+ if(te.n<0n)throw Error('선택 Stock 합계가 목표 전체 Mix를 초과합니다. Stock 부피를 수정하세요.');
+ return decimal(te);
+}
+export function proposePreparation(result,step){
+ const s=parse(step,'피펫 조정 간격');
+ const volumes=result.rows.map(r=>{const ratio=div(r._batch,s),whole=ratio.n/ratio.d,remainder=ratio.n%ratio.d;return decimal(mul(q(whole+(remainder*2n>=ratio.d?1n:0n)),s));});
+ return {volumes,te:remainingTE(result,volumes)};
 }
