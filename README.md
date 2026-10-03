@@ -1,6 +1,7 @@
 # JSU LabTools
 
-Portal v1.0.0 — first regular release of the selected desktop tool scope.
+Portal v1.0.1 — compact launch controls with distinct new-tab and dialog icons.
+The four basic tools remain v1.0.0; calculation algorithms and vector data are unchanged.
 
 | Tool | Tool / algorithm |
 |---|---|
