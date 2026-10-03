@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.1.0",
   "files": [
     {
       "source": "portal/index.html",
@@ -120,6 +120,194 @@
     {
       "source": "tools/nucleic-acid-calculator/vectors.mjs",
       "target": "tools/nucleic-acid-calculator/vectors.mjs"
+    },
+    {
+      "source": "tools/detection-capability/vendor/jszip.min.js",
+      "target": "tools/detection-capability/vendor/jszip.min.js"
+    },
+    {
+      "source": "tools/detection-capability/workbook-v3-schema.js",
+      "target": "tools/detection-capability/workbook-v3-schema.js"
+    },
+    {
+      "source": "tools/detection-capability/workbook-v3-preview.js",
+      "target": "tools/detection-capability/workbook-v3-preview.js"
+    },
+    {
+      "source": "tools/detection-capability/minimal-input.js",
+      "target": "tools/detection-capability/minimal-input.js"
+    },
+    {
+      "source": "tools/detection-capability/unit-conversion.js",
+      "target": "tools/detection-capability/unit-conversion.js"
+    },
+    {
+      "source": "tools/detection-capability/workbook-v3-ui.js",
+      "target": "tools/detection-capability/workbook-v3-ui.js"
+    },
+    {
+      "source": "tools/detection-capability/lod-ci-contract.js",
+      "target": "tools/detection-capability/lod-ci-contract.js"
+    },
+    {
+      "source": "tools/detection-capability/lod-curve-contract.js",
+      "target": "tools/detection-capability/lod-curve-contract.js"
+    },
+    {
+      "source": "tools/detection-capability/lod-browser-source.js",
+      "target": "tools/detection-capability/lod-browser-source.js"
+    },
+    {
+      "source": "tools/detection-capability/browser-r-runtime.js",
+      "target": "tools/detection-capability/browser-r-runtime.js"
+    },
+    {
+      "source": "tools/detection-capability/lod-browser.js",
+      "target": "tools/detection-capability/lod-browser.js"
+    },
+    {
+      "source": "tools/detection-capability/lod-request.js",
+      "target": "tools/detection-capability/lod-request.js"
+    },
+    {
+      "source": "tools/detection-capability/lob-analysis.js",
+      "target": "tools/detection-capability/lob-analysis.js"
+    },
+    {
+      "source": "tools/detection-capability/lob-ui.js",
+      "target": "tools/detection-capability/lob-ui.js"
+    },
+    {
+      "source": "tools/detection-capability/loq-contract.js",
+      "target": "tools/detection-capability/loq-contract.js"
+    },
+    {
+      "source": "tools/detection-capability/confirmation-contract.js",
+      "target": "tools/detection-capability/confirmation-contract.js"
+    },
+    {
+      "source": "tools/detection-capability/continuous-browser-source.js",
+      "target": "tools/detection-capability/continuous-browser-source.js"
+    },
+    {
+      "source": "tools/detection-capability/continuous-browser.js",
+      "target": "tools/detection-capability/continuous-browser.js"
+    },
+    {
+      "source": "tools/detection-capability/confirmation-ui.js",
+      "target": "tools/detection-capability/confirmation-ui.js"
+    },
+    {
+      "source": "tools/detection-capability/loq-ui.js",
+      "target": "tools/detection-capability/loq-ui.js"
+    },
+    {
+      "source": "tools/detection-capability/project-file-contract.js",
+      "target": "tools/detection-capability/project-file-contract.js"
+    },
+    {
+      "source": "tools/detection-capability/project-file-ui.js",
+      "target": "tools/detection-capability/project-file-ui.js"
+    },
+    {
+      "source": "tools/detection-capability/loq-graph.js",
+      "target": "tools/detection-capability/loq-graph.js"
+    },
+    {
+      "source": "tools/detection-capability/confirmation-graph.js",
+      "target": "tools/detection-capability/confirmation-graph.js"
+    },
+    {
+      "source": "tools/detection-capability/lob-graph.js",
+      "target": "tools/detection-capability/lob-graph.js"
+    },
+    {
+      "source": "tools/detection-capability/excel-browser.js",
+      "target": "tools/detection-capability/excel-browser.js"
+    },
+    {
+      "source": "tools/detection-capability/result-export.js",
+      "target": "tools/detection-capability/result-export.js"
+    },
+    {
+      "source": "tools/detection-capability/app-release.js",
+      "target": "tools/detection-capability/app-release.js"
+    },
+    {
+      "source": "tools/detection-capability/index.html",
+      "target": "tools/detection-capability/index.html"
+    },
+    {
+      "source": "tools/detection-capability/downloads/Molecular_Detection_Minimal_Template_v3_layout.xlsx",
+      "target": "tools/detection-capability/downloads/Molecular_Detection_Minimal_Template_v3_layout.xlsx"
+    },
+    {
+      "source": "tools/detection-capability/downloads/LoD_example.xlsx",
+      "target": "tools/detection-capability/downloads/LoD_example.xlsx"
+    },
+    {
+      "source": "tools/detection-capability/downloads/Confirmation_example.xlsx",
+      "target": "tools/detection-capability/downloads/Confirmation_example.xlsx"
+    },
+    {
+      "source": "tools/detection-capability/downloads/LoB_example.xlsx",
+      "target": "tools/detection-capability/downloads/LoB_example.xlsx"
+    },
+    {
+      "source": "tools/detection-capability/downloads/LoQ_example.xlsx",
+      "target": "tools/detection-capability/downloads/LoQ_example.xlsx"
+    },
+    {
+      "source": "tools/detection-capability/licenses/JSZip-LICENSE.markdown",
+      "target": "tools/detection-capability/licenses/JSZip-LICENSE.markdown"
+    },
+    {
+      "source": "tools/detection-capability/licenses/pako-LICENSE.txt",
+      "target": "tools/detection-capability/licenses/pako-LICENSE.txt"
+    },
+    {
+      "source": "tools/detection-capability/licenses/pako-zlib-LICENSE.txt",
+      "target": "tools/detection-capability/licenses/pako-zlib-LICENSE.txt"
+    },
+    {
+      "source": "tools/detection-capability/licenses/lie-LICENSE.txt",
+      "target": "tools/detection-capability/licenses/lie-LICENSE.txt"
+    },
+    {
+      "source": "tools/detection-capability/licenses/immediate-LICENSE.txt",
+      "target": "tools/detection-capability/licenses/immediate-LICENSE.txt"
+    },
+    {
+      "source": "tools/detection-capability/licenses/setimmediate-LICENSE.txt",
+      "target": "tools/detection-capability/licenses/setimmediate-LICENSE.txt"
+    },
+    {
+      "source": "tools/detection-capability/README.md",
+      "target": "tools/detection-capability/README.md"
+    },
+    {
+      "source": "tools/detection-capability/THIRD_PARTY_NOTICES.html",
+      "target": "tools/detection-capability/THIRD_PARTY_NOTICES.html"
+    },
+    {
+      "source": "tools/detection-capability/.nojekyll",
+      "target": "tools/detection-capability/.nojekyll"
+    },
+    {
+      "source": "tools/detection-capability/legacy-ui.css",
+      "target": "tools/detection-capability/legacy-ui.css"
+    },
+    {
+      "source": "tools/detection-capability/tool.css",
+      "target": "tools/detection-capability/tool.css"
+    },
+    {
+      "source": "tools/detection-capability/build-manifest.json",
+      "target": "tools/detection-capability/build-manifest.json"
+    },
+    {
+      "source": "portal/info/detection-capability.html",
+      "target": "info/detection-capability.html"
     }
   ]
 }

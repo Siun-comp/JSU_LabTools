@@ -1,0 +1,273 @@
+{
+  "version": "0.9.1-beta.1",
+  "date": "2026-10-04",
+  "developer": "Jang Si Un",
+  "entry": "index.html",
+  "deployment": "JSU LabTools GitHub Pages portal derivative beta",
+  "externalRuntime": "webR0.6.0/R4.6.0/MASS7.3-65: external, not bundled",
+  "files": [
+    {
+      "name": "vendor/jszip.min.js",
+      "bytes": 97630,
+      "sha256": "acc7e41455a80765b5fd9c7ee1b8078a6d160bbbca455aeae854de65c947d59e"
+    },
+    {
+      "name": "workbook-v3-schema.js",
+      "bytes": 1387,
+      "sha256": "28ad14fed8d94a7bdccb99b787a27d5f6d786e929bb63c18caafc01c433a637e"
+    },
+    {
+      "name": "workbook-v3-preview.js",
+      "bytes": 11171,
+      "sha256": "af865e66ce264b15e1c5b3777fd57c18472f94a6b90fd66e89e1b3209b17a327"
+    },
+    {
+      "name": "minimal-input.js",
+      "bytes": 16241,
+      "sha256": "4d2440ea58b6c101ef0e68791929651cfb7eb016e58b80fad86413c539974b00"
+    },
+    {
+      "name": "unit-conversion.js",
+      "bytes": 5145,
+      "sha256": "8af8b8e68db053f7b6482b5749019b880148a59ae6d47c33ee8ab2570f0d268c"
+    },
+    {
+      "name": "workbook-v3-ui.js",
+      "bytes": 3158,
+      "sha256": "c8f3ece43603cebdcb014f812ec52a412b9495e5e7d78eea21fe7a5fcff6289d"
+    },
+    {
+      "name": "lod-ci-contract.js",
+      "bytes": 4772,
+      "sha256": "53230d866d7c5a7b15a4718e78f9ab0dd4eec16cc9e539df76a0ae03743f3230"
+    },
+    {
+      "name": "lod-curve-contract.js",
+      "bytes": 1009,
+      "sha256": "ce1096aa582de368e082fa2e4a6e00c90222497e524b51c1ff2b136a20a9c758"
+    },
+    {
+      "name": "lod-browser-source.js",
+      "bytes": 4969,
+      "sha256": "f79c2cab1b6a96ad4e212a42600758da7db5c4572d78c5bb3ea3f0974b303e89"
+    },
+    {
+      "name": "browser-r-runtime.js",
+      "bytes": 4883,
+      "sha256": "ad023473f7b8682c3458ebe756819f68f528119ed58eace1fdf5b135dbeeaaee"
+    },
+    {
+      "name": "lod-browser.js",
+      "bytes": 4071,
+      "sha256": "5a6c9a94431c41b95d953c6e61ff6805fc892c7fd0414c0993dfc674f70b4e73"
+    },
+    {
+      "name": "lod-request.js",
+      "bytes": 12735,
+      "sha256": "38bd6024108d5e3ba70e549250e48f7e2e1662531e7fc99a8fdf034ff402c25e"
+    },
+    {
+      "name": "lob-analysis.js",
+      "bytes": 2313,
+      "sha256": "fc5e4b1a28bf8268f085e483667f501f10b8e334c689a4eaedb79dff554ae49e"
+    },
+    {
+      "name": "lob-ui.js",
+      "bytes": 5362,
+      "sha256": "c9b3a70e2675d584d6cd9c07fa562dcb08f165c46c882f74be7551523446ce97"
+    },
+    {
+      "name": "loq-contract.js",
+      "bytes": 4701,
+      "sha256": "7c3b64054418b9618519b66ce00bac4369f2292aee2a7a16e58369c290a6ac8c"
+    },
+    {
+      "name": "confirmation-contract.js",
+      "bytes": 2750,
+      "sha256": "347dcfe805d964d16821e708f9d2a7cd5a7891573f532481d666f6eb86dbd801"
+    },
+    {
+      "name": "continuous-browser-source.js",
+      "bytes": 2895,
+      "sha256": "0f4b10bc99cb1d79f4b7bcb28863655dcc1fcdc0dbd83aa78a32bae8e4552991"
+    },
+    {
+      "name": "continuous-browser.js",
+      "bytes": 2416,
+      "sha256": "d0ab85e5f577547c85e8ed7e7234fed8459095d3ba81dbac3712163ccd771971"
+    },
+    {
+      "name": "confirmation-ui.js",
+      "bytes": 6350,
+      "sha256": "d1338dc0e11f9c17d7defb1d5fc055a6a69705372d229e4b6b174d57965db8d9"
+    },
+    {
+      "name": "loq-ui.js",
+      "bytes": 8406,
+      "sha256": "2a09a4822150678bdb41d11332cbce4d695f75be67b4be5d767ebd7181530f5c"
+    },
+    {
+      "name": "project-file-contract.js",
+      "bytes": 2683,
+      "sha256": "a3b68c492b8716a176feab699a8f37d2ea6f0848c4b4f9df5c9628b930bf4be8"
+    },
+    {
+      "name": "project-file-ui.js",
+      "bytes": 4643,
+      "sha256": "ebe04c02cac8b99c487580f5c42ea204f1a91da31c16a3e789880bdec1014ce2"
+    },
+    {
+      "name": "loq-graph.js",
+      "bytes": 3950,
+      "sha256": "bc0e67abba1e39158566e21fc08fca5725a613bd89cf3c00bd3806ad3856c1f7"
+    },
+    {
+      "name": "confirmation-graph.js",
+      "bytes": 3487,
+      "sha256": "bd7e1ee24d2c0278be6735765d3351fc0c0d15f13710f85c54ce2738e8dbf626"
+    },
+    {
+      "name": "lob-graph.js",
+      "bytes": 3366,
+      "sha256": "67ee914c4158336535872248312a762c99f14b894a13efb1b0043962a6b2a440"
+    },
+    {
+      "name": "excel-browser.js",
+      "bytes": 14188,
+      "sha256": "51b29fdf523d475480ccacb552c719689d3f335a5a5df1163aaac59f8490a099"
+    },
+    {
+      "name": "result-export.js",
+      "bytes": 21436,
+      "sha256": "2c4f1d6fb9ff9d0d12c090b54cd26a6e632a9a2c84ed8996f384ca2df790bc7c"
+    },
+    {
+      "name": "app-release.js",
+      "bytes": 7053,
+      "sha256": "e568ab660ea7ebc1ab77a37bc53dc1420599aa4ad398e94afc245dcad096355f"
+    },
+    {
+      "name": "index.html",
+      "bytes": 12253,
+      "sha256": "6e047c5bf3f04396c4b711758f88ed9b18bf566f55e38d6c1d7e90fa46241aac"
+    },
+    {
+      "name": "downloads/Molecular_Detection_Minimal_Template_v3_layout.xlsx",
+      "bytes": 64120,
+      "sha256": "7f869e0160a7c971fb382a2f1cb1eae55587d62a5f26a416db7cd0a50b8fca46"
+    },
+    {
+      "name": "downloads/LoD_example.xlsx",
+      "bytes": 64408,
+      "sha256": "cc8023cdad4100c8b31b7a14db91fa3223d3bd7e86201a62679584cce93f908c"
+    },
+    {
+      "name": "downloads/Confirmation_example.xlsx",
+      "bytes": 64392,
+      "sha256": "d4c4ec1997d104b602c48396db394388f6b9a9c72111df20f53e0aa9b1ac12e1"
+    },
+    {
+      "name": "downloads/LoB_example.xlsx",
+      "bytes": 65090,
+      "sha256": "b66b9b698455c6110e39a375ff9d78c921be83b079da3b6b86a64e4c183dbba5"
+    },
+    {
+      "name": "downloads/LoQ_example.xlsx",
+      "bytes": 66041,
+      "sha256": "d4ea5f867e3e93223843583e022cc5be87acd1387178b3230c1b78c52f890c42"
+    },
+    {
+      "name": "licenses/JSZip-LICENSE.markdown",
+      "bytes": 33753,
+      "sha256": "566c953c6090b1218ca6217dd7359d45dde46581968586dc607d59a78af6a9c4"
+    },
+    {
+      "name": "licenses/pako-LICENSE.txt",
+      "bytes": 1175,
+      "sha256": "a834701995df03b2b8724198de7f96b4086fba62d81474502584371f61e1003d"
+    },
+    {
+      "name": "licenses/pako-zlib-LICENSE.txt",
+      "bytes": 2259,
+      "sha256": "fad301a98a7655936d757065139626aa92bf561edeae7560d8759789b5348f31"
+    },
+    {
+      "name": "licenses/lie-LICENSE.txt",
+      "bytes": 1164,
+      "sha256": "fd085737cc97a53cbcc011d329d426c302b492ccf2a2fc751514b44a70982896"
+    },
+    {
+      "name": "licenses/immediate-LICENSE.txt",
+      "bytes": 1238,
+      "sha256": "8e50e08648d42f4cda05d3bbaac7a84372eb06d65704099d109bbb1b86a62f2a"
+    },
+    {
+      "name": "licenses/setimmediate-LICENSE.txt",
+      "bytes": 1185,
+      "sha256": "ae7733a1fbb6a2a265d0c71a16ea1e0f193a193f9a7d9e899352420fcba9426a"
+    },
+    {
+      "name": "README.md",
+      "bytes": 3993,
+      "sha256": "1c45e673770ea2df5661e5043c44054310ab8f19365cf9e57d2c0620d813d6b9"
+    },
+    {
+      "name": "THIRD_PARTY_NOTICES.html",
+      "bytes": 3069,
+      "sha256": "77f2b3b530fabc5a1a1f8016a20def0cdd19ba6abacbdec162532c65a7cfc23a"
+    },
+    {
+      "name": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "legacy-ui.css",
+      "bytes": 5001,
+      "sha256": "f90885704d21dd1d5bffc5d104032e1c65f536c5a7487fbc6b2a89ab13cdd10d"
+    },
+    {
+      "name": "tool.css",
+      "bytes": 7466,
+      "sha256": "7f0939aca9a0ea57b02f6247774c8679f930df157f59371590a2212436c45064"
+    }
+  ],
+  "uiTheme": {
+    "version": "0.1.0",
+    "date": "2026-10-03",
+    "status": "portal_derivative_beta",
+    "calculationAndDataFormatReview": "AP78/AP79/AP81 evidence retained; company-specific applicability is internal",
+    "sourceProgramVersion": "0.9.0-beta.6",
+    "changes": [
+      "C3 shared brand and typography",
+      "tool-list return and input/result anchors",
+      "analysis navigation above workbook input",
+      "Presentation-only AP-75 baseline; later input validation tracked separately"
+    ]
+  },
+  "inputValidation": {
+    "version": "0.1.0",
+    "date": "2026-10-03",
+    "status": "included_in_portal_derivative_beta",
+    "baselineProgramVersion": "0.9.0-beta.6",
+    "changes": [
+      "LoD/confirmation duplicate concentration locations before calculation",
+      "LoD sparse concentration array rejection"
+    ],
+    "affectedFiles": [
+      "minimal-input.js",
+      "workbook-v3-preview.js",
+      "lod-browser.js"
+    ],
+    "calculationImpact": "Statistical R programs, fitted model, CI methods and result assembly unchanged; invalid-input checks tightened.",
+    "dataFormatImpact": "v3 input XLSX, project JSON and result Excel schemas unchanged; no automatic row merge."
+  },
+  "baselineProgramVersion": "0.9.0-beta.6",
+  "releaseIdentification": {
+    "version": "0.9.1-beta.1",
+    "date": "2026-10-04",
+    "status": "portal_derivative_beta",
+    "baselineProgramVersion": "0.9.0-beta.6",
+    "calculationImpact": "R/statistics/CI/data formats unchanged; current release identification and guide only."
+  }
+}

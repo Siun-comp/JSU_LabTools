@@ -20,10 +20,10 @@ for(const path of ['index.html','info/plot.html','info/oligo-mix.html','info/seq
  for(const m of html.matchAll(/(?:href|src)="([^" ]+)"/g)){if(m[1].startsWith('http')||m[1].startsWith('#'))continue;await readFile(resolve(dirname(resolve(dist,path)),m[1]));}
 }
 const home=await readFile(resolve(dist,'index.html'),'utf8');
-const pending=[...home.matchAll(/<tr class="planned">([\s\S]*?)<\/tr>/g)];assert.equal(pending.length,2);
+const pending=[...home.matchAll(/<tr class="planned">([\s\S]*?)<\/tr>/g)];assert.equal(pending.length,1);
 for(const row of pending){assert(!/<a\b|v\d+\.\d+/.test(row[1]));assert(row[1].includes('준비중'));}
-assert(home.includes('P6 검토 대기')&&home.includes('복사·보완 계획'),'Deferred tools preserved');
-assert(home.includes('실행 가능 5개')&&home.includes('준비중 2개'));
+assert(home.includes('P6 검토 대기')&&home.includes('사용 검토용 베타'),'Deferred tools preserved');
+assert(home.includes('실행 가능 6개')&&home.includes('준비중 1개'));
 assert.equal((home.match(/class="tool-glyph"/g)||[]).length,7);
 for(const match of home.matchAll(/<a\b[^>]*class="execute"[^>]*>/g))for(const attr of ['target="_blank"','rel="noopener noreferrer"','referrerpolicy="no-referrer"'])assert(match[0].includes(attr),'Plot/Oligo safe new tab');
 assert.equal((home.match(/<dialog\b/g)||[]).length,1);assert(home.includes('id="sequence-dialog"')&&home.includes('id="open-sequence"'));
@@ -54,4 +54,5 @@ for(const path of ['tools/nucleic-acid-calculator/index.html','tools/nucleic-aci
  if(path.endsWith('.html'))for(const m of text.matchAll(/(?:href|src)="([^" ]+)"/g)){if(m[1].startsWith('#'))continue;await readFile(resolve(dirname(resolve(dist,path)),m[1]));}
  if(path.endsWith('core.mjs')||path.endsWith('app.mjs'))for(const m of text.matchAll(/from ['"]([^'"]+)['"]/g))await readFile(resolve(dirname(resolve(dist,path)),m[1]));
 }
-console.log('PASS: full '+manifest.files.length+'-file artifact, prior paths preserved, nucleic/dilution new tabs, Sequence dialog, 2 pending tools, source whitelist and accurate Excel status.');
+console.log('PASS: full '+manifest.files.length+'-file artifact, prior paths preserved, nucleic/dilution new tabs, Sequence dialog, 1 pending tool, LoBDQ portal beta, source whitelist and accurate Excel status.');
+import './verify-lobdq.mjs';

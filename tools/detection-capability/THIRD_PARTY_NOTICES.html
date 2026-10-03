@@ -1,0 +1,15 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>외부 구성요소와 출처</title><style>body{margin:32px auto;max-width:900px;padding:0 20px;font:16px/1.7 system-ui,sans-serif;color:#203044;background:white}h1,h2,a{color:#183653}table{border-collapse:collapse;width:100%}th,td{padding:12px;text-align:left;border-bottom:1px solid #d5deea}th{background:#eff3f7}</style><h1>외부 구성요소와 출처</h1><p><a href="index.html">분석 화면으로 돌아가기</a></p>
+<p>개발·배포: Jang Si Un. 아래 출처는 소프트웨어 구성요소의 출처이며 통계 방법의 규제 승인 또는 프로그램 인증을 뜻하지 않습니다.</p>
+<h2>패키지에 포함된 구성요소</h2>
+<table><thead><tr><th>구성요소</th><th>출처·라이선스</th></tr></thead><tbody>
+<tr><td>JSZip 3.10.1<br>공식 minified bundle, 수정 없음</td><td><a href="https://github.com/Stuk/jszip/tree/v3.10.1">원본</a> · MIT 선택<br><a href="licenses/JSZip-LICENSE.markdown">배포 라이선스 전문</a></td></tr>
+<tr><td>JSZip 번들 내 pako/zlib</td><td><a href="licenses/pako-LICENSE.txt">pako MIT</a> · <a href="licenses/pako-zlib-LICENSE.txt">zlib notice</a></td></tr>
+<tr><td>JSZip 번들 내 lie/immediate/setImmediate</td><td><a href="licenses/lie-LICENSE.txt">lie MIT</a> · <a href="licenses/immediate-LICENSE.txt">immediate MIT</a> · <a href="licenses/setimmediate-LICENSE.txt">setImmediate MIT</a></td></tr>
+</tbody></table>
+<h2>외부에서 준비하는 계산 환경</h2>
+<p>이 배포 폴더에는 webR/R/MASS 바이너리를 복사하지 않습니다. 브라우저는 <a href="https://webr.r-wasm.org/v0.6.0/">webR 0.6.0 배포</a>와 <a href="https://repo.r-wasm.org/bin/emscripten/contrib/4.6/">R4.6 패키지 저장소</a>에서 필요한 파일을 받습니다. 분석 입력은 요청에 넣지 않습니다.</p>
+<ul><li>webR 0.6.0: <a href="https://github.com/r-wasm/webr/tree/v0.6.0">고정 원본</a>, <a href="https://github.com/r-wasm/webr/blob/v0.6.0/LICENSE.md">라이선스/내부 구성요소</a>. webR 바이너리는 GPLv3, 기타 코드는 파일별 조건/MIT를 따릅니다.</li>
+<li>R/stats 4.6.0: <a href="https://www.r-project.org/">R Project</a>, <a href="https://www.r-project.org/Licenses/">공식 라이선스</a>. GPL-2/GPL-3 조건을 확인하세요.</li>
+<li>MASS 7.3-65: LoD에만 사용. <a href="https://cran.r-project.org/src/contrib/Archive/MASS/MASS_7.3-65.tar.gz">해당 판 소스</a>, <a href="https://cran.r-project.org/package=MASS">공식 패키지</a>. GPL-2 | GPL-3. 실제 설치 버전이 다르면 계산을 차단합니다.</li></ul>
+<p>외부 배포의 파일 제공/가용성은 서비스 제공자에 의존합니다. 계산 환경을 자체 호스팅하거나 수정·재배포하는 작업은 이번 범위에 없으며, 필요한 라이선스·소스 제공 조건을 별도로 검토해야 합니다. 앱 전체에 대한 법률적 라이선스 적합성 인증을 주장하지 않습니다.</p>
+</html>

@@ -1,26 +1,37 @@
 # JSU LabTools
 
-Portal v1.0.1 — compact launch controls with distinct new-tab and dialog icons.
-The four basic tools remain v1.0.0; calculation algorithms and vector data are unchanged.
+분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.1.0.
 
-| Tool | Tool / algorithm |
+| 도구 | 도구 버전 / 계산 식별 |
 |---|---|
-| Oligo Mix | 1.0.0 / 0.5.0 |
-| Sequence | 1.0.0 / 0.2.1 |
-| Dilution and reagent preparation | 1.0.0 / 0.3.0 |
-| Nucleic-acid concentration / copies | 1.0.0 / 0.2.0 |
+| Oligo Mix | 1.0.0 / 알고리즘 0.5.0 |
+| Sequence | 1.0.0 / 알고리즘 0.2.1 |
+| 희석·시약 조제 | 1.0.0 / 알고리즘 0.3.0 |
+| 핵산 농도·Copy 수 | 1.0.0 / 알고리즘 0.2.0 |
+| LoB·LoD·LoQ | 파생 베타 0.9.1-beta.1 / 원 계산 기준 프로그램 0.9.0-beta.6 |
 
-IsoAmplar Plot Analysis T remains an external independent new-tab link. Amplification Analysis and LoB/LoD/LoQ remain pending.
+IsoAmplar Plot Analysis T는 기존 웹툴을 독립 새 탭에서 실행합니다.
+Amplification Analysis는 준비중입니다.
+LoBDQ는 사용 검토용 베타이며 한 분석 집단의 계산 후보와 근거를 제공합니다.
+원 프로그램의 R·webR 계산을 유지하며 포털 파생 배포 이력을 구별합니다.
 
-Inputs are processed in browser memory. No automatic upload, storage, external computation API or cross-tool data handoff is provided. Sequence runs in an independent portal dialog. Oligo, dilution and nucleic-acid tools run in new tabs.
+포털은 실험값을 받지 않으며 도구 간 입력 자동 전달은 없습니다.
+Sequence는 포털 팝업, 다른 도구는 새 브라우저 탭으로 실행합니다.
+계산 입력은 브라우저 안에서 처리합니다.
+LoBDQ의 첫 R 분석은 고정 webR/R 계산 환경을 외부에서 내려받고 계산은 브라우저에서 수행합니다.
+회사 보고서·원자료를 개발자에게 공유할 필요는 없습니다.
+방법·조건·버전·확인된 검증 범위와 사용 안내는 각 도구 정보에서 확인하세요.
 
-The source-to-public-path mapping is in public-manifest.json. Build the complete 30-asset dist with Node.js24 or later, without installing packages:
+## 구성과 게시
+
+public-manifest.json의 명시 목록을 scripts/build.mjs가 전체 dist 77파일로 구성합니다.
+이전 도구 경로를 모두 포함한 전체 dist를 GitHub Pages에 게시합니다.
+내부 문서·검증/참고·원본 프로젝트·회사자료·첨부는 이 저장소/게시 목록에 포함하지 않습니다.
+기존 Node.js24 이상에서 별도 패키지 설치 없이 확인할 수 있습니다.
 
 ```text
 node scripts/build.mjs
 node scripts/verify.mjs
 ```
 
-GitHub Pages publishes only dist through the existing Actions workflow. All22 previously published asset paths are retained. Internal docs, validation artifacts, design mockups, attachments, original workbooks and reference-app source are excluded.
-
-P5 fixes preserve full calculation input and report limits explicitly. Manual pipette review uses selected volumes. Nucleic clipboard completion warns when conditions changed. Oligo Excel paste has prior user confirmation; production-document, instrument and experimental validation are separate. Synthetic/browser tests do not establish actual sample accuracy or clinical performance. User real-workflow checks remain pending.
+GitHub Actions가 main의 변경 또는 수동 실행 시 이전 게시 목록 보존과 전체 산출물을 검사하고 게시합니다.
