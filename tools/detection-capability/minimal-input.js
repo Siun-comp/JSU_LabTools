@@ -65,7 +65,7 @@ window.MinimalInputs=(()=>{
   p.addEventListener('input',e=>{if(!e.target.matches('select'))touch(k);});p.addEventListener('change',e=>{if(e.target.matches('select'))touch(k);});p.addEventListener('click',e=>{if(e.target.closest('.add'))touch(k);});
   p.addEventListener('paste',e=>{const t=e.target;if(!t.matches('tbody input,textarea'))return;const text=e.clipboardData?.getData('text/plain');if(text===undefined)return;if(t.matches('tbody input')&&!/[\t\r\n]/.test(text))return;e.preventDefault();const index=k==='loq'?[...p.querySelectorAll('.sample')].indexOf(t.closest('.sample')):null;paste(k,index,text);});
  }
- return {capture,validate,parseTSV,
+ return {capture,validate,parseTSV,openPaste:paste,parseNumber:numeric,shiftDecimal,
   exportProject:()=>Object.fromEntries(keys.map(k=>[k,{raw:capture(k),revision:state[k].revision,source:clone(state[k].source),history:clone(state[k].history)}])),
   restoreProject(modules){if(!window.ProjectFileContract?.validModules(modules))throw Error('지원하지 않는 작업 입력 구조입니다.');if(dialog.open)dialog.close();for(const k of keys){const d=clone(modules[k]);render(k,d.raw);state[k].revision=Math.max(state[k].revision,d.revision)+1;state[k].source=d.source;state[k].history=d.history;state[k].undo=null;panel(k).querySelector('.undo-input').disabled=true;note(k,'작업 파일에서 입력 복원 · 다시 계산하세요.');}},
   snapshot:k=>({raw:capture(k),...validate(capture(k)),revision:state[k].revision,source:clone(state[k].source),modifiedSinceSource:!!state[k].source&&state[k].source.appliedStamp!==stamp(k)}),

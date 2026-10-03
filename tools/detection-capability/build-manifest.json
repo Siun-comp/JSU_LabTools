@@ -1,5 +1,5 @@
 {
-  "version": "0.9.1-beta.1",
+  "version": "0.9.1-beta.2",
   "date": "2026-10-04",
   "developer": "Jang Si Un",
   "entry": "index.html",
@@ -23,8 +23,8 @@
     },
     {
       "name": "minimal-input.js",
-      "bytes": 16241,
-      "sha256": "4d2440ea58b6c101ef0e68791929651cfb7eb016e58b80fad86413c539974b00"
+      "bytes": 16290,
+      "sha256": "383916fa606d5798dd8f749134b8662eb2e153c218166acc76f6bd9230a9cd7e"
     },
     {
       "name": "unit-conversion.js",
@@ -33,8 +33,8 @@
     },
     {
       "name": "workbook-v3-ui.js",
-      "bytes": 3158,
-      "sha256": "c8f3ece43603cebdcb014f812ec52a412b9495e5e7d78eea21fe7a5fcff6289d"
+      "bytes": 4412,
+      "sha256": "b27d4d587e235b46262ccbe988a5f6f0e1cef99c2ece623a0b02e1406b0cc3c3"
     },
     {
       "name": "lod-ci-contract.js",
@@ -143,13 +143,13 @@
     },
     {
       "name": "app-release.js",
-      "bytes": 7053,
-      "sha256": "e568ab660ea7ebc1ab77a37bc53dc1420599aa4ad398e94afc245dcad096355f"
+      "bytes": 7746,
+      "sha256": "b1ef852d46822cdc6bc4b321abdf2a0f5d8460827987dae4fca73173cfae6c92"
     },
     {
       "name": "index.html",
-      "bytes": 12253,
-      "sha256": "6e047c5bf3f04396c4b711758f88ed9b18bf566f55e38d6c1d7e90fa46241aac"
+      "bytes": 12334,
+      "sha256": "6812cfed42abed7a96b3944f31e80348fa1bade28c81676e07588b1375651b4b"
     },
     {
       "name": "downloads/Molecular_Detection_Minimal_Template_v3_layout.xlsx",
@@ -208,8 +208,8 @@
     },
     {
       "name": "README.md",
-      "bytes": 3993,
-      "sha256": "1c45e673770ea2df5661e5043c44054310ab8f19365cf9e57d2c0620d813d6b9"
+      "bytes": 4265,
+      "sha256": "cc67efb9add160427e1edb5422a502fee678b7b22bde8aaaa6fcadda2ece02ab"
     },
     {
       "name": "THIRD_PARTY_NOTICES.html",
@@ -228,13 +228,18 @@
     },
     {
       "name": "tool.css",
-      "bytes": 7466,
-      "sha256": "7f0939aca9a0ea57b02f6247774c8679f930df157f59371590a2212436c45064"
+      "bytes": 10184,
+      "sha256": "7a6b15f0351829ae3c2c03ba18c19b97dbebf95a076246301b2e946f4e7697fa"
+    },
+    {
+      "name": "input-ux.js",
+      "bytes": 12787,
+      "sha256": "7ed89989bc341da69fff4b1d9178f2e72a8164c18528e966da5efd9f86ec74ee"
     }
   ],
   "uiTheme": {
-    "version": "0.1.0",
-    "date": "2026-10-03",
+    "version": "0.2.0",
+    "date": "2026-10-04",
     "status": "portal_derivative_beta",
     "calculationAndDataFormatReview": "AP78/AP79/AP81 evidence retained; company-specific applicability is internal",
     "sourceProgramVersion": "0.9.0-beta.6",
@@ -242,7 +247,9 @@
       "C3 shared brand and typography",
       "tool-list return and input/result anchors",
       "analysis navigation above workbook input",
-      "Presentation-only AP-75 baseline; later input validation tracked separately"
+      "Presentation-only AP-75 baseline; later input validation tracked separately",
+      "AP87 input actions/count/error locations, LoQ management and raw preview tables",
+      "AP88 compact LoD/confirmation input rows; separate body row-number styling from column headers"
     ]
   },
   "inputValidation": {
@@ -264,10 +271,10 @@
   },
   "baselineProgramVersion": "0.9.0-beta.6",
   "releaseIdentification": {
-    "version": "0.9.1-beta.1",
+    "version": "0.9.1-beta.2",
     "date": "2026-10-04",
     "status": "portal_derivative_beta",
     "baselineProgramVersion": "0.9.0-beta.6",
-    "calculationImpact": "R/statistics/CI/data formats unchanged; current release identification and guide only."
+    "calculationImpact": "Input presentation/management revised; statistics/R/CI and schemas retained."
   }
 }

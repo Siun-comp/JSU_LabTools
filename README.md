@@ -8,7 +8,7 @@
 | Sequence | 1.0.0 / 알고리즘 0.2.1 |
 | 희석·시약 조제 | 1.0.0 / 알고리즘 0.3.0 |
 | 핵산 농도·Copy 수 | 1.0.0 / 알고리즘 0.2.0 |
-| LoB·LoD·LoQ | 파생 베타 0.9.1-beta.1 / 원 계산 기준 프로그램 0.9.0-beta.6 |
+| LoB·LoD·LoQ | 파생 베타 0.9.1-beta.2 / 원 계산 기준 프로그램 0.9.0-beta.6 |
 
 IsoAmplar Plot Analysis T는 기존 웹툴을 독립 새 탭에서 실행합니다.
 Amplification Analysis는 준비중입니다.
@@ -24,7 +24,7 @@ LoBDQ의 첫 R 분석은 고정 webR/R 계산 환경을 외부에서 내려받�
 
 ## 구성과 게시
 
-public-manifest.json의 명시 목록을 scripts/build.mjs가 전체 dist 77파일로 구성합니다.
+public-manifest.json의 명시 목록을 scripts/build.mjs가 전체 dist 78파일로 구성합니다.
 이전 도구 경로를 모두 포함한 전체 dist를 GitHub Pages에 게시합니다.
 내부 문서·검증/참고·원본 프로젝트·회사자료·첨부는 이 저장소/게시 목록에 포함하지 않습니다.
 기존 Node.js24 이상에서 별도 패키지 설치 없이 확인할 수 있습니다.
@@ -35,3 +35,5 @@ node scripts/verify.mjs
 ```
 
 GitHub Actions가 main의 변경 또는 수동 실행 시 이전 게시 목록 보존과 전체 산출물을 검사하고 게시합니다.
+
+입력 보완 베타 v0.9.1-beta.2 / 화면 v0.2.0. 행 간격·번호/오류 안내와 LoQ 검체 관리를 보완했습니다.

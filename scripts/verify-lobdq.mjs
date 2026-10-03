@@ -6,9 +6,9 @@ import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),dist=resolve(root,'dist');
 const manifest=JSON.parse(await readFile(resolve(root,'public-manifest.json'),'utf8'));
 const local=JSON.parse(await readFile(resolve(dist,'tools/detection-capability/build-manifest.json'),'utf8'));
-assert.equal(manifest.files.length,77);
-assert.equal(local.version,'0.9.1-beta.1');
-assert.equal(local.files.length,45);
+assert.equal(manifest.files.length,78);
+assert.equal(local.version,'0.9.1-beta.2');
+assert.equal(local.files.length,46);
 assert.equal(local.baselineProgramVersion,'0.9.0-beta.6');
 for(const f of local.files){const bytes=await readFile(resolve(dist,'tools/detection-capability',f.name));assert.equal(bytes.length,f.bytes);assert.equal(createHash('sha256').update(bytes).digest('hex'),f.sha256,'LoBDQ immutable asset '+f.name);}
 for(const name of ['index.html','info/detection-capability.html','tools/detection-capability/index.html','tools/detection-capability/THIRD_PARTY_NOTICES.html']){

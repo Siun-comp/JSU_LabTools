@@ -308,6 +308,10 @@
     {
       "source": "portal/info/detection-capability.html",
       "target": "info/detection-capability.html"
+    },
+    {
+      "source": "tools/detection-capability/input-ux.js",
+      "target": "tools/detection-capability/input-ux.js"
     }
   ]
 }

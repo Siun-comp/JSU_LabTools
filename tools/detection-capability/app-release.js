@@ -1,7 +1,7 @@
 (function(root){
  'use strict';
  // Single source for the displayed application release. Newest release first.
- const releases=[{version:'0.9.1-beta.1',date:'2026-10-04',status:'포털 파생 베타 · 사용 검토용',changes:[
+ const releases=[{version:'0.9.1-beta.2',date:'2026-10-04',status:'입력 보완 베타 · 사용 검토용',changes:['입력/확인/계산 버튼 순서, 행 번호와 값 개수, 문제 칸 표시를 보완했습니다.','LoQ 검체별 붙여넣기·접기·삭제 확인과 원값 표 미리보기를 추가했습니다.'],calculationImpact:'통계 R·모형·CI·계산식과 v3/작업 JSON/결과서 형식은 유지합니다. 입력 표시와 관리 동작을 보완했습니다.',limitations:'입력 편의 보완을 반영한 사용 검토용 베타입니다. 회사 시험의 적용 기준·최종 보고는 내부에서 확인합니다.'},{version:'0.9.1-beta.1',date:'2026-10-04',status:'포털 파생 베타 · 사용 검토용',changes:[
   'JSU LabTools의 공통 테마와 독립 새 탭 실행을 적용한 포털 파생판입니다.',
   '원 프로그램 v0.9.0-beta.6의 계산 기반과 webR/R 버전을 유지했습니다.',
   '동일 농도 중복 위치 안내·누락값 검사와 입력 원문 보존을 포함합니다.',
@@ -43,7 +43,7 @@
  const host=document.getElementById('app-release-info');if(!host)return;
  const by=document.createElement('p');by.textContent='개발·배포: '+release.developer+' · v'+release.version;host.append(by);
  const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='버전 및 변경 이력';details.append(summary);
- for(const entry of releases){const section=document.createElement('section'),h=document.createElement('h3');h.textContent=(entry.version===release.version?'포털 파생판':'원 프로그램 이력')+' · v'+entry.version+' · '+entry.date+' · '+entry.status;section.append(h);
+ for(const entry of releases){const section=document.createElement('section'),h=document.createElement('h3');h.textContent=(entry.version===release.version?'포털 파생판':entry.version.startsWith('0.9.1-')?'포털 파생판 이력':'원 프로그램 이력')+' · v'+entry.version+' · '+entry.date+' · '+entry.status;section.append(h);
   const ul=document.createElement('ul');for(const change of entry.changes){const li=document.createElement('li');li.textContent=change;ul.append(li);}section.append(ul);
   for(const text of ['계산 영향: '+entry.calculationImpact,'확인 필요: '+entry.limitations]){const p=document.createElement('p');p.textContent=text;section.append(p);}details.append(section);
  }host.append(details);
