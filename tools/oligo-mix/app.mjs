@@ -1,4 +1,4 @@
-import {calculate,adjusted,checkPipette,proposePipettePreparation,balancePreparation,preparationProfiles,reverseConcentration,STOCK_UNITS,displayFormat,MASS_CONCENTRATION_UNITS,MASS_AMOUNT_UNITS,MOLAR_UNITS,COPY_CONCENTRATION_UNITS,COPY_AMOUNT_UNITS} from './core.mjs';
+import {calculate,adjusted,checkPipette,proposePipettePreparation,balancePreparation,pipetteProfile,reverseConcentration,STOCK_UNITS,displayFormat,MASS_CONCENTRATION_UNITS,MASS_AMOUNT_UNITS,MOLAR_UNITS,COPY_CONCENTRATION_UNITS,COPY_AMOUNT_UNITS} from './core.mjs';
 import {excelClipboard,nextComponentName} from './clipboard.mjs';
 import {parseOligoPaste} from './paste.mjs';
 const $=id=>document.getElementById(id),f=displayFormat;
@@ -63,10 +63,11 @@ function deriveTE(){
 function reviewAdjustment(){
  clearAdjustment();if(!result)return;
  try{
-  const balance=deriveTE(),volumes=adjustmentInputs().map(el=>el.value),profiles=preparationProfiles(result,adjustmentOptions());
+  const balance=deriveTE(),volumes=adjustmentInputs().map(el=>el.value),profiles=volumes.slice(0,-1).map(v=>pipetteProfile(v,adjustmentOptions()));
   profiles.forEach((p,i)=>setProfile(i,p));
   const settings=$('adjust-mode').value==='custom'?profiles.map(p=>({...p,min:$('minimum').value,max:$('maximum').value})):profiles;
-  const teSettings=$('adjust-mode').value==='custom'?{...balance.teProfile,min:$('minimum').value,max:$('maximum').value}:balance.teProfile;
+  const teProfile=pipetteProfile(volumes.at(-1),adjustmentOptions());setProfile(result.rows.length,teProfile);
+  const teSettings=$('adjust-mode').value==='custom'?{...teProfile,min:$('minimum').value,max:$('maximum').value}:teProfile;
   const a=adjusted(result,volumes.slice(0,-1),volumes.at(-1)),checks=volumes.map((v,i)=>checkPipette(v,i===result.rows.length?teSettings:settings[i]));
   const messages=checks.flatMap((c,i)=>c.valid?[]:[`${i===result.rows.length?'TE':result.rows[i].name}: ${c.note}`]);
   volumes.slice(0,-1).forEach((v,i)=>{if(Number(v)===0)messages.push(`${result.rows[i].name}: 0µL로 미분주합니다. 목표량이 충족되지 않습니다.`);});

@@ -1,5 +1,5 @@
 import {format, VERSION} from './core.mjs';
-export const TOOL_VERSION='0.3.0';
+export const TOOL_VERSION='1.0.0';
 export function resultRows(r) {
   const i=r.input, u=i.volumeUnit;
   const rows=[['항목','값','단위'],['계산 모드',i.mode==='final'?'원하는 양 만들기':'Stock 전량 희석',''],['농도 종류',i.family==='mixed'?'몰↔질량':i.family==='molar'?'몰농도':'질량농도',''],['Stock 농도',i.stock,i.stockUnit],['목표 농도',i.target,i.targetUnit],[i.mode==='final'?'지정 최종 부피':'보유 Stock 부피',i.volume,u],['Stock 사용량',format(r.stockVolume),u],['희석액 추가량 (이론)',format(r.diluentVolume),u],['최종 부피',format(r.finalVolume),u],['희석 배수',format(r.factor),'배']];

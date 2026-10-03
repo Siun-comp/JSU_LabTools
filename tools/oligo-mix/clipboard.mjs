@@ -1,5 +1,5 @@
 import {format as f,VERSION as ALGORITHM_VERSION} from './core.mjs';
-export const TOOL_VERSION='0.5.0';
+export const TOOL_VERSION='1.0.0';
 export const COMPONENT_TYPES=['F','R','P','Q','Plasmid'];
 export function nextComponentName(type,counters,names=[]){
  if(!COMPONENT_TYPES.includes(type))throw Error('지원하지 않는 성분 종류입니다.');

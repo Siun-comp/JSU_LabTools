@@ -1,4 +1,5 @@
 import {analyze,outputText,position,lengthSummary,VERSION} from './core.mjs';
+export const TOOL_VERSION='1.0.0';
 const $=id=>document.getElementById(id),dialog=$('sequence-dialog');
 let upper=false,current;
 function options(){return {outputMode:$('sequence-output-mode').value,reverse:$('sequence-reverse').checked,complement:$('sequence-complement').checked,uppercase:upper};}
@@ -29,4 +30,4 @@ for(const id of ['sequence-input','sequence-output-mode','sequence-reverse','seq
 $('sequence-upper').addEventListener('click',()=>{upper=true;refresh();});
 $('sequence-clear').addEventListener('click',()=>{$('sequence-input').value='';upper=false;refresh();$('sequence-input').focus();});
 $('sequence-copy').addEventListener('click',async()=>{const value=$('sequence-output').value;if(!current?.valid||$('sequence-copy').disabled)return;try{await navigator.clipboard.writeText(value);$('sequence-copy-status').textContent=value===$('sequence-output').value?'출력을 복사했습니다.':'복사 후 입력이 변경되었습니다. 다시 복사하세요.';}catch{$('sequence-copy-status').textContent='복사하지 못했습니다. 출력창에서 직접 선택해 복사하세요.';}});
-$('sequence-version').textContent='도구·알고리즘 v'+VERSION;refresh();
+$('sequence-version').textContent='도구 v'+TOOL_VERSION+' / 알고리즘 v'+VERSION;refresh();

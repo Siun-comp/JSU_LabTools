@@ -1,5 +1,5 @@
 {
-  "version": "0.4.2",
+  "version": "1.0.0",
   "files": [
     {
       "source": "portal/index.html",
@@ -88,6 +88,38 @@
     {
       "source": "portal/info/dilution.html",
       "target": "info/dilution.html"
+    },
+    {
+      "source": "tools/nucleic-acid-calculator/index.html",
+      "target": "tools/nucleic-acid-calculator/index.html"
+    },
+    {
+      "source": "tools/nucleic-acid-calculator/tool.css",
+      "target": "tools/nucleic-acid-calculator/tool.css"
+    },
+    {
+      "source": "tools/nucleic-acid-calculator/core.mjs",
+      "target": "tools/nucleic-acid-calculator/core.mjs"
+    },
+    {
+      "source": "tools/nucleic-acid-calculator/math.mjs",
+      "target": "tools/nucleic-acid-calculator/math.mjs"
+    },
+    {
+      "source": "tools/nucleic-acid-calculator/app.mjs",
+      "target": "tools/nucleic-acid-calculator/app.mjs"
+    },
+    {
+      "source": "tools/nucleic-acid-calculator/clipboard.mjs",
+      "target": "tools/nucleic-acid-calculator/clipboard.mjs"
+    },
+    {
+      "source": "portal/info/nucleic-acid.html",
+      "target": "info/nucleic-acid.html"
+    },
+    {
+      "source": "tools/nucleic-acid-calculator/vectors.mjs",
+      "target": "tools/nucleic-acid-calculator/vectors.mjs"
     }
   ]
 }
