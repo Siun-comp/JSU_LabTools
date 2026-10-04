@@ -1,6 +1,6 @@
 import {format,VERSION} from './core.mjs';
 import {copyScientific} from './math.mjs';
-export const TOOL_VERSION='1.0.0';
+export const TOOL_VERSION='1.0.1';
 const safe=s=>{const v=String(s).replace(/[\t\r\n]/g,c=>c==='\t'?'\\t':c==='\r'?'\\r':'\\n');return /^[=+@-]/.test(v)?"'"+v:v;};
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function rows(r){const i=r.input,out=[['항목','값','단위'],['분자 종류',i.type,''],['알려진 농도',i.value,i.unit],['MW 방법',r.basis,''],['계산 MW',r.mw?format(r.mw):'미지정','g/mol']];

@@ -16,7 +16,7 @@ for(const path of ['index.html','info/plot.html','info/oligo-mix.html','info/seq
  const remote=[...html.matchAll(/(?:href|src)="(https?:[^" ]+)"/g)].map(m=>m[1]);
  const nucleicSources=['https://biopython.org/docs/1.88/api/Bio.SeqUtils.html','https://raw.githubusercontent.com/biopython/biopython/biopython-188/Bio/Data/IUPACData.py','https://www.neb.com/en/tools-and-resources/usage-guidelines/nucleic-acid-data','https://www.promega.com/-/media/files/resources/technical-references/nucleotides-and-nucleic-acids.pdf','https://www.bipm.org/en/si-base-units/mole','https://documents.thermofisher.com/TFS-Assets/LSG/manuals/cms_041003.pdf','https://www.bionicsro.co.kr/contents/serviceGeneSynthesis','https://www.bionicsro.co.kr/support/supportFaq','https://www.idtdna.com/pages/Support/FAQs/do-custom-oligos-come-with-5-phosphorylation-','https://www.neb.com/en/-/media/nebus/files/brochures/molcloning_tech_guide.pdf','https://www.neb.com/en-de/tools-and-resources/feature-articles/mind-your-caps-and-poly-a-tails-strategies-for-synthesizing-in-vitro-transcribed-ivt-mrna','https://www.thermofisher.com/kr/ko/home/references/ambion-tech-support/rna-tools-and-calculators/dna-and-rna-molecular-weights-and-conversions.html'];
  assert.deepEqual(remote,path==='info/nucleic-acid.html'?nucleicSources:['index.html','info/plot.html'].includes(path)?[plot]:[],'Only selected Plot or static scientific references');
- assert(html.includes('v'+manifest.version)&&html.includes(['info/oligo-mix.html','info/sequence.html'].includes(path)?'2026-10-04':['info/nucleic-acid.html','info/dilution.html'].includes(path)?'2026-10-03':'2026-10-02'),'Portal version/date');
+ assert(html.includes('v'+manifest.version)&&html.includes(['info/oligo-mix.html','info/sequence.html','info/nucleic-acid.html'].includes(path)?'2026-10-04':['info/nucleic-acid.html','info/dilution.html'].includes(path)?'2026-10-03':'2026-10-02'),'Portal version/date');
  for(const m of html.matchAll(/(?:href|src)="([^" ]+)"/g)){if(m[1].startsWith('http')||m[1].startsWith('#'))continue;await readFile(resolve(dirname(resolve(dist,path)),m[1]));}
 }
 const home=await readFile(resolve(dist,'index.html'),'utf8');
@@ -46,8 +46,8 @@ for(const path of ['tools/dilution-calculator/index.html','tools/dilution-calcul
  assert(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage|innerHTML|document\.write|console\.log|postMessage|<iframe\b/.test(text),'Dilution local-only, safe DOM');
  if(path.endsWith('.html'))for(const m of text.matchAll(/(?:href|src)="([^" ]+)"/g)){if(m[1].startsWith('#'))continue;await readFile(resolve(dirname(resolve(dist,path)),m[1]));}
 }
-const nucInfo=await readFile(resolve(dist,'info/nucleic-acid.html'),'utf8');assert(nucInfo.includes('도구 v1.0.0 / 알고리즘 v0.2.0')&&nucInfo.includes('실사용 확인 전'));
-assert(home.includes('tools/nucleic-acid-calculator/index.html')&&home.includes('확인 2026-10-03'));
+const nucInfo=await readFile(resolve(dist,'info/nucleic-acid.html'),'utf8');assert(nucInfo.includes('도구 v1.0.1 / 알고리즘 v0.2.1')&&nucInfo.includes('실사용 확인 전'));
+assert(home.includes('tools/nucleic-acid-calculator/index.html')&&/<tr class="available">(?:(?!<\/tr>)[\s\S])*도구 v1\.0\.1 · 알고리즘 v0\.2\.1(?:(?!<\/tr>)[\s\S])*확인 2026-10-04/.test(home));
 for(const path of ['tools/nucleic-acid-calculator/index.html','tools/nucleic-acid-calculator/app.mjs','tools/nucleic-acid-calculator/core.mjs','tools/nucleic-acid-calculator/math.mjs','tools/nucleic-acid-calculator/clipboard.mjs','tools/nucleic-acid-calculator/vectors.mjs']){
  const text=await readFile(resolve(dist,path),'utf8');
  assert(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage|innerHTML|document\.write|console\.log|console\.debug|postMessage|<iframe\b/.test(text),'Nucleic local-only safe DOM');

@@ -1,6 +1,6 @@
 import {q,mul,div,add,sub,pow,decimal,positive} from './math.mjs';
 export {format} from './math.mjs';
-export const VERSION='0.2.0';
+export const VERSION='0.2.1';
 export const NA=q(602214076000000000000000n);
 export const TYPES=['dsDNA','ssDNA','ssRNA','Plasmid'];
 export const MOLAR_UNITS=['M','mM','µM','nM','pM','fM'];
@@ -23,7 +23,7 @@ export function parseSequence(raw,type){
  let header='',s='',seen=false,record=false;
  for(const line of text.split(/\r\n|\n|\r/)){
   const trimmed=line.replace(/^[ \t\f\v]+|[ \t\f\v]+$/g,'');if(!trimmed)continue;
-  if(trimmed.startsWith('>')){if(record||seen)throw Error('한 분자의 서열만 입력하세요. 여러 FASTA 기록은 합치지 않습니다.');record=true;header=trimmed.slice(1);continue;}
+  if(trimmed.startsWith('>')){if(record||seen)throw Error('한 분자의 서열만 입력하세요. 여러 FASTA 기록은 합치지 않습니다.');record=true;header=trimmed.slice(1);if(!header.trim())throw Error('FASTA 이름이 비어 있습니다. > 뒤에 이름을 입력하거나, 일반 서열만 입력하세요.');continue;}
   seen=true;s+=line.replace(/[ \t\f\v]/g,'');
  }
  if(!s)throw Error('계산할 서열이 없습니다.');if(s.length>200000)throw Error('계산 서열은 최대 200,000 nt/bp입니다.');

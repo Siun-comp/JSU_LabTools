@@ -1,0 +1,68 @@
+{
+  "version": "0.1.0",
+  "checked": "2026-10-03",
+  "sourceUrl": "https://www.bionicsro.co.kr/contents/serviceGeneSynthesis?m=tab4",
+  "records": [
+    {
+      "id": "bionics-1",
+      "length": 2961,
+      "sequenceHash": "51c69da0767a088bfd632bfe0f707fbb33c730bd26d502efcbb5f5cc42e06413",
+      "ambiguous": [],
+      "independentCircularMW": "914797381181/500000"
+    },
+    {
+      "id": "bionics-2",
+      "length": 5432,
+      "sequenceHash": "4e4065b77eb787f4d6cf6093fc161642b34e28a7bdca55cccb40af4e429207d9",
+      "ambiguous": [
+        {
+          "position": 1826,
+          "base": "S"
+        }
+      ],
+      "independentCircularMW": null
+    },
+    {
+      "id": "bionics-3",
+      "length": 5443,
+      "sequenceHash": "8e328c762e3dc234a0a5322bf4901d3cb05b14972e1f7e996bc8be6ee2483bc9",
+      "ambiguous": [],
+      "independentCircularMW": "1681679608033/500000"
+    },
+    {
+      "id": "bionics-4",
+      "length": 5368,
+      "sequenceHash": "7181e3928c1c44aa04f4119a2b564a5e00891fa194400ad3ed69b9016c9fca70",
+      "ambiguous": [],
+      "independentCircularMW": "414625233717/125000"
+    },
+    {
+      "id": "bionics-5",
+      "length": 4818,
+      "sequenceHash": "9348a0aed5996ac3590f648d6d766355fec23703646b41d7a5643ccb1171a15d",
+      "ambiguous": [],
+      "independentCircularMW": "186056833681/62500"
+    },
+    {
+      "id": "bionics-6",
+      "length": 2710,
+      "sequenceHash": "3ee8c04a82fa801b4ce9b17b434208301c1b59091f7425299930f2ea96d7734f",
+      "ambiguous": [],
+      "independentCircularMW": "83725542053/50000"
+    },
+    {
+      "id": "bionics-7",
+      "length": 2710,
+      "sequenceHash": "3ee8c04a82fa801b4ce9b17b434208301c1b59091f7425299930f2ea96d7734f",
+      "ambiguous": [],
+      "independentCircularMW": "83725542053/50000"
+    },
+    {
+      "id": "bionics-8",
+      "length": 3067,
+      "sequenceHash": "02341f6a0ee8c856d50a125672c8cac670641dff3dffe7888bdf7c6fee97f395",
+      "ambiguous": [],
+      "independentCircularMW": "947528953017/500000"
+    }
+  ]
+}

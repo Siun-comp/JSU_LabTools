@@ -31,7 +31,7 @@ jobs:
         run: node scripts/check-public-history.mjs
       - name: Build complete public artifact
         run: node scripts/build.mjs
-      - name: Oligo and Sequence synthetic regression
+      - name: Oligo, Sequence and Nucleic synthetic regression
         run: node scripts/regression.mjs
       - name: Verify artifact
         run: node scripts/verify.mjs

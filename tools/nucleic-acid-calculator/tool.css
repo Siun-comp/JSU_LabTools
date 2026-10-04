@@ -6,3 +6,6 @@
 
 /* Sentence breaks apply to explanations only; inputs and result values stay intact. */
 .nucleic-main p{white-space:pre-line}
+
+/* Keep the complete fixed formula and terminal condition readable on desktop. */
+#average-fields>.paired{grid-template-columns:130px minmax(0,1fr)}
