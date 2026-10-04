@@ -1,0 +1,717 @@
+{
+  "provenance": "AP78 independent analytic synthetic fixtures; no company data or standard transcription",
+  "tolerances": {
+    "analyticScalarRelativeToMax1": 0.000001,
+    "analyticProbabilityAbsolute": 1e-8,
+    "cpClosedAbsolute": 2e-15,
+    "cpClosedRelative": 1e-10,
+    "cpTailAbsolute": 5e-12
+  },
+  "lod": [
+    {
+      "name": "analytic-A",
+      "query": {
+        "c": [
+          0.022654077037956914,
+          0.14400539621798505,
+          1,
+          6.9441842199182044,
+          44.1421647116542
+        ],
+        "k": [
+          1,
+          4,
+          10,
+          16,
+          19
+        ],
+        "n": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "target": 0.9
+      },
+      "expected": {
+        "status": "candidate",
+        "ciStatus": "calculated",
+        "coefficients": [
+          0,
+          1
+        ],
+        "modelDoseCandidate": 19.122803639262035,
+        "ci": {
+          "logEstimate": 1.2815515655446008,
+          "logSE": 0.25944765185937085,
+          "logLower": 0.7730435120267477,
+          "logUpper": 1.790059619062454,
+          "lower": 5.929847328297536,
+          "upper": 61.66796525784431
+        },
+        "fittedProbability": [
+          0.05,
+          0.2,
+          0.5,
+          0.8,
+          0.95
+        ],
+        "residualDF": 3,
+        "reportableLoD": null
+      },
+      "reference": "analytic-score-zero + Fisher-information 2x2 inverse + delta/Wald; Python NormalDist, no fitted reference"
+    },
+    {
+      "name": "analytic-B",
+      "query": {
+        "c": [
+          0.00370623511341686,
+          0.03740877251513782,
+          0.4216965034285823,
+          4.753642770073055,
+          47.98075015806219
+        ],
+        "k": [
+          5,
+          20,
+          50,
+          80,
+          95
+        ],
+        "n": [
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "target": 0.9
+      },
+      "expected": {
+        "status": "candidate",
+        "ciStatus": "calculated",
+        "coefficients": [
+          0.3,
+          0.8
+        ],
+        "modelDoseCandidate": 16.863179268924316,
+        "ci": {
+          "logEstimate": 1.2269394569307508,
+          "logSE": 0.14503564654006323,
+          "logLower": 0.9426748132377456,
+          "logUpper": 1.511204100623756,
+          "lower": 8.76344394857986,
+          "upper": 32.4492079511687
+        },
+        "fittedProbability": [
+          0.05,
+          0.2,
+          0.5,
+          0.8,
+          0.95
+        ],
+        "residualDF": 3,
+        "reportableLoD": null
+      },
+      "reference": "analytic-score-zero + Fisher-information 2x2 inverse + delta/Wald; Python NormalDist, no fitted reference"
+    },
+    {
+      "name": "scale-x1000",
+      "query": {
+        "c": [
+          22.654077037956913,
+          144.00539621798507,
+          1000,
+          6944.184219918205,
+          44142.1647116542
+        ],
+        "k": [
+          1,
+          4,
+          10,
+          16,
+          19
+        ],
+        "n": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "target": 0.9
+      },
+      "expected": {
+        "status": "candidate",
+        "ciStatus": "calculated",
+        "coefficients": [
+          -3,
+          1
+        ],
+        "modelDoseCandidate": 19122.803639262034,
+        "ci": {
+          "logEstimate": 4.281551565544601,
+          "logSE": 0.25944765185937063,
+          "logLower": 3.773043512026748,
+          "logUpper": 4.790059619062453,
+          "lower": 5929.847328297541,
+          "upper": 61667.96525784418
+        },
+        "fittedProbability": [
+          0.05,
+          0.2,
+          0.5,
+          0.8,
+          0.95
+        ],
+        "residualDF": 3,
+        "reportableLoD": null
+      },
+      "reference": "analytic-score-zero + Fisher-information 2x2 inverse + delta/Wald; Python NormalDist, no fitted reference"
+    },
+    {
+      "name": "row-reverse",
+      "query": {
+        "c": [
+          44.1421647116542,
+          6.9441842199182044,
+          1,
+          0.14400539621798505,
+          0.022654077037956914
+        ],
+        "k": [
+          19,
+          16,
+          10,
+          4,
+          1
+        ],
+        "n": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "target": 0.9
+      },
+      "expected": {
+        "status": "candidate",
+        "ciStatus": "calculated",
+        "coefficients": [
+          0,
+          1
+        ],
+        "modelDoseCandidate": 19.122803639262035,
+        "ci": {
+          "logEstimate": 1.2815515655446008,
+          "logSE": 0.25944765185937085,
+          "logLower": 0.7730435120267477,
+          "logUpper": 1.790059619062454,
+          "lower": 5.929847328297536,
+          "upper": 61.66796525784431
+        },
+        "fittedProbability": [
+          0.95,
+          0.8,
+          0.5,
+          0.2,
+          0.05
+        ],
+        "residualDF": 3,
+        "reportableLoD": null
+      },
+      "reference": "analytic-score-zero + Fisher-information 2x2 inverse + delta/Wald; Python NormalDist, no fitted reference"
+    },
+    {
+      "name": "target-50",
+      "query": {
+        "c": [
+          0.022654077037956914,
+          0.14400539621798505,
+          1,
+          6.9441842199182044,
+          44.1421647116542
+        ],
+        "k": [
+          1,
+          4,
+          10,
+          16,
+          19
+        ],
+        "n": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "target": 0.5
+      },
+      "expected": {
+        "status": "candidate",
+        "ciStatus": "calculated",
+        "coefficients": [
+          0,
+          1
+        ],
+        "modelDoseCandidate": 1,
+        "ci": {
+          "logEstimate": 0,
+          "logSE": 0.15563470952753616,
+          "logLower": -0.3050384254183236,
+          "logUpper": 0.3050384254183236,
+          "lower": 0.4954063564033796,
+          "upper": 2.0185449521882197
+        },
+        "fittedProbability": [
+          0.05,
+          0.2,
+          0.5,
+          0.8,
+          0.95
+        ],
+        "residualDF": 3,
+        "reportableLoD": null
+      },
+      "reference": "analytic-score-zero + Fisher-information 2x2 inverse + delta/Wald; Python NormalDist, no fitted reference"
+    },
+    {
+      "name": "point-extrapolation",
+      "query": {
+        "c": [
+          0.022654077037956914,
+          0.14400539621798505,
+          1,
+          6.9441842199182044,
+          44.1421647116542
+        ],
+        "k": [
+          1,
+          4,
+          10,
+          16,
+          19
+        ],
+        "n": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "target": 0.999
+      },
+      "expected": {
+        "status": "candidate",
+        "ciStatus": "held",
+        "reasons": [
+          "POINT_EXTRAPOLATED"
+        ]
+      },
+      "reference": "fixed support policy; not numeric parity"
+    },
+    {
+      "name": "two-level-no-df",
+      "query": {
+        "c": [
+          0.14400539621798505,
+          6.9441842199182044
+        ],
+        "k": [
+          1,
+          4
+        ],
+        "n": [
+          5,
+          5
+        ],
+        "target": 0.5
+      },
+      "expected": {
+        "status": "candidate",
+        "ciStatus": "held",
+        "reasons": [
+          "NO_RESIDUAL_DF"
+        ]
+      },
+      "reference": "fixed support policy"
+    },
+    {
+      "name": "all-negative",
+      "query": {
+        "c": [
+          0.022654077037956914,
+          0.14400539621798505,
+          1,
+          6.9441842199182044,
+          44.1421647116542
+        ],
+        "k": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "n": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "target": 0.9
+      },
+      "expected": {
+        "status": "all_one_outcome",
+        "ciStatus": "not_available"
+      },
+      "reference": "fixed response contract"
+    },
+    {
+      "name": "all-positive",
+      "query": {
+        "c": [
+          0.022654077037956914,
+          0.14400539621798505,
+          1,
+          6.9441842199182044,
+          44.1421647116542
+        ],
+        "k": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "n": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "target": 0.9
+      },
+      "expected": {
+        "status": "all_one_outcome",
+        "ciStatus": "not_available"
+      },
+      "reference": "fixed response contract"
+    },
+    {
+      "name": "negative-slope",
+      "query": {
+        "c": [
+          0.022654077037956914,
+          0.14400539621798505,
+          1,
+          6.9441842199182044,
+          44.1421647116542
+        ],
+        "k": [
+          19,
+          16,
+          10,
+          4,
+          1
+        ],
+        "n": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "target": 0.9
+      },
+      "expected": {
+        "status": "nonpositive_slope",
+        "ciStatus": "not_available"
+      },
+      "reference": "fixed response contract"
+    },
+    {
+      "name": "perfect-separation",
+      "query": {
+        "c": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "k": [
+          0,
+          0,
+          20,
+          20
+        ],
+        "n": [
+          20,
+          20,
+          20,
+          20
+        ],
+        "target": 0.95
+      },
+      "expected": {
+        "status": "separation",
+        "ciStatus": "not_available"
+      },
+      "reference": "fixed response contract"
+    }
+  ],
+  "lod95": {
+    "name": "analytic-target95",
+    "query": {
+      "c": [
+        0.0033595425033871446,
+        0.01920861137434531,
+        1.2915496650148839,
+        86.84128720662969,
+        496.52610006221187
+      ],
+      "k": [
+        1,
+        5,
+        50,
+        95,
+        99
+      ],
+      "n": [
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "target": 0.95
+    },
+    "expected": {
+      "coefficients": [
+        -0.1,
+        0.9
+      ],
+      "modelDoseCandidate": 86.84128720662969,
+      "ci": {
+        "logEstimate": 1.9387262521683017,
+        "logSE": 0.16386644873742715,
+        "logLower": 1.6175539143684656,
+        "logUpper": 2.259898589968138,
+        "lower": 41.45280413585342,
+        "upper": 181.92759985522
+      },
+      "fittedProbability": [
+        0.01,
+        0.05,
+        0.5,
+        0.95,
+        0.99
+      ]
+    }
+  },
+  "cp": [
+    {
+      "n": 1,
+      "k": 0,
+      "closedLower": "0",
+      "closedUpper": "0.975000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "n": 1,
+      "k": 1,
+      "closedLower": "0.0249999999999999999999999999999999999999999999999999999999999",
+      "closedUpper": "1"
+    },
+    {
+      "n": 20,
+      "k": 0,
+      "closedLower": "0",
+      "closedUpper": "0.168433470983085337064446948756148255996429991888017308606984"
+    },
+    {
+      "n": 20,
+      "k": 1,
+      "closedLower": null,
+      "closedUpper": null
+    },
+    {
+      "n": 20,
+      "k": 10,
+      "closedLower": null,
+      "closedUpper": null
+    },
+    {
+      "n": 20,
+      "k": 19,
+      "closedLower": null,
+      "closedUpper": null
+    },
+    {
+      "n": 20,
+      "k": 20,
+      "closedLower": "0.831566529016914662935553051243851744003570008111982691393016",
+      "closedUpper": "1"
+    },
+    {
+      "n": 60,
+      "k": 0,
+      "closedLower": "0",
+      "closedUpper": "0.059629492286166926611161037974287406117295135753181498956923"
+    },
+    {
+      "n": 60,
+      "k": 1,
+      "closedLower": null,
+      "closedUpper": null
+    },
+    {
+      "n": 60,
+      "k": 30,
+      "closedLower": null,
+      "closedUpper": null
+    },
+    {
+      "n": 60,
+      "k": 59,
+      "closedLower": null,
+      "closedUpper": null
+    },
+    {
+      "n": 60,
+      "k": 60,
+      "closedLower": "0.940370507713833073388838962025712593882704864246818501043077",
+      "closedUpper": "1"
+    },
+    {
+      "n": 100,
+      "k": 0,
+      "closedLower": "0",
+      "closedUpper": "0.036216692645176418826510913026877709343215588351173353180126"
+    },
+    {
+      "n": 100,
+      "k": 1,
+      "closedLower": null,
+      "closedUpper": null
+    },
+    {
+      "n": 100,
+      "k": 50,
+      "closedLower": null,
+      "closedUpper": null
+    },
+    {
+      "n": 100,
+      "k": 99,
+      "closedLower": null,
+      "closedUpper": null
+    },
+    {
+      "n": 100,
+      "k": 100,
+      "closedLower": "0.963783307354823581173489086973122290656784411648826646819874",
+      "closedUpper": "1"
+    },
+    {
+      "n": 1000,
+      "k": 0,
+      "closedLower": "0",
+      "closedUpper": "0.003682083896865672086051228536664170199003826945447448947266"
+    },
+    {
+      "n": 1000,
+      "k": 1000,
+      "closedLower": "0.996317916103134327913948771463335829800996173054552551052734",
+      "closedUpper": "1"
+    },
+    {
+      "n": 1000000000,
+      "k": 0,
+      "closedLower": "0",
+      "closedUpper": "3.688879447310020497726764429192010678251005009947452E-9"
+    },
+    {
+      "n": 1000000000,
+      "k": 1000000000,
+      "closedLower": "0.999999996311120552689979502273235570807989321748994990052548",
+      "closedUpper": "1"
+    }
+  ],
+  "cpQuery": {
+    "c": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "k": [
+      0,
+      1,
+      0,
+      1,
+      10,
+      19,
+      20,
+      0,
+      1,
+      30,
+      59,
+      60,
+      0,
+      1,
+      50,
+      99,
+      100,
+      0,
+      1000,
+      0,
+      1000000000
+    ],
+    "n": [
+      1,
+      1,
+      20,
+      20,
+      20,
+      20,
+      20,
+      60,
+      60,
+      60,
+      60,
+      60,
+      100,
+      100,
+      100,
+      100,
+      100,
+      1000,
+      1000,
+      1000000000,
+      1000000000
+    ],
+    "criterion": 0.95
+  }
+}

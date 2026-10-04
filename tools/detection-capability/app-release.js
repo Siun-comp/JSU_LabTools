@@ -1,7 +1,7 @@
 (function(root){
  'use strict';
  // Single source for the displayed application release. Newest release first.
- const releases=[{version:'0.9.1-beta.2',date:'2026-10-04',status:'입력 보완 베타 · 사용 검토용',changes:['입력/확인/계산 버튼 순서, 행 번호와 값 개수, 문제 칸 표시를 보완했습니다.','LoQ 검체별 붙여넣기·접기·삭제 확인과 원값 표 미리보기를 추가했습니다.'],calculationImpact:'통계 R·모형·CI·계산식과 v3/작업 JSON/결과서 형식은 유지합니다. 입력 표시와 관리 동작을 보완했습니다.',limitations:'입력 편의 보완을 반영한 사용 검토용 베타입니다. 회사 시험의 적용 기준·최종 보고는 내부에서 확인합니다.'},{version:'0.9.1-beta.1',date:'2026-10-04',status:'포털 파생 베타 · 사용 검토용',changes:[
+ const releases=[{version:'0.9.1-beta.3',date:'2026-10-04',status:'진단 보완 베타 · 사용 검토용',changes:['동일 LoD 적합의 Pearson/Deviance 근사 p값과 Pearson/자유도, 기대수·자유도 주의사항을 추가했습니다.','LoB 현재 지원 α와 검출률 확인·Westgard TE 이름을 명확히 했습니다.','합성 입력·출력 계약 및 실제 webR 수치 회귀를 게시 CI에 연결했습니다.'],calculationImpact:'기존 Probit 적합·후보값·CI(분산계수 1)는 유지합니다. 적합도 진단 R 계산·결과/출력 필드를 추가하며 v3 입력/작업 JSON 입력 형식은 유지합니다.',limitations:'p값은 카이제곱 근사 검토용입니다. 자동 적합 판정·CI 보정 또는 허가 적합성 승인이 아닙니다.'},{version:'0.9.1-beta.2',date:'2026-10-04',status:'입력 보완 베타 · 사용 검토용',changes:['입력/확인/계산 버튼 순서, 행 번호와 값 개수, 문제 칸 표시를 보완했습니다.','LoQ 검체별 붙여넣기·접기·삭제 확인과 원값 표 미리보기를 추가했습니다.'],calculationImpact:'통계 R·모형·CI·계산식과 v3/작업 JSON/결과서 형식은 유지합니다. 입력 표시와 관리 동작을 보완했습니다.',limitations:'입력 편의 보완을 반영한 사용 검토용 베타입니다. 회사 시험의 적용 기준·최종 보고는 내부에서 확인합니다.'},{version:'0.9.1-beta.1',date:'2026-10-04',status:'포털 파생 베타 · 사용 검토용',changes:[
   'JSU LabTools의 공통 테마와 독립 새 탭 실행을 적용한 포털 파생판입니다.',
   '원 프로그램 v0.9.0-beta.6의 계산 기반과 webR/R 버전을 유지했습니다.',
   '동일 농도 중복 위치 안내·누락값 검사와 입력 원문 보존을 포함합니다.',

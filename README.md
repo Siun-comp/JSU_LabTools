@@ -1,6 +1,6 @@
 # JSU LabTools
 
-분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.1.2.
+분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.1.3.
 
 | 도구 | 도구 버전 / 계산 식별 |
 |---|---|
@@ -8,7 +8,7 @@
 | Sequence | 1.0.1 / 알고리즘 0.2.2 |
 | 희석·시약 조제 | 1.0.0 / 알고리즘 0.3.0 |
 | 핵산 농도·Copy 수 | 1.0.1 / 알고리즘 0.2.1 |
-| LoB·LoD·LoQ | 파생 베타 0.9.1-beta.2 / 원 계산 기준 프로그램 0.9.0-beta.6 |
+| LoB·LoD·LoQ | 파생 베타 0.9.1-beta.3 / 원 계산 기준 프로그램 0.9.0-beta.6 |
 
 IsoAmplar Plot Analysis T는 기존 웹툴을 독립 새 탭에서 실행합니다.
 Amplification Analysis는 준비중입니다.
@@ -37,6 +37,11 @@ node scripts/regression.mjs
 
 GitHub Actions가 main의 변경 또는 수동 실행 시 이전 게시 목록 보존과 전체 산출물을 검사하고 게시합니다.
 
-입력 보완 베타 v0.9.1-beta.2 / 화면 v0.2.0. 행 간격·번호/오류 안내와 LoQ 검체 관리를 보완했습니다.
+입력 보완 베타 v0.9.1-beta.3 / 화면 v0.2.0. 행 간격·번호/오류 안내와 LoQ 검체 관리를 보완했습니다.
 
 핵산 MW 기준 안내·Thermo 메뉴·FASTA 입력 보완판입니다. GitHub Actions는 게시 전에 Oligo·Sequence·핵산의 12개 합성 회귀 시험 모듈을 실행합니다. tests는 저장소 소스에만 포함하며 Pages 산출물에 포함하지 않습니다.
+
+## LoBDQ 진단 보완 beta.3
+동일 Probit 적합의 Pearson/Deviance 카이제곱 상측 꼬리 근사 p값·Pearson/자유도 및 기대수 주의를 제공합니다. 기존 적합/후보값/CI dispersion=1 유지, 자동 적합 판정/CI 보정 없음입니다. LoB 지원 α5%·LoD 검출률 확인·LoQ Westgard TE 이름을 명확히 했습니다.
+
+Pages CI는 14개 순수 합성 회귀 모듈과 별도의 실제 webR0.6.0/R4.6.0/MASS7.3.65 수치 회귀(LoD13/CP21/LoQ4)를 실행합니다. 시험 소스/합성 fixture는 GitHub에 있으나 Pages에는 게시하지 않습니다. 회사자료/표준 원문 전체 전사/임시 테스트 런타임은 제외합니다. 테스트용 공식 고정 npm 아카이브는 무결성을 확인하며, 앱의 런타임은 기존 공식 CDN에서 내려받습니다.

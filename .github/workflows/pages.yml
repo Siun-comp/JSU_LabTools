@@ -31,8 +31,11 @@ jobs:
         run: node scripts/check-public-history.mjs
       - name: Build complete public artifact
         run: node scripts/build.mjs
-      - name: Oligo, Sequence and Nucleic synthetic regression
+      - name: Pure synthetic input/output regression
         run: node scripts/regression.mjs
+      - name: LoBDQ actual webR numerical regression
+        timeout-minutes: 10
+        run: node scripts/lobdq-webr-regression.mjs
       - name: Verify artifact
         run: node scripts/verify.mjs
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4

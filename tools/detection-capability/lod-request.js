@@ -32,7 +32,7 @@ window.LoDRequest=(()=>{
   box.append(make('p',result.status==='input_blocked'?'계산 요청 차단 · 입력 보완 필요':result.execution?'계산 완료':result.pending?(result.progress||'계산 준비 중…'):'입력 대응 완료 · 브라우저 후보값 계산 가능'));
   for(const e of [...result.errors,...result.warnings])box.append(make('p',e));
   box.append(make('p',`${result.input.data.dataKind?('자료: '+result.input.data.dataKind+' · '):''}단위: ${result.input.data.unit||'미기재'}`));
-  if(result.observations.length){const wrap=make('div','');wrap.className='scroll';const table=make('table','');table.setAttribute('aria-label','LoD 농도별 관측 결과');const head=make('thead',''),tr=make('tr','');for(const h of ['농도','N','양성','관측률 (%)']){const th=make('th',h);th.scope='col';tr.append(th);}head.append(tr);table.append(head);const body=make('tbody','');for(const r of result.observations){const tr=make('tr','');for(const v of [r.concentration,r.n,r.positive,(r.observedRate*100).toFixed(2)])tr.append(make('td',String(v)));body.append(tr);}table.append(body);wrap.append(table);box.append(wrap);}
+  if(result.observations.length){const wrap=make('div','');wrap.className='scroll';const table=make('table','');table.setAttribute('aria-label','LoD 농도별 관측 결과');const head=make('thead',''),tr=make('tr','');for(const h of ['번호','농도','N','양성','관측률 (%)']){const th=make('th',h);th.scope='col';tr.append(th);}head.append(tr);table.append(head);const body=make('tbody','');for(const [i,r] of result.observations.entries()){const tr=make('tr','');for(const v of [i+1,r.concentration,r.n,r.positive,(r.observedRate*100).toFixed(2)])tr.append(make('td',String(v)));body.append(tr);}table.append(body);wrap.append(table);box.append(wrap);}
   box.append(make('p',`목표 검출확률: ${result.input.raw.setting||'미기재'}%`));
 
   if(result.executionError){const e=make('p',result.executionError);e.setAttribute('role','alert');box.append(e);}
@@ -46,10 +46,20 @@ window.LoDRequest=(()=>{
 
     const notes={EXTRAPOLATED:'시험 농도 범위 밖 후보값(외삽)입니다.',NO_RESIDUAL_DF:'잔차 자유도가 없어 적합도를 평가할 수 없습니다.',R_WARNING:'R 경고가 발생했습니다. 결과 검토가 필요합니다.',R_STDERR:'실행 환경 메시지가 발생했습니다. 환경 검토가 필요합니다.'};
     for(const code of e.diagnostics)box.append(make('p',notes[code]||code));
+    const g=e.gof;box.append(make('h3','적합도 진단 · 검토 필요'));
+    const fmt=v=>v===null?'미제공':v===0?'0':v<0.001?v.toExponential(2):v.toPrecision(5);
+    box.append(make('p',g.status==='calculated'?'Pearson 근사 p값: '+fmt(g.pearsonP)+' · Deviance 근사 p값: '+fmt(g.devianceP)+' · Pearson/자유도: '+fmt(g.pearsonPerDF):'잔차 자유도가 없어 p값과 Pearson/자유도를 제공하지 않습니다.'));
+    box.append(make('p','카이제곱 상측 꼬리 근사입니다. p값만으로 적합·부적합 또는 최종 LoD를 자동 판정하지 않습니다.'));
+    box.append(make('p','최소 기대 양성: '+fmt(g.minExpectedPositive)+' · 최소 기대 음성: '+fmt(g.minExpectedNegative)));
+    if(g.smallExpectedRows.length)box.append(make('p','기대 양성 또는 음성이 5 미만인 관측 결과 표 번호: '+g.smallExpectedRows.join(', ')+'번. 카이제곱 근사가 부정확할 수 있어 해석을 검토하세요. 5는 참고값이며 시험설계·허가 충족 기준이 아닙니다.'));
+    box.append(make('p','Pearson/자유도는 진단값입니다. 현재 CI의 분산계수 1을 자동 보정하지 않습니다.'));
+    if(g.warnings.includes('DEVIANCE_ROUNDOFF'))box.append(make('p','Deviance가 부동소수점 오차 수준의 작은 음수입니다. 원값을 유지하며 R 상측 꼬리 p값을 표시합니다.'));
+    if(g.warnings.includes('EXECUTION_WARNING'))box.append(make('p','실행 경고가 있어 진단값의 해석도 검토해야 합니다.'));
     const more=make('details','');more.append(make('summary','모형 진단·계산 버전'));more.append(make('p',`수렴: 확인 · 잔차 자유도: ${e.residualDF} · Deviance: ${e.deviance.toPrecision(5)} · Pearson: ${e.pearson.toPrecision(5)}`));
     more.append(make('p',`브라우저 webR ${e.method.webRVersion} · R ${e.method.rVersion} · stats ${e.method.statsVersion} · MASS ${e.method.massVersion} · 프로그램 ${e.method.applicationVersion}`));
     more.append(make('p',`wrapper ${e.method.wrapperVersion} · ${e.method.link}/${e.method.scale} · 목표 ${e.method.target}`));
     for(const [label,value]of [['CI 방법',e.ci.method.id],['CI 근거',e.ci.method.source],['CI 방법 버전',e.ci.method.version],['신뢰수준',e.ci.confidence],['log10 추정값',e.ci.logEstimate],['log10 표준오차',e.ci.logSE],['log10 하한',e.ci.logLower],['log10 상한',e.ci.logUpper]])more.append(make('p',`${label}: ${value??'미제공'}`));
+    more.append(make('p','적합도 방법 '+g.method.id+' · 버전 '+g.method.version+' · R 원본 SHA-256 '+e.method.sourceSHA256));
     more.append(make('p',`절편: ${e.coefficients[0]} · 기울기: ${e.coefficients[1]} · 반복: ${e.iterations}`));
     const t=make('table','');t.setAttribute('aria-label','LoD 모형 진단');const h=make('tr','');for(const title of ['농도','적합률 (%)','기대 양성','기대 음성'])h.append(make('th',title));const thead=make('thead','');thead.append(h);t.append(thead);const tbody=make('tbody','');result.observations.forEach((r,i)=>{const tr=make('tr','');for(const v of [r.concentration,e.fittedProbability[i]*100,e.expectedPositive[i],e.expectedNegative[i]])tr.append(make('td',Number(v).toPrecision(5)));tbody.append(tr);});t.append(tbody);const wrap=make('div','');wrap.className='scroll';wrap.append(t);more.append(wrap);box.append(more);
    }
@@ -67,10 +77,11 @@ window.LoDRequest=(()=>{
   const id=serial,fp=fingerprint,q=result.request;controller=new AbortController();const signal=controller.signal;run.disabled=true;stop.hidden=false;result.pending=true;draw();
   try{const e=await BrowserLoD.run(q,{signal,onProgress:text=>{if(id===serial&&current()===fp){result.progress=text;draw();}}});
    if(id!==serial||current()!==fp)return;
-   if(e.version!=='lod-point-2'||e.reportableLoD!==null||e.fitAssessment!=='review_required'||!Array.isArray(e.diagnostics))throw Error('invalid_response');
+   if(e.version!=='lod-point-3'||e.reportableLoD!==null||e.fitAssessment!=='review_required'||!Array.isArray(e.diagnostics))throw Error('invalid_response');
    if(e.status==='candidate'&&(!(e.modelDoseCandidate>0)||!Number.isFinite(e.modelDoseCandidate)||!e.method||e.method.target!==result.request.target||!['deviance','pearson','residualDF','iterations'].every(k=>Number.isFinite(e[k]))||!['fittedProbability','expectedPositive','expectedNegative'].every(k=>Array.isArray(e[k])&&e[k].length===result.observations.length&&e[k].every(Number.isFinite))||!Array.isArray(e.coefficients)||e.coefficients.length!==2||!e.coefficients.every(Number.isFinite)))throw Error('invalid_response');
    if(!LoDCIContract.valid(e.ci,e,result.request.c))throw Error('invalid_response');
    if(e.curve!==undefined&&e.curve!==null&&!LoDCurveContract.valid(e.curve,result.request.c))throw Error('invalid_response');
+   if(!LoDGOFContract.valid(e.gof,e,q))throw Error('invalid_response');
    result.execution=e;p.querySelector('.input-feedback').textContent='브라우저 R 계산 완료 · 최종 LoD 미확정';
   }catch(e){if(id===serial&&current()===fp){const messages={input_blocked:'계산 입력 범위를 확인하세요(N은 행당 최대 10억).',busy:'다른 계산이 실행 중입니다. 잠시 후 다시 실행하세요.',invalid_response:'계산 응답을 검증하지 못했습니다.',runtime_version_mismatch:'검증한 계산 환경 버전과 달라 계산을 차단했습니다.',startup_timeout:'계산 환경 준비 제한시간(60초)을 초과했습니다. 네트워크 연결을 확인하고 다시 실행하세요.',calculation_timeout:'계산 제한시간(20초)을 초과했습니다. 다시 실행하세요.',aborted:'계산을 취소했습니다.'};result.executionError=messages[e.message]||'브라우저 계산 환경을 준비하거나 실행하지 못했습니다. 네트워크 연결을 확인하고 다시 실행하세요.';}}
   finally{if(id===serial){result.pending=false;controller=null;run.disabled=!available;stop.hidden=true;draw();}}

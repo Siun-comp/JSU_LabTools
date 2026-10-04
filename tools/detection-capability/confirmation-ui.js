@@ -14,7 +14,7 @@ window.ConfirmationResults=(()=>{
  }
  function draw(){document.dispatchEvent(new Event('analysis-result-change'));const active=document.querySelector('nav [aria-pressed="true"]').dataset.module==='confirmation';box.hidden=!active||!result;empty.hidden=[...aside.querySelectorAll('[data-analysis-result]')].some(e=>!e.hidden);if(box.hidden)return;
   box.replaceChildren();if(current()!==fingerprint){box.append(make('h3','입력 변경 · 다시 계산 필요'),make('p','이전 관측률·신뢰구간·기준 판정은 숨겼습니다.'));return;}
-  box.append(make('h3','개발 LoD confirmation'));
+  box.append(make('h3','LoD 검출률 확인'));
   for(const t of [...result.errors,...result.input.warnings])box.append(make('p',t));
   if(result.pending)box.append(make('p',result.progress||'브라우저 신뢰구간 계산 중…'));
   if(result.error){const e=make('p',result.error);e.setAttribute('role','alert');box.append(e);}
