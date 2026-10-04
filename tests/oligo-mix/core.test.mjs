@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import {calculate,adjusted,checkPipette,format} from '../../tools/oligo-mix/core.mjs';
+const base={reaction:'25',mix:'5',count:'10',rows:[{name:'Synthetic A',target:'0.2',stock:'10'},{name:'Synthetic B',target:'0.1',stock:'10'}]};
+const close=(a,b)=>assert(Math.abs(a-b)<=Math.max(1e-14,Math.abs(b)*2e-15),`${a} vs ${b}`);
+const r=calculate(base);
+assert.deepEqual(r.rows.map(x=>[x.perReaction,x.batch,x.mixConcentration]),[[.5,5,1],[.25,2.5,.5]]);
+assert.equal(r.te,4.25);assert.equal(r.batchTE,42.5);assert.equal(r.total,50);
+assert.equal(calculate({...base,count:'20'}).batchTE,85);
+assert.equal(calculate({...base,rows:[{name:'A',target:'2',stock:'10'}]}).te,0);
+assert.throws(()=>calculate({...base,rows:[{name:'A',target:'2.1',stock:'10'}]}),/0.25/);
+// Exact decimal boundary, including a shortage far below display precision: no silent correction.
+assert.equal(calculate({reaction:'1',mix:'0.3',count:'1',rows:[{name:'A',target:'.1',stock:'1'},{name:'B',target:'.2',stock:'1'}]}).te,0);
+assert.throws(()=>calculate({reaction:'1',mix:'0.3',count:'1',rows:[{name:'A',target:'.10000000000000001',stock:'1'},{name:'B',target:'.2',stock:'1'}]}),/Stock 합계/);
+for(const changed of [{reaction:'0'},{mix:'26'},{count:'0'},{count:'1.5'},{count:'9007199254740992'},{reaction:'Infinity'},{mix:'NaN'},{rows:[]},{rows:[{name:'A',target:'.2',stock:'0'}]},{rows:[{name:'A',target:'',stock:'10'}]},{rows:base.rows.map(x=>({...x,enabled:false}))}])assert.throws(()=>calculate({...base,...changed}));
+assert.equal(calculate({...base,rows:[...base.rows,{name:'excluded',stock:'0',target:'',enabled:false},{name:'',target:'',stock:''}]}).total,50);
+const a=adjusted(r,['5','3'],'43');close(a.rows[0].achieved,10/51);close(a.rows[1].achieved,6/51);assert.equal(a.total,51);assert.equal(a.ready,true);
+assert.equal(adjusted(r,['5','2.5'],'41.5').shortage,1);
+assert.equal(adjusted(r,['5','2.5'],'42.5').rows[0].deviationPercent,0);
+assert.throws(()=>adjusted(r,['0','0'],'0'));
+assert.throws(()=>adjusted(r,['-1','2'],'49'));
+assert.equal(checkPipette('0.3',{step:'.1',min:'.1',max:'1'}).valid,true);
+assert.equal(checkPipette('.25',{step:'.1',min:'.1',max:'1'}).valid,false);
+assert.equal(checkPipette('2',{step:'.1',min:'.1',max:'1'}).valid,false);
+assert.equal(checkPipette('0',{step:'.1',min:'.1',max:'1'}).valid,true);
+assert.throws(()=>checkPipette('1',{step:'0',min:'.1',max:'1'}));
+assert.throws(()=>checkPipette('1',{step:'.1',min:'2',max:'1'}));
+const tiny=calculate({reaction:'1e-100',mix:'1e-100',count:'1',rows:[{name:'tiny',target:'1e-100',stock:'1'}]});assert(tiny.rows[0].perReaction>0);assert.notEqual(format(tiny.rows[0].perReaction),'0');
+assert.throws(()=>calculate({...base,reaction:'1e101'}),/지수/);
+// Fifteen unrelated denominators create a large exact denominator; conversion must remain finite.
+const many=calculate({reaction:'25',mix:'5',count:'10',rows:Array.from({length:15},(_,i)=>({name:'Synthetic '+i,target:'0.001',stock:'1234567890123456789012345678901234567'+String(i)}))});assert(Number.isFinite(many.te));
+console.log('PASS: theory, exact TE boundary/shortage, exclusions, invalid inputs, batch scaling, actual-total concentration/shortage, pipette range/grid, tiny and large-denominator values.');
+assert.throws(()=>calculate({...base,reaction:'1e100',mix:'1e100',count:'9007199254740991',rows:[{name:'Overflow',target:'1e100',stock:'1e-100'}]}),/표시 가능한/);
+assert.throws(()=>calculate({reaction:'1e-100',mix:'1e-100',count:'1',rows:[{name:'Underflow',target:'0.'+'0'.repeat(38)+'1e-100',stock:'1e100'}]}),/표시 가능한/);
+console.log('PASS: overflow/underflow rejection.');

@@ -1,4 +1,4 @@
-export const VERSION='0.2.1';
+export const VERSION='0.2.2';
 export const MAX_INPUT=1_000_000;
 export const MAX_RECORDS=1000;
 const maps={DNA:{A:'T',C:'G',G:'C',T:'A',R:'Y',Y:'R',S:'S',W:'W',K:'M',M:'K',B:'V',D:'H',H:'D',V:'B',N:'N'},RNA:{A:'U',C:'G',G:'C',U:'A',R:'Y',Y:'R',S:'S',W:'W',K:'M',M:'K',B:'V',D:'H',H:'D',V:'B',N:'N'}};
@@ -38,6 +38,7 @@ export function analyze(raw,options={}){
   result.records.push({...record,sequence,output:transform(sequence,{...options,outputMode}),length:sequence.length});
  }
  result.segments.sort((a,b)=>a.start-b.start);
+ if(fasta&&result.counts.hyphens)result.warnings.push('FASTA의 - '+result.counts.hyphens+'개를 제거합니다. 정렬 서열의 gap 정보와 정렬 위치는 보존되지 않습니다.');
  result.valid=result.errorCount===0;
  result.outputMode=outputMode;
  result.direction=Boolean(options.reverse)!==Boolean(options.complement)?'3′→5′':'5′→3′';
@@ -47,7 +48,7 @@ export function analyze(raw,options={}){
 export function position(raw,offset){let line=1,column=1;for(let i=0;i<Math.min(offset,raw.length);i++){if(raw[i]==='\r'){line++;column=1;if(raw[i+1]==='\n')i++;}else if(raw[i]==='\n'){line++;column=1;}else column++;}return {line,column};}
 export function outputText(result,{fasta=false,name='sequence_1',width=60}={}){
  if(!result.valid)throw Error('오류를 수정한 뒤 복사하세요.');
- const asFasta=fasta||result.records.length>1;
+ const asFasta=result.inputFormat==='FASTA'||fasta||result.records.length>1;
  if(!asFasta)return result.records[0].output;
  if(!Number.isInteger(width)||width<0||width>200)throw Error('FASTA 줄 길이는 0~200의 정수입니다. 0은 줄바꿈 없음입니다.');
  if(result.records.some(r=>r.header===null)&&(!name||/\s|[<>\u0000-\u001f\u007f]/.test(name)))throw Error('FASTA 이름은 공백 없는 한 줄로 입력하세요.');

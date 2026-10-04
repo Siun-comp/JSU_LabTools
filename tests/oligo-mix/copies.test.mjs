@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import {calculate,adjusted} from '../../tools/oligo-mix/core.mjs';
+import {excelClipboard} from '../../tools/oligo-mix/clipboard.mjs';
+const row={type:'Plasmid',name:'Synthetic plasmid',stock:'1000',stockUnit:'copies/µL',target:'10',targetUnit:'copies/rxn'};
+const run=(r=row,other={})=>calculate({reaction:'25',mix:'5',count:'10',rows:[r],...other});
+const close=(a,b)=>assert(Math.abs(a-b)<=Math.abs(b)*3e-15,`${a} vs ${b}`);
+const r=run();assert.equal(r.rows[0].perReaction,.01);assert.equal(r.rows[0].mixConcentration,2);assert.equal(r.rows[0].mixUnit,'copies/µL');assert.equal(r.rows[0].conversionNote,'');
+for(const [unit,value] of [['copies/mL','1e6'],['copies/L','1e9']])assert.equal(run({...row,stockUnit:unit,stock:value}).rows[0].perReaction,.01);
+assert.equal(run({...row,targetUnit:'copies/µL',target:'.4'}).rows[0].perReaction,.01);
+assert.equal(run({...row,targetUnit:'copies/mL',target:'400'}).rows[0].perReaction,.01);
+assert.equal(run({...row,targetUnit:'copies/L',target:'400000'}).rows[0].perReaction,.01);
+assert.equal(run({...row,target:'.1'}).rows[0].perReaction,.0001); // Average expected amount, no integer rounding.
+assert.equal(run(row,{reaction:'50'}).rows[0].perReaction,.01);
+assert.equal(run({...row,targetUnit:'copies/µL',target:'.4'},{reaction:'50'}).rows[0].perReaction,.02);
+const direct={...row,stock:'1',stockUnit:'ng/µL',target:'100',mwMethod:'direct',molecularWeight:'650000'};
+const mass=run(direct);close(mass.rows[0].perReaction,1.0793503936630003477e-7);
+const length=run({...direct,mwMethod:'dsdna650',lengthBp:'1000',molecularWeight:''});close(length.rows[0].perReaction,mass.rows[0].perReaction);assert(length.rows[0].conversionNote.includes('근사'));
+close(run({...row,stock:'1e9',target:'10',targetUnit:'pg/rxn',mwMethod:'direct',molecularWeight:'650000'}).rows[0].perReaction,.009264831938461538462);
+close(run({...row,stock:'1',stockUnit:'nM',target:'100'}).rows[0].perReaction,1.6605390671738466638e-7);
+assert.equal(run({...row,stock:'6.02214076e11',target:'.1',targetUnit:'µM'}).rows[0].perReaction,2.5);
+const a=adjusted(r,['.2'],'49.8');assert.equal(a.rows[0].achieved,20);assert.equal(a.rows[0].targetUnit,'copies/rxn');assert.equal(a.rows[0].deviationPercent,100);
+const clip=excelClipboard(length);assert.equal(clip.rows[3][5],'copies/rxn');assert.equal(clip.rows[3][7],'ng/µL');assert(clip.rows[0][4].includes('1000 bp × 650')&&clip.html.includes('근사'));
+for(const invalid of [{...direct,mwMethod:''},{...direct,molecularWeight:'0'},{...direct,molecularWeight:'NaN'},{...direct,mwMethod:'dsdna650',lengthBp:'0'},{...direct,mwMethod:'dsdna650',lengthBp:'10.5'},{...direct,mwMethod:'dsdna650',lengthBp:'9007199254740992'},{...row,stockUnit:'copies/rxn'},{...row,target:'0'},{...row,type:'F'}])assert.throws(()=>run(invalid));
+assert.throws(()=>run({...row,stockUnit:'ng/µL',targetUnit:'µM',mwMethod:'direct',molecularWeight:'650000'}));
+console.log('PASS: copies concentrations/amounts, fractional expectations, reaction-volume distinction, direct-MW/explicit dsDNA650 estimate, mass↔copies/mol↔copies, adjusted copies, clipboard basis/units and missing/invalid basis rejection.');

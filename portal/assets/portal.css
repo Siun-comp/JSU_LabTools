@@ -10,3 +10,5 @@ footer{max-width:1220px;margin:24px auto 0;padding:0 34px;display:flex;gap:18px;
 /* 데스크톱 확대 시 문구를 자르지 않고 줄바꿈/스크롤을 허용한다. */
 @media(max-width:900px){.masthead>p{display:none}.heading{align-items:flex-start;flex-direction:column;gap:12px}.table-wrap{overflow-x:auto;padding:8px}.table-wrap table{min-width:820px}footer{flex-direction:column;gap:6px}.facts{grid-template-columns:1fr;gap:5px}.facts dd{margin-bottom:8px}.detail-actions{align-items:flex-start;flex-direction:column}}
 
+
+.sequence-button[aria-pressed=true]{background:#eef3f8;border-color:#9bb0c4;color:#183653;}

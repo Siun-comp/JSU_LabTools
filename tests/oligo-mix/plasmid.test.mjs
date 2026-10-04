@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {calculate,adjusted} from '../../tools/oligo-mix/core.mjs';
+import {excelClipboard} from '../../tools/oligo-mix/clipboard.mjs';
+const row={type:'Plasmid',name:'Synthetic plasmid',stock:'1',stockUnit:'ng/µL',target:'10',targetUnit:'pg/rxn'};
+const run=(r=row,extra={})=>calculate({reaction:'25',mix:'5',count:'10',rows:[r],...extra});
+const close=(a,b)=>assert(Math.abs(a-b)<=Math.max(1e-20,Math.abs(b)*2e-15),`${a} vs ${b}`);
+const r=run();close(r.rows[0].perReaction,.01);close(r.rows[0].batch,.1);assert.equal(r.te,4.99);assert.equal(r.batchTE,49.9);close(r.rows[0].mixConcentration,.002);
+assert.equal(run(row,{reaction:'50'}).rows[0].perReaction,.01);
+// Independent dimensional expectations: every listed stock below equals 1 ng/µL.
+const equivalents={'g/L':'.001','g/mL':'1e-6','g/µL':'1e-9','mg/L':'1','mg/mL':'.001','mg/µL':'1e-6','µg/L':'1000','µg/mL':'1','µg/µL':'.001','ng/L':'1e6','ng/mL':'1000','ng/µL':'1','pg/L':'1e9','pg/mL':'1e6','pg/µL':'1000','fg/L':'1e12','fg/mL':'1e9','fg/µL':'1e6'};
+for(const [unit,value] of Object.entries(equivalents))close(run({...row,stockUnit:unit,stock:value}).rows[0].perReaction,.01);
+for(const [unit,value] of Object.entries({'g/rxn':'1e-11','mg/rxn':'1e-8','µg/rxn':'1e-5','ng/rxn':'.01','pg/rxn':'10','fg/rxn':'10000'}))close(run({...row,targetUnit:unit,target:value}).rows[0].perReaction,.01);
+for(const [unit,value] of Object.entries({'pg/µL':'.4','ng/mL':'.4','µg/mL':'.0004','g/mL':'4e-10','µg/L':'.4'}))close(run({...row,targetUnit:unit,target:value}).rows[0].perReaction,.01);
+close(run({...row,targetUnit:'pg/µL',target:'.4'},{reaction:'50'}).rows[0].perReaction,.02);
+const a=adjusted(r,['.2'],'49.8');close(a.rows[0].achieved,20);assert.equal(a.rows[0].targetUnit,'pg/rxn');close(a.rows[0].deviationPercent,100);
+const b=adjusted(r,['.1'],'50.9');close(b.rows[0].achieved,500/51);close(b.rows[0].deviationPercent,-100/51);
+const concentration=run({...row,targetUnit:'pg/µL',target:'.4'});close(adjusted(concentration,['.2'],'49.8').rows[0].achieved,.8);
+const mixed=run(row,{rows:[{name:'F1',stock:'10',target:'.2'},row]});close(mixed.te,4.49);assert.equal(mixed.rows[0].mixUnit,'µM');assert.equal(mixed.rows[1].mixUnit,'ng/µL');
+const clip=excelClipboard(mixed);assert.equal(clip.rows[4][4],'10');assert.equal(clip.rows[4][5],'pg/rxn');assert.equal(clip.rows[4][6],'1');assert.equal(clip.rows[4][7],'ng/µL');assert.equal(clip.rows[4][8],'0.01');assert(clip.html.includes('font-size:9pt'));
+close(run({...row,stock:'10',stockUnit:'nM',target:'.2',targetUnit:'nM'}).rows[0].perReaction,.5);
+for(const bad of [{...row,stockUnit:'µM'},{...row,targetUnit:'µM'},{...row,stockUnit:'pg/rxn'},{...row,targetUnit:'copies/rxn'},{...row,type:'F'},{...row,stock:'0'}])assert.throws(()=>run(bad));
+assert.throws(()=>run({...row,target:'6000'}),/Stock 합계/);
+console.log('PASS: 1ng/µL→10pg/rxn=.01µL, 18 mass stock units, 6 per-reaction mass units, concentration targets, rxn-volume distinction, adjusted amounts/deviation, mixed molar/mass and unit-aware clipboard, incompatible units/TE failure.');

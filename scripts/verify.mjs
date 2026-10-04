@@ -16,7 +16,7 @@ for(const path of ['index.html','info/plot.html','info/oligo-mix.html','info/seq
  const remote=[...html.matchAll(/(?:href|src)="(https?:[^" ]+)"/g)].map(m=>m[1]);
  const nucleicSources=['https://biopython.org/docs/1.88/api/Bio.SeqUtils.html','https://raw.githubusercontent.com/biopython/biopython/biopython-188/Bio/Data/IUPACData.py','https://www.neb.com/en/tools-and-resources/usage-guidelines/nucleic-acid-data','https://www.promega.com/-/media/files/resources/technical-references/nucleotides-and-nucleic-acids.pdf','https://www.bipm.org/en/si-base-units/mole','https://documents.thermofisher.com/TFS-Assets/LSG/manuals/cms_041003.pdf','https://www.bionicsro.co.kr/contents/serviceGeneSynthesis','https://www.bionicsro.co.kr/support/supportFaq','https://www.idtdna.com/pages/Support/FAQs/do-custom-oligos-come-with-5-phosphorylation-','https://www.neb.com/en/-/media/nebus/files/brochures/molcloning_tech_guide.pdf','https://www.neb.com/en-de/tools-and-resources/feature-articles/mind-your-caps-and-poly-a-tails-strategies-for-synthesizing-in-vitro-transcribed-ivt-mrna','https://www.thermofisher.com/kr/ko/home/references/ambion-tech-support/rna-tools-and-calculators/dna-and-rna-molecular-weights-and-conversions.html'];
  assert.deepEqual(remote,path==='info/nucleic-acid.html'?nucleicSources:['index.html','info/plot.html'].includes(path)?[plot]:[],'Only selected Plot or static scientific references');
- assert(html.includes('v'+manifest.version)&&html.includes(['info/nucleic-acid.html','info/oligo-mix.html','info/dilution.html','info/sequence.html'].includes(path)?'2026-10-03':'2026-10-02'),'Portal version/date');
+ assert(html.includes('v'+manifest.version)&&html.includes(['info/oligo-mix.html','info/sequence.html'].includes(path)?'2026-10-04':['info/nucleic-acid.html','info/dilution.html'].includes(path)?'2026-10-03':'2026-10-02'),'Portal version/date');
  for(const m of html.matchAll(/(?:href|src)="([^" ]+)"/g)){if(m[1].startsWith('http')||m[1].startsWith('#'))continue;await readFile(resolve(dirname(resolve(dist,path)),m[1]));}
 }
 const home=await readFile(resolve(dist,'index.html'),'utf8');
@@ -34,7 +34,7 @@ assert(home.includes('Excel 사용자 확인')&&!home.includes('Excel 확인 전
 const app=await readFile(resolve(dist,'tools/sequence/app.mjs'),'utf8');
 assert(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|localStorage|sessionStorage|innerHTML|document\.write|console\.log|postMessage/.test(app),'Browser-only safe text and no data transfer/storage');
 assert(app.includes('navigator.clipboard.writeText(value)')&&app.includes('showModal()'));
-const info=await readFile(resolve(dist,'info/sequence.html'),'utf8');assert(info.includes('v1.0.0 / v0.2.1')&&info.includes('실사용 확인 전'));
+const info=await readFile(resolve(dist,'info/sequence.html'),'utf8');assert(info.includes('v1.0.1 / v0.2.2')&&info.includes('실사용 확인 전'));
 const dilution=await readFile(resolve(dist,'tools/dilution-calculator/index.html'),'utf8');
 for(const id of ['open-preparation','preparation-dialog','prep-form','prep-mode','prep-mw','prep-concentration','prep-known','prep-output-unit','prep-result','prep-copy'])assert(dilution.includes('id="'+id+'"'),'Reagent preparation control '+id);
 assert(dilution.includes('보유 질량으로 최종 부피 구하기')&&dilution.includes('용매 첨가량 자체가 아닙니다.'),'Final solution volume distinguished');

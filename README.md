@@ -1,11 +1,11 @@
 # JSU LabTools
 
-분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.1.0.
+분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.1.1.
 
 | 도구 | 도구 버전 / 계산 식별 |
 |---|---|
-| Oligo Mix | 1.0.0 / 알고리즘 0.5.0 |
-| Sequence | 1.0.0 / 알고리즘 0.2.1 |
+| Oligo Mix | 1.0.1 / 알고리즘 0.5.0 |
+| Sequence | 1.0.1 / 알고리즘 0.2.2 |
 | 희석·시약 조제 | 1.0.0 / 알고리즘 0.3.0 |
 | 핵산 농도·Copy 수 | 1.0.0 / 알고리즘 0.2.0 |
 | LoB·LoD·LoQ | 파생 베타 0.9.1-beta.2 / 원 계산 기준 프로그램 0.9.0-beta.6 |
@@ -32,8 +32,11 @@ public-manifest.json의 명시 목록을 scripts/build.mjs가 전체 dist 78파�
 ```text
 node scripts/build.mjs
 node scripts/verify.mjs
+node scripts/regression.mjs
 ```
 
 GitHub Actions가 main의 변경 또는 수동 실행 시 이전 게시 목록 보존과 전체 산출물을 검사하고 게시합니다.
 
 입력 보완 베타 v0.9.1-beta.2 / 화면 v0.2.0. 행 간격·번호/오류 안내와 LoQ 검체 관리를 보완했습니다.
+
+Oligo·Sequence 보완판입니다. GitHub Actions는 게시 전에 8개 합성 회귀 시험 모듈을 실행합니다. tests는 저장소 소스에만 포함하며 Pages 산출물에 포함하지 않습니다.
