@@ -1,0 +1,2 @@
+# Keep reviewed static bytes and SHA contracts identical on Windows and Linux.
+* -text

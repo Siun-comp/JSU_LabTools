@@ -1,6 +1,6 @@
 # JSU LabTools
 
-분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.1.3.
+분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.2.0.
 
 | 도구 | 도구 버전 / 계산 식별 |
 |---|---|
@@ -8,10 +8,11 @@
 | Sequence | 1.0.1 / 알고리즘 0.2.2 |
 | 희석·시약 조제 | 1.0.0 / 알고리즘 0.3.0 |
 | 핵산 농도·Copy 수 | 1.0.1 / 알고리즘 0.2.1 |
+| Amplification Analysis | 0.1.0-beta.1 / Analysis15·Selected9 |
 | LoB·LoD·LoQ | 파생 베타 0.9.1-beta.3 / 원 계산 기준 프로그램 0.9.0-beta.6 |
 
 IsoAmplar Plot Analysis T는 기존 웹툴을 독립 새 탭에서 실행합니다.
-Amplification Analysis는 준비중입니다.
+Amplification Analysis 0.1.0-beta.1은 외부 처리한 Excel/paste 곡선의 Threshold·STD 정량·선택 개별 4PL/5PL 분석을 제공합니다. 기존 Plot 연결을 함께 유지합니다.
 LoBDQ는 사용 검토용 베타이며 한 분석 집단의 계산 후보와 근거를 제공합니다.
 원 프로그램의 R·webR 계산을 유지하며 포털 파생 배포 이력을 구별합니다.
 
@@ -24,7 +25,7 @@ LoBDQ의 첫 R 분석은 고정 webR/R 계산 환경을 외부에서 내려받�
 
 ## 구성과 게시
 
-public-manifest.json의 명시 목록을 scripts/build.mjs가 전체 dist 78파일로 구성합니다.
+public-manifest.json의 명시 목록을 scripts/build.mjs가 전체 dist107파일로 구성합니다.
 이전 도구 경로를 모두 포함한 전체 dist를 GitHub Pages에 게시합니다.
 내부 문서·검증/참고·원본 프로젝트·회사자료·첨부는 이 저장소/게시 목록에 포함하지 않습니다.
 기존 Node.js24 이상에서 별도 패키지 설치 없이 확인할 수 있습니다.
@@ -45,3 +46,15 @@ GitHub Actions가 main의 변경 또는 수동 실행 시 이전 게시 목록 �
 동일 Probit 적합의 Pearson/Deviance 카이제곱 상측 꼬리 근사 p값·Pearson/자유도 및 기대수 주의를 제공합니다. 기존 적합/후보값/CI dispersion=1 유지, 자동 적합 판정/CI 보정 없음입니다. LoB 지원 α5%·LoD 검출률 확인·LoQ Westgard TE 이름을 명확히 했습니다.
 
 Pages CI는 14개 순수 합성 회귀 모듈과 별도의 실제 webR0.6.0/R4.6.0/MASS7.3.65 수치 회귀(LoD13/CP21/LoQ4)를 실행합니다. 시험 소스/합성 fixture는 GitHub에 있으나 Pages에는 게시하지 않습니다. 회사자료/표준 원문 전체 전사/임시 테스트 런타임은 제외합니다. 테스트용 공식 고정 npm 아카이브는 무결성을 확인하며, 앱의 런타임은 기존 공식 CDN에서 내려받습니다.
+
+## Amplification Analysis beta.1
+
+첫 시트는 검체·시약·형광3행과4행 이후Y값입니다. X는 수치 행 순서이며 Ct/RFU는 기본 제목입니다. 형광1 FAM/2 HEX/3 TexasRED/4 Cy5/5 Cy5.5, 공란은 왼쪽 값 상속입니다. Run 체크는 STD 포함, 개별 체크는 Plot 표시/4·5PL 대상을 정합니다. STD 미지정 포함 데이터는 Unknown으로 분석하며 범위 밖 농도는 외삽으로 표시합니다.
+
+STD는 그림/STD/Unknown을 결과 Excel로 제공합니다. 4/5PL raw 계수는 Advanced Details에 있고 결과 표는 Excel용 복사입니다. 자체 작업 XLSX는 입력/설정/STD를 복원하며 4/5PL은 임시 결과로 재분석합니다. CFX native·앱 baseline/melt·일반 반복 관리는 지원 범위 밖입니다. 모델 비교는 개발 판단 참고이며 임상 또는 Primer/Probe 성능을 자동 판정하지 않습니다. Excel 붙여넣기 사용자 확인 완료, 사용성은 실제 사용 중 보완합니다.
+
+[분석기](https://siun-comp.github.io/JSU_LabTools/tools/amplification-analysis/) · [사용 안내](https://siun-comp.github.io/JSU_LabTools/info/amplification-analysis.html). 베타 compiled runtime27파일을 고정하여 배포하고 release contract SHA/버전/상대경로를 CI에서 검증합니다. 앱 source/build/unit/audit/Chromium·독립 합성 검증은 베타 준비 단계에서 수행했습니다. Pages workflow는 모든 기존 필수 gate와 AA gate를 통과해야 upload/deploy합니다. 테스트/contract는 저장소에 있으나 Pages에는 whitelist107파일만 포함됩니다.
+
+```text
+node scripts/verify-amplification.mjs
+```

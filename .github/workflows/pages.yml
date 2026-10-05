@@ -38,6 +38,8 @@ jobs:
         run: node scripts/lobdq-webr-regression.mjs
       - name: Verify artifact
         run: node scripts/verify.mjs
+      - name: Verify frozen Amplification Analysis beta and preserved portal paths
+        run: node scripts/verify-amplification.mjs
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:
           path: dist

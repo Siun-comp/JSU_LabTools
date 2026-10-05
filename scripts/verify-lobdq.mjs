@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),dist=resolve(root,'dist');
 const manifest=JSON.parse(await readFile(resolve(root,'public-manifest.json'),'utf8'));
 const local=JSON.parse(await readFile(resolve(dist,'tools/detection-capability/build-manifest.json'),'utf8'));
-assert.equal(manifest.files.length,79);
+assert.equal(manifest.files.length,107);
 assert.equal(local.version,'0.9.1-beta.3');
 assert.equal(local.files.length,47);
 assert.equal(local.baselineProgramVersion,'0.9.0-beta.6');
@@ -16,7 +16,7 @@ for(const name of ['index.html','info/detection-capability.html','tools/detectio
  assert(!/<iframe\b/i.test(text));
  for(const m of text.matchAll(/(?:src|href)="([^" ]+)"/g)){
   if(/^https?:|^#/.test(m[1]))continue;
-  const target=m[1].split('#')[0]; await readFile(resolve(dirname(path),target));
+  const target=m[1].split('#')[0]; await readFile(resolve(dirname(path),target.endsWith('/')?target+'index.html':target));
  }
 }
 const guide=await readFile(resolve(dist,'info/detection-capability.html'),'utf8');
