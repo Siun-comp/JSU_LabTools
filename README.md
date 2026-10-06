@@ -1,13 +1,13 @@
 # JSU LabTools
 
-분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.2.0.
+분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.2.1.
 
 | 도구 | 도구 버전 / 계산 식별 |
 |---|---|
 | Oligo Mix | 1.0.1 / 알고리즘 0.5.0 |
 | Sequence | 1.0.1 / 알고리즘 0.2.2 |
 | 희석·시약 조제 | 1.0.0 / 알고리즘 0.3.0 |
-| 핵산 농도·Copy 수 | 1.0.1 / 알고리즘 0.2.1 |
+| 핵산 농도·Copy 수 | 1.1.0 / 알고리즘 0.3.0 |
 | Amplification Analysis | 0.1.0-beta.1 / Analysis15·Selected9 |
 | LoB·LoD·LoQ | 파생 베타 0.9.1-beta.3 / 원 계산 기준 프로그램 0.9.0-beta.6 |
 
@@ -58,3 +58,9 @@ STD는 그림/STD/Unknown을 결과 Excel로 제공합니다. 4/5PL raw 계수�
 ```text
 node scripts/verify-amplification.mjs
 ```
+
+## 핵산 웹툴 기준 보완1.1.0
+
+NEBioCalculator dsDNA 길이 기준과 Thermo DNA Copy Calculator 기본650 기준을 구별합니다. 웹NA6.022E23와 Thermo 질량 입력의 copies/ng 중간 정수 반올림을 적용합니다. 기존650·660·Ambion·서열·직접MW의 수치는 유지합니다. 식·상수·반올림·적용 범위·출처를 결과 복사에 함께 기록합니다. Thermo 몰/Copy 역환산은 웹 화면 재현 범위 밖입니다.
+
+게시 검사기는107개 공개 경로와 선정 SHA를 고정하며, 이전 포털/다른 도구·AA27개 베타 runtime의 보존을 확인합니다. 웹 기준 독립 기대값과 단위 조합 검사는 기존 핵산 회귀에 포함됩니다.

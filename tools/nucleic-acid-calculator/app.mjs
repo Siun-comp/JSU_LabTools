@@ -6,17 +6,17 @@ const $=id=>document.getElementById(id);
 function setText(id,value){$(id).textContent=String(value).replace(/\.[ \t]+(?=\S)/g,'.\n');}
 let result=null,revision=0,loadedVector=null,vectorUndo=null;
 function options(id,entries,value){const s=$(id);s.replaceChildren();for(const [v,label] of entries){const o=document.createElement('option');o.value=v;o.textContent=label;s.append(o);}s.value=entries.some(([v])=>v===value)?value:entries[0][0];}
-function invalidate(message='입력 조건이 바뀌었습니다. 다시 계산하세요.'){revision++;result=null;$('results').hidden=true;$('empty-result').hidden=false;$('result-body').replaceChildren();setText('basis','');setText('mw-result','');setText('mw-method-note','');setText('sequence-summary','');setText('vector-summary','');setText('copy-format-note','');$('copy').disabled=true;setText('copy-status','');setText('message',message);}
+function invalidate(message='입력 조건이 바뀌었습니다. 다시 계산하세요.'){revision++;result=null;$('results').hidden=true;$('empty-result').hidden=false;$('result-body').replaceChildren();setText('basis','');setText('mw-result','');setText('mw-method-note','');setText('conversion-note','');setText('sequence-summary','');setText('vector-summary','');setText('copy-format-note','');$('copy').disabled=true;setText('copy-status','');setText('message',message);}
 function sync(){const t=$('molecule').value,m=$('method').value,rna=t==='ssRNA',single=t==='ssDNA'||rna;
  $('average-fields').hidden=m!=='average';$('direct-fields').hidden=m!=='direct';$('sequence-fields').hidden=m!=='sequence';
  setText('length-label','전체 길이 ('+(single?'nt':'bp')+')');
- const list=single?(rna?[['340','340 · Promega RNA'],['320.5','320.5n+159 · Thermo · 5′ 삼인산']]:[['330','330 · Promega ssDNA'],['303.7','303.7n+79 · Thermo · 5′ 인산1개']]):[['650','650 · NEB dsDNA'],['660','660 · Promega dsDNA'],['607.4','607.4n+157.9 · Thermo · 말단 상수']];
+ const list=single?(rna?[['340','340n · Promega RNA'],['320.5','320.5n+159 · Thermo/Ambion 자료']]:[['330','330n · Promega ssDNA'],['303.7','303.7n+79 · Thermo/Ambion 자료']]):[['neb-web','NEBioCalculator · 615.94n+36.04'],['thermo-web','Thermo Copy Calculator · 기본650'],['650','650n · 일반 근사 (기존650)'],['660','660n · Promega 자료'],['607.4','607.4n+157.9 · Thermo/Ambion 자료']];
  options('coefficient',[['','선택하세요'],...list],$('coefficient').value);
  const c=$('coefficient').value,terminal={'303.7':'79.0','320.5':'159.0','607.4':'157.9'}[c];
- setText('average-help',terminal?'Thermo Fisher: MW = 전체 길이 × '+c+' + '+terminal+' g/mol. '+
+ setText('average-help',c==='neb-web'?'NEBioCalculator dsDNA 길이 모드: MW = 전체 bp × 615.94 + 36.04 g/mol. NA = 6.022E23. 확인 v1.17.5 / 2026-10-06. 서열 입력 모드는 별도이며 구조·말단을 자동 변경하지 않습니다. Plasmid는 전체 분자 길이를 사용하세요.':c==='thermo-web'?'Thermo DNA Copy Number Calculator 기본값: MW = 전체 bp × 650 g/mol. NA = 6.022E23. 질량농도 입력에서는 웹툴처럼 copies/ng를 먼저 정수 반올림합니다. 몰/Copy 입력은 해당 기준의 역환산이며 웹 화면 재현 범위 밖입니다. Plasmid는 전체 분자 길이를 사용하세요.':terminal?'Thermo Fisher/Ambion 기술자료: MW = 전체 길이 × '+c+' + '+terminal+' g/mol. '+
  (rna?'5′ 삼인산을 포함한 RNA의 공식 고정 근사식입니다.':single?'5′ 인산1개를 포함한 ssDNA의 공식 고정 근사식입니다.':'dsDNA의 공식 고정 근사식이며 말단 상수를 포함합니다. 완전 폐환 Plasmid 전용식이 아니며 실제 구조에 맞춰 말단을 자동 변경하지 않습니다.')+
- ' 다른 말단·구조를 반영하려면 지원 조건의 일반 서열법이나 해당 전체 MW를 선택하세요. Plasmid는 전체 분자 길이를 사용하세요.':
- '길이에 평균 계수를 곱하는 근사값입니다. Plasmid는 insert가 아닌 전체 Plasmid 길이를 사용하세요.');
+ ' Thermo Copy Calculator 기본식과는 다른 자료 기준입니다. 다른 말단·구조를 반영하려면 지원 조건의 일반 서열법이나 해당 전체 MW를 선택하세요. Plasmid는 전체 분자 길이를 사용하세요.':
+ '길이에 평균 계수를 곱하는 기존 근사값입니다. NA = 6.02214076E23. 실제 NEBioCalculator 또는 Thermo Copy Calculator의 계산 기준과 구별하세요. Plasmid는 insert가 아닌 전체 Plasmid 길이를 사용하세요.');
  options('topology',[['','선택하세요'],['linear','선형'],...(!rna?[['circular','완전 폐환 원형']]:[])],$('topology').value);
  const circular=$('topology').value==='circular';
  $('ends-field').hidden=circular;$('ends-guide').hidden=circular;
@@ -34,8 +34,9 @@ function sync(){const t=$('molecule').value,m=$('method').value,rna=t==='ssRNA',
 }
 function vectorStatus(){const v=VECTOR_DATA.vectors.find(v=>v.id===$('vector').value);$('load-vector').disabled=!v?.available;$('undo-vector').disabled=!vectorUndo;setText('vector-status',v?v.name+' · 공개 파일 '+v.length+' bp · '+(v.reason||'선택 후 불러오기 버튼을 누르세요.'):'기본 Vector는 선택 사항입니다.');const p=vectorProvenance(loadedVector,$('sequence').value);setText('vector-origin',p?p.name+' · '+p.state+' · 자료 v'+p.dataVersion+' / 확인 '+p.checked:'');}
 function input(){return {type:$('molecule').value,kind:$('kind').value,unit:$('input-unit').value,value:$('value').value,method:$('method').value,length:$('length').value,coefficient:$('coefficient').value,mw:$('mw').value,source:$('source').value,sequence:$('sequence').value,vector:$('method').value==='sequence'&&$('molecule').value==='Plasmid'?vectorProvenance(loadedVector,$('sequence').value):null,topology:$('topology').value,ends:$('ends').value,massUnit:$('mass-unit').value,molarUnit:$('molar-unit').value,copyUnit:$('copy-unit').value};}
-function render(r){$('empty-result').hidden=true;$('results').hidden=false;setText('basis',r.basis);setText('mw-result',r.mw?'MW '+format(r.mw)+' g/mol'+(r.input.source?' · 출처: '+r.input.source:''):'MW 없음 · 계산 가능한 항목만 표시');
+function render(r){$('empty-result').hidden=true;$('results').hidden=false;setText('basis',r.webReference?r.webReference.name+' · MW = '+r.webReference.formula+' g/mol':r.basis);setText('mw-result',r.mw?'MW '+format(r.mw)+' g/mol'+(r.input.source?' · 출처: '+r.input.source:''):'MW 없음 · 계산 가능한 항목만 표시');
  setText('mw-method-note',r.mw?'질량농도가 포함된 환산은 MW 기준에 따라 달라집니다. 같은 시료의 조제·기록에는 동일한 기준을 사용하세요.'+(r.input.method==='sequence'?' 서열법의 무수 유리산 기준과 길이 평균법은 계산 기준이 다릅니다.':''):'');
+ setText('conversion-note',r.webReference?'환산 기준: NA '+r.conversion.avogadro+' mol⁻¹ · '+r.conversion.rounding+'. '+r.conversion.scope+'. 앱의 주값은 최대12유효숫자로 표시합니다.':'');
  setText('sequence-summary',r.seq?'계산 길이 '+r.length+' '+(r.input.type==='ssRNA'||r.input.type==='ssDNA'?'nt':'bp')+' · '+r.seq.formatNote+(r.seq.header?' · FASTA: '+r.seq.header:''):r.length?'전체 길이 '+r.length+' '+(r.input.type==='ssRNA'||r.input.type==='ssDNA'?'nt':'bp'):'');
  for(const [name,value,unit] of [['질량농도',r.mass,r.input.massUnit],['몰농도',r.molar,r.input.molarUnit],['Copy 농도',r.copies,r.input.copyUnit]]){const tr=document.createElement('tr');for(const text of [name,value?format(value):'분자량 필요',unit]){const td=document.createElement('td');td.textContent=text;tr.append(td);}const sci=name==='Copy 농도'?copyScientific(value):null;if(sci){const small=document.createElement('small');small.className='scientific-copy';small.textContent='지수 '+sci;tr.children[1].append(small);}$('result-body').append(tr);}
  setText('copy-format-note',copyScientific(r.copies)?'지수 표기는 소수 두 자리·3유효숫자 요약입니다. 위의 원래 값과 계산 정밀도는 유지합니다.':'');

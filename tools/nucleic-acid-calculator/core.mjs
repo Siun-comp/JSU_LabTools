@@ -1,7 +1,14 @@
 import {q,mul,div,add,sub,pow,decimal,positive} from './math.mjs';
 export {format} from './math.mjs';
-export const VERSION='0.2.1';
+export const VERSION='0.3.0';
 export const NA=q(602214076000000000000000n);
+const WEB_NA=q(602200000000000000000000n);
+// Named references preserve the previously selected average formulas.
+// Only verified dsDNA length modes are offered; no vendor code is executed.
+export const WEB_REFERENCES=Object.freeze({
+ 'neb-web':Object.freeze({name:'NEBioCalculator dsDNA · 길이 기준',formula:'615.94n+36.04',coefficient:'615.94',terminal:'36.04',version:'1.17.5',checked:'2026-10-06',url:'https://nebiocalculator.neb.com/#!/dsdnaamt'}),
+ 'thermo-web':Object.freeze({name:'Thermo DNA Copy Calculator · 기본650',formula:'650n',coefficient:'650',terminal:'0',version:'기본650',checked:'2026-10-06',url:'https://www.thermofisher.com/kr/ko/home/brands/thermo-scientific/molecular-biology/molecular-biology-learning-center/molecular-biology-resource-library/thermo-scientific-web-tools/dna-copy-number-calculator.html'})
+});
 export const TYPES=['dsDNA','ssDNA','ssRNA','Plasmid'];
 export const MOLAR_UNITS=['M','mM','µM','nM','pM','fM'];
 export const VOLUMES=['L','mL','µL'];
@@ -42,15 +49,18 @@ export function molecularWeight(i){
  if(i.method==='')return {mw:null,basis:'MW 미지정 · 같은 농도 단위 또는 몰↔Copy만 계산 가능'};
  if(i.method==='direct')return {mw:positive(i.mw,'전체 분자량 (g/mol)'),basis:'사용자 직접 입력 · 해당 전체 분자 기준',source:String(i.source??'').trim().slice(0,300)};
  if(i.method==='average'){
-  const options=i.type==='ssDNA'?['330','303.7']:i.type==='ssRNA'?['340','320.5']:['650','660','607.4'];
+  const options=i.type==='ssDNA'?['330','303.7']:i.type==='ssRNA'?['340','320.5']:['neb-web','thermo-web','650','660','607.4'];
   if(!options.includes(i.coefficient))throw Error('분자 종류에 맞는 평균 계수를 선택하세요.');
   const n=String(i.length??'').trim();if(!/^\d+$/.test(n)||n.length>9||BigInt(n)<1n||BigInt(n)>100000000n)throw Error('전체 길이는 1~100,000,000의 정수로 입력하세요.');
   const unit=i.type==='ssDNA'||i.type==='ssRNA'?'nt':'bp';
+  const webReference=WEB_REFERENCES[i.coefficient];
+  if(webReference)return {mw:add(mul(q(BigInt(n)),decimal(webReference.coefficient)),decimal(webReference.terminal)),length:n,webReference,
+   basis:webReference.name+' · MW = '+webReference.formula+' g/mol · 전체 '+n+' bp · 확인 '+webReference.checked+' / '+webReference.version+' · 구조·말단 자동 보정 없음'};
   const terminal={'303.7':'79.0','320.5':'159.0','607.4':'157.9'}[i.coefficient];
   const product=mul(q(BigInt(n)),decimal(i.coefficient));
   if(terminal){const condition=i.type==='ssRNA'?'5′ 삼인산 포함':i.type==='ssDNA'?'5′ 인산1개 포함':'말단 상수 포함';
-   return {mw:add(product,decimal(terminal)),length:n,basis:'길이 평균 근사 · Thermo Fisher · ('+n+' '+unit+' × '+i.coefficient+' g/mol/'+unit+') + '+terminal+' g/mol · '+condition+' · 공식 고정 근사식'};}
-  return {mw:product,length:n,basis:'길이 평균 근사 · '+n+' '+unit+' × '+i.coefficient+' g/mol/'+unit+' · '+(i.coefficient==='650'?'NEB':'Promega')+' 방법'};
+   return {mw:add(product,decimal(terminal)),length:n,basis:'길이 평균 근사 · Thermo Fisher/Ambion 기술자료 · ('+n+' '+unit+' × '+i.coefficient+' g/mol/'+unit+') + '+terminal+' g/mol · '+condition+' · 공식 고정 근사식 · Copy Calculator 기본식과 별도'};}
+  return {mw:product,length:n,basis:'길이 평균 근사 · '+n+' '+unit+' × '+i.coefficient+' g/mol/'+unit+' · '+(i.coefficient==='650'?'NEB 일반 자료 근사 · NEBioCalculator와 별도':'Promega')+' 방법'};
  }
  const seq=parseSequence(i.sequence,i.type),rna=i.type==='ssRNA',ds=i.type==='dsDNA'||i.type==='Plasmid';
  if(!['linear','circular'].includes(i.topology)||rna&&i.topology!=='linear')throw Error('지원하는 구조를 선택하세요. RNA는 선형만 지원합니다.');
@@ -68,9 +78,22 @@ export function calculate(i){
  if(!TYPES.includes(i.type))throw Error('분자 종류를 선택하세요.');
  if(!MASS_UNITS.includes(i.massUnit)||!MOLAR_UNITS.includes(i.molarUnit)||!COPY_UNITS.includes(i.copyUnit))throw Error('결과 단위를 선택하세요.');
  const known=mul(decimal(i.value,'입력 농도'),unitFactor(i.kind,i.unit)),method=molecularWeight(i);
+ const ref=method.webReference,na=ref?WEB_NA:NA;
+ const conversion={avogadro:ref?'6.022E23':'6.02214076E23',rounding:'중간 반올림 없음 · 주값 최대12유효숫자',scope:ref?'선택 웹툴의 길이·환산 기준':'기존 환산 기준'};
  let mass=null,molar=null,copies=null;
  if(i.kind==='mass'){mass=known;if(method.mw)molar=div(mass,method.mw);}
- else molar=i.kind==='molar'?known:div(known,NA);
- if(molar){copies=mul(molar,NA);if(method.mw)mass=mul(molar,method.mw);}
- return {input:{...i,value:String(i.value).trim(),sequence:i.method==='sequence'?String(i.sequence):'',source:i.method==='direct'?String(i.source??'').trim().slice(0,300):''},...method,mass:mass?div(mass,unitFactor('mass',i.massUnit)):null,molar:molar?div(molar,unitFactor('molar',i.molarUnit)):null,copies:copies?div(copies,unitFactor('copies',i.copyUnit)):null,algorithmVersion:VERSION};
+ else molar=i.kind==='molar'?known:div(known,na);
+ if(molar){copies=mul(molar,na);if(method.mw&&i.kind!=='mass')mass=mul(molar,method.mw);}
+ if(ref===WEB_REFERENCES['thermo-web']){
+  if(i.kind==='mass'){
+   // The reference rounds copies/ng before multiplying by stock ng/µL.
+   // Work in canonical g/L and copies/L so every supported display unit agrees.
+   const perNg=div(mul(pow(-9),na),method.mw);
+   const rounded=q((2n*perNg.n+perNg.d)/(2n*perNg.d));
+   copies=mul(mul(known,pow(9)),rounded);molar=div(copies,na);
+   conversion.rounding='copies/ng를 정수 반올림한 뒤 입력 질량농도와 곱함 · 몰농도는 Copy/NA';
+   conversion.scope='Thermo 웹툴 기본650 · 질량농도 입력 결과 기준';
+  }else conversion.scope='MW650n·NA6.022E23로 역환산 · Thermo 웹툴은 몰/Copy 입력을 제공하지 않으므로 웹 화면 재현 범위 밖';
+ }
+ return {input:{...i,value:String(i.value).trim(),sequence:i.method==='sequence'?String(i.sequence):'',source:i.method==='direct'?String(i.source??'').trim().slice(0,300):''},...method,conversion,mass:mass?div(mass,unitFactor('mass',i.massUnit)):null,molar:molar?div(molar,unitFactor('molar',i.molarUnit)):null,copies:copies?div(copies,unitFactor('copies',i.copyUnit)):null,algorithmVersion:VERSION};
 }
