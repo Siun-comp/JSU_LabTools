@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {calculate,convert,prepare,format,VERSION} from '../../tools/dilution-calculator/core.mjs';
+assert.equal(VERSION,'0.3.0');
+const input={mode:'final',family:'molar',stock:'1',stockUnit:'M',target:'10',targetUnit:'mM',volume:'1000',volumeUnit:'µL'};
+const dilution=calculate(input);assert.equal(format(dilution.stockVolume),'10');assert.equal(format(dilution.diluentVolume),'990');
+assert.equal(format(calculate({...input,mode:'all',volume:'100'}).finalVolume),'10000');
+assert.equal(format(convert({kind:'concentration',direction:'molar-to-mass',value:'1',inputUnit:'M',outputUnit:'mg/mL',molecularWeight:'40'}).value),'40');
+assert.equal(format(convert({kind:'amount',direction:'mass-to-molar',value:'4',inputUnit:'g',outputUnit:'mmol',molecularWeight:'40'}).value),'100');
+assert.equal(format(prepare({mode:'volume',known:'4',knownUnit:'g',concentration:'1',concentrationUnit:'M',molecularWeight:'40',outputUnit:'mL'}).value),'100');
+assert.throws(()=>calculate({...input,target:'2',targetUnit:'M'}),/Stock/);
+console.log('PASS: legacy dilution/conversion/reverse preparation6 synthetic cases; engine0.3.0.');

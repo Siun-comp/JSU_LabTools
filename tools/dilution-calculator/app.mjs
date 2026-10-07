@@ -2,6 +2,10 @@ import {calculate,convert,prepare,format,unitsFor,MOLAR_UNITS,MASS_UNITS,MOLAR_A
 import {clipboardData,conversionClipboard,preparationClipboard} from './clipboard.mjs';
 const $=id=>document.getElementById(id);
 const form=$('dilution-form'); let result=null, revision=0;
+const dilutionDialog=$('dilution-dialog');
+$('open-dilution').addEventListener('click',()=>{dilutionDialog.showModal();$('stock').focus();});
+$('close-dilution').addEventListener('click',()=>dilutionDialog.close());
+
 function mode(){return form.elements.mode.value;}
 function populateUnits(){
   const family=$('family').value, units=unitsFor(family);

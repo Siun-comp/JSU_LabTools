@@ -1,0 +1,612 @@
+{
+  "edition": "2026-10-07-curated",
+  "recipes": [
+    {
+      "id": "te-am9849",
+      "name": "TE",
+      "purpose": "핵산 보관·용출",
+      "ph": "pH 8.0",
+      "note": "",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://www.thermofisher.com/order/catalog/product/AM9849"
+        },
+        {
+          "label": "제조사 조성",
+          "url": "https://www.thermofisher.com/order/catalog/product/A15608/faqs"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Tris-HCl",
+          "target": "10",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "EDTA",
+          "target": "1",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        }
+      ]
+    },
+    {
+      "id": "low-te-4479554",
+      "name": "Low-TE",
+      "purpose": "낮은 EDTA 농도의 핵산 보관·용출",
+      "ph": "pH 8.0",
+      "note": "TE와 EDTA 농도가 다릅니다. 원문 명목농도로 계산하고 물로 최종 부피를 맞춥니다.",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://assets.thermofisher.com/TFS-Assets/LSG/manuals/4479554.pdf"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Tris-HCl",
+          "target": "10",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "EDTA",
+          "target": "0.1",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        }
+      ]
+    },
+    {
+      "id": "tae-15558042",
+      "name": "TAE — UltraPure 15558042",
+      "purpose": "핵산 전기영동",
+      "ph": "1X pH 8.3",
+      "note": "Tris-acetate 기준입니다. Tris base와 아세트산을 사용하는 별도 제조법의 투입량은 자동 산출하지 않습니다.",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://www.thermofisher.com/order/catalog/product/cn/en/15558042"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Tris-acetate",
+          "target": "40",
+          "unit": "mM",
+          "mode": "stock",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "EDTA",
+          "target": "1",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        }
+      ]
+    },
+    {
+      "id": "tbe-j62449",
+      "name": "TBE — J62449",
+      "purpose": "핵산 전기영동",
+      "ph": "공급 10X의 pH 8.3 ± 0.15",
+      "note": "",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://assets.thermofisher.com/chem-specs-pdf/retrievePdf?countryCode=kr&erp_type=KR_E1_LCD&rootSku=J62449&sku=J62449.K7"
+        },
+        {
+          "label": "제조사 조성",
+          "url": "https://www.thermofisher.com/order/catalog/product/J62449.K7"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Tris",
+          "target": "89",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "Boric acid",
+          "target": "89",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "EDTA",
+          "target": "2",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        }
+      ]
+    },
+    {
+      "id": "ssc-j60839",
+      "name": "SSC — J60839",
+      "purpose": "핵산 혼성화·세척",
+      "ph": "공급 20X의 pH 7.0 ± 0.15",
+      "note": "",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://assets.thermofisher.com/chem-specs-pdf/retrievePdf?rootSku=J60839&sku=J60839.K3"
+        },
+        {
+          "label": "제조사 조성",
+          "url": "https://www.thermofisher.com/order/catalog/product/J60839.K3"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Sodium chloride",
+          "target": "150",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "Sodium citrate",
+          "target": "15",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        }
+      ]
+    },
+    {
+      "id": "pbs-10010023",
+      "name": "PBS — Gibco 10010023",
+      "purpose": "Ca/Mg 없는 PBS",
+      "ph": "pH 7.4",
+      "note": "이 제품의 공개 조성은 3성분이며 KCl을 넣지 않습니다. 인산나트륨은 7수화물 질량 기준입니다.",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.160.html"
+        },
+        {
+          "label": "제조사 조성",
+          "url": "https://www.thermofisher.com/order/catalog/product/10010023"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Potassium phosphate monobasic",
+          "target": "144",
+          "unit": "mg/L",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mg/L"
+        },
+        {
+          "name": "Sodium chloride",
+          "target": "9000",
+          "unit": "mg/L",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mg/L"
+        },
+        {
+          "name": "Sodium phosphate dibasic heptahydrate",
+          "target": "795",
+          "unit": "mg/L",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mg/L"
+        }
+      ]
+    },
+    {
+      "id": "rcutsmart-b6004",
+      "name": "NEB rCutSmart (B6004)",
+      "purpose": "제한효소 반응",
+      "ph": "1X pH 7.9 (25°C)",
+      "note": "Recombinant albumin을 BSA로 자동 대체하지 않습니다.",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://www.neb.com/en-us/products/b6004-rcutsmart-buffer"
+        },
+        {
+          "label": "제조사 조성",
+          "url": "https://www.neb.com/en/tools-and-resources/usage-guidelines/nebuffer-comparison-chart"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Potassium acetate",
+          "target": "50",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "Tris-acetate",
+          "target": "20",
+          "unit": "mM",
+          "mode": "stock",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "Magnesium acetate",
+          "target": "10",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "Recombinant albumin",
+          "target": "100",
+          "unit": "ug/mL",
+          "mode": "stock",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "ug/mL"
+        }
+      ]
+    },
+    {
+      "id": "isothermal-b0537",
+      "name": "NEB Isothermal Amplification Buffer (B0537)",
+      "purpose": "등온 증폭 · LAMP",
+      "ph": "1X pH 8.8 (25°C)",
+      "note": "성분 농도는 NEB 공개 조성입니다. Tween 20의 v/v 기준은 Cole 등(2022)의 사용 조성에 근거합니다. NEB 제품 페이지에는 % 종류가 명시되지 않습니다. 반응에 추가하는 MgSO₄는 별도로 입력하세요.",
+      "sources": [
+        {
+          "label": "NEB 제품 조성",
+          "url": "https://www.neb.com/en/products/b0537-isothermal-amplification-buffer"
+        },
+        {
+          "label": "Tween v/v 문헌 · Cole 등 (2022)",
+          "url": "https://www.nature.com/articles/s41598-022-07871-4"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Tris-HCl",
+          "target": "20",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "KCl",
+          "target": "50",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "(NH4)2SO4",
+          "target": "10",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "MgSO4",
+          "target": "2",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "Tween 20",
+          "target": "0.1",
+          "unit": "%v/v",
+          "mode": "pure",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "%v/v"
+        }
+      ]
+    },
+    {
+      "id": "qiagen-p1",
+      "name": "QIAGEN P1 — RNase 포함",
+      "purpose": "플라스미드 추출 · 재현탁",
+      "ph": "pH 8.0",
+      "note": "RNase A 100 µg/mL를 포함한 사용 조성입니다. RNase는 사용 전 첨가하고, 보유 원액 농도를 입력하세요.",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://www.qiagen.com/us/resources/faq/198"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Tris-Cl",
+          "target": "50",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "EDTA",
+          "target": "10",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "RNase A",
+          "target": "100",
+          "unit": "ug/mL",
+          "mode": "stock",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "ug/mL"
+        }
+      ]
+    },
+    {
+      "id": "qiagen-p2",
+      "name": "QIAGEN P2",
+      "purpose": "플라스미드 추출 · 알칼리 용해",
+      "ph": "",
+      "note": "SDS는 % w/v입니다.",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://www.qiagen.com/us/resources/faq/203"
+        }
+      ],
+      "rows": [
+        {
+          "name": "NaOH",
+          "target": "200",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "SDS",
+          "target": "1",
+          "unit": "%w/v",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "%w/v"
+        }
+      ]
+    },
+    {
+      "id": "qiagen-qbt",
+      "name": "QIAGEN QBT",
+      "purpose": "음이온 교환 컬럼 · 평형화",
+      "ph": "pH 7.0",
+      "note": "",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://www.qiagen.com/us/resources/faq/411"
+        }
+      ],
+      "rows": [
+        {
+          "name": "NaCl",
+          "target": "0.75",
+          "unit": "M",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "M"
+        },
+        {
+          "name": "MOPS",
+          "target": "50",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "isopropanol",
+          "target": "15",
+          "unit": "%v/v",
+          "mode": "pure",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "%v/v"
+        },
+        {
+          "name": "Triton X-100",
+          "target": "0.15",
+          "unit": "%v/v",
+          "mode": "pure",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "%v/v"
+        }
+      ]
+    },
+    {
+      "id": "qiagen-qc",
+      "name": "QIAGEN QC",
+      "purpose": "음이온 교환 컬럼 · 세척",
+      "ph": "pH 7.0",
+      "note": "",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://www.qiagen.com/us/resources/faq/412"
+        }
+      ],
+      "rows": [
+        {
+          "name": "NaCl",
+          "target": "1",
+          "unit": "M",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "M"
+        },
+        {
+          "name": "MOPS",
+          "target": "50",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "isopropanol",
+          "target": "15",
+          "unit": "%v/v",
+          "mode": "pure",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "%v/v"
+        }
+      ]
+    },
+    {
+      "id": "qiagen-qf",
+      "name": "QIAGEN QF",
+      "purpose": "음이온 교환 컬럼 · 용출",
+      "ph": "pH 8.5",
+      "note": "고염 용출액입니다. PCR에 바로 넣는 일반 용출액과 구별하세요.",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://www.qiagen.com/us/resources/faq/413"
+        }
+      ],
+      "rows": [
+        {
+          "name": "NaCl",
+          "target": "1.25",
+          "unit": "M",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "M"
+        },
+        {
+          "name": "Tris-Cl",
+          "target": "50",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "isopropanol",
+          "target": "15",
+          "unit": "%v/v",
+          "mode": "pure",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "%v/v"
+        }
+      ]
+    },
+    {
+      "id": "ssiii-first",
+      "name": "SuperScript III First-Strand Buffer",
+      "purpose": "역전사",
+      "ph": "공급 5X의 pH 8.3",
+      "note": "DTT는 별도 시약이며 이 버퍼 조성에 포함되지 않습니다.",
+      "sources": [
+        {
+          "label": "제조사 조성",
+          "url": "https://www.thermofisher.com/order/catalog/product/jp/ja/18080093"
+        },
+        {
+          "label": "제조사 조성",
+          "url": "https://assets.thermofisher.com/TFS-Assets/LSG/manuals/superscript_indirect_rnaamp_man.pdf"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Tris-HCl",
+          "target": "50",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "KCl",
+          "target": "75",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        },
+        {
+          "name": "MgCl2",
+          "target": "3",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM"
+        }
+      ]
+    }
+  ]
+}
