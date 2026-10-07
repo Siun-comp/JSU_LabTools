@@ -6,14 +6,15 @@ const [html,app,core,legacy,raw]=await Promise.all(['index.html','composer.mjs',
 const data=JSON.parse(raw),contract=JSON.parse(await readFile(new URL('../amplification-release-contract.json',import.meta.url),'utf8'));
 assert.equal(data.recipes.length,14);assert.equal(new Set(data.recipes.map(p=>p.id)).size,14);
 for(const p of data.recipes){
- assert(p.rows.length>1&&p.sources.length>0,'Manufacturing preset has components and references');
- for(const r of p.rows){assert.equal(r.mw,'','MW remains user-supplied');assert.equal(r.stock,'','Stock remains user-supplied');assert(Number.isFinite(Number(r.target))&&Number(r.target)>0);}
+ assert(p.rows.length>1&&p.sources.length>0,'Preparation preset has components and references');
+ assert(['recipe','composition'].includes(p.presetType)&&p.steps);
+ for(const r of p.rows){assert.equal(r.mw,'','MW remains user-supplied');assert.equal(r.stock,({'low-te-4479554:0':'1','low-te-4479554:1':'0.5','qiagen-qbt:3':'10'})[p.id+':'+p.rows.indexOf(r)]||'','Only editable source-specified Stocks have defaults');assert(Number.isFinite(Number(r.target))&&Number(r.target)>0);}
  for(const s of p.sources)assert.equal(new URL(s.url).protocol,'https:');
 }
 const neb=data.recipes.find(p=>p.sources.some(s=>s.url==='https://www.neb.com/en/products/b0537-isothermal-amplification-buffer'));
 assert(neb);assert.equal(neb.rows.length,5);assert(neb.rows.some(r=>r.name==='MgSO4'&&r.target==='2'&&r.unit==='mM'));assert(neb.note.includes('v/v'));
-assert(core.includes("TOOL_VERSION='1.1.0',COMPOSER_VERSION='0.2.0'"));
-assert(!/dev\.4|로컬 후보|로컬 개발 후보/.test(html+app+core));
+assert(core.includes("TOOL_VERSION='1.1.1',COMPOSER_VERSION='0.2.0'"));
+assert(!/dev\.\d+|로컬.*후보/.test(html+app+core));
 assert.deepEqual([...app.matchAll(/fetch\(([^)]+)\)/g)].map(m=>m[1]),["'./presets.json'"],'Only fixed same-origin preset read');
 assert(!/XMLHttpRequest|sendBeacon|localStorage|sessionStorage|document\.write|\beval\s*\(|postMessage/.test(app+core));
 assert(app.includes("escape=s=>String(s??'')")&&app.includes('escape(safeCell(s))'),'Escape rendered and copied user text');
@@ -23,4 +24,4 @@ assert(!/<textarea[^>]*\brequired/.test(html));assert.equal((html.match(/<dialog
 const original=legacy.replace(/const dilutionDialog=\$\('dilution-dialog'\);\r?\n\$\('open-dilution'\).*\r?\n\$\('close-dilution'\).*\r?\n\r?\n/,'');
 const baseline=contract.bufferRelease.previousPublic.find(e=>e.target==='tools/dilution-calculator/app.mjs');
 assert.equal(createHash('sha256').update(original).digest('hex'),baseline.sha256,'Legacy app preserved apart from dialog bindings');
-console.log('PASS: curated14 presets, public version, user MW/Stock, fixed local preset read and escaped output; independent controls and preserved legacy app.');
+console.log('PASS: curated14 presets, public version, user MW/editable source Stocks, fixed local preset read and escaped output; independent controls and preserved legacy app.');

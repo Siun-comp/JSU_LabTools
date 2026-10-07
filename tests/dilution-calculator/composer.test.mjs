@@ -34,5 +34,5 @@ test('scientific small amount exact',()=>{const x=run({target:'1e-9',mw:'40'},{v
 test('q.s never estimateswater volume',()=>assert.equal(run().makeup,'DW로 최종 1000 mL까지 맞추세요.'));
 test('customsolvent instruction',()=>assert.match(run({},{solvent:'TE'}).makeup,/^TE로/));
 const presets=JSON.parse(readFileSync(new URL('../../tools/dilution-calculator/presets.json',import.meta.url))).recipes;
-for(const p of presets)test('curated preset arithmetic '+p.id,()=>{const rows=p.rows.map(r=>({...r,mw:'100',stock:'1000',stockUnit:r.unit}));const x=compose(batch,rows);assert.equal(x.complete,true,p.id+JSON.stringify(x));assert.equal(x.rows.length,p.rows.length);});
+for(const p of presets)test('curated preset arithmetic '+p.id,()=>{const rows=p.rows.map(r=>({...r,mw:'100',stock:r.unit==='%v/v'?'100':'1000',stockUnit:r.unit}));const x=compose(batch,rows);assert.equal(x.complete,true,p.id+JSON.stringify(x));assert.equal(x.rows.length,p.rows.length);});
 console.log(cases+' engine cases passed');
