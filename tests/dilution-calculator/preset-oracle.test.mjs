@@ -5,6 +5,12 @@ import {compose} from '../../tools/dilution-calculator/composer-core.mjs';
 const data=JSON.parse(readFileSync(new URL('../../tools/dilution-calculator/presets.json',import.meta.url)));
 const batch={volume:'1000',unit:'mL',fold:'1',solvent:'DW'},results=[];
 const cases=[
+ ['tris-hcl-1m-ph8',[[1,'M','solid']],[{mw:'121.14'}],['121.14 g']],
+ ['edta-0p5m-ph8',[[.5,'M','solid']],[{mw:'372.24'}],['186.12 g']],
+ ['tae-50x-qiagen',[[4840,'mg/L','solid'],[.1142,'%v/v','pure'],[1,'mM','stock']],[{},{},{}],['4.84 g','1.142 mL','2 mL']],
+ ['dpbs-14190',[[200,'mg/L','solid'],[200,'mg/L','solid'],[8000,'mg/L','solid'],[2160,'mg/L','solid']],[{},{},{},{}],['0.2 g','0.2 g','8 g','2.16 g']],
+ ['qiagen-eb',[[10,'mM','solid']],[{mw:'121.14'}],['1.2114 g']],
+ ['qiagen-ae',[[10,'mM','solid'],[.5,'mM','stock']],[{mw:'121.14'},{}],['1.2114 g','1 mL']],
  ['te-am9849',[[10,'mM','stock'],[1,'mM','stock']],[{stock:'1',stockUnit:'M'},{stock:'.5',stockUnit:'M'}],['10 mL','2 mL']],
  ['low-te-4479554',[[10,'mM','stock'],[.1,'mM','stock']],[{},{}],['10 mL','0.2 mL']],
  ['tae-15558042',[[40,'mM','stock'],[1,'mM','stock']],[{stock:'1',stockUnit:'M'},{stock:'.5',stockUnit:'M'}],['40 mL','2 mL']],
@@ -40,8 +46,20 @@ assert(p('ssiii-first').ph.includes('5X'));assert(p('ssiii-first').note.includes
 for(const preset of data.recipes){assert(preset.steps&&preset.presetType);for(const r of preset.rows)assert.equal(r.mw,'');}
 // Original mass recipes are rounded; do not rewrite MW to force string equality.
 assert(Math.abs(6.057-6.06)<=.005);assert(Math.abs(10.463-10.46)<=.005);
-assert.deepEqual(data.recipes.filter(p=>p.presetType==='recipe').map(p=>p.id).sort(),['low-te-4479554','qiagen-qbt','qiagen-qc','qiagen-qf']);
+assert.deepEqual(data.recipes.filter(p=>p.presetType==='recipe').map(p=>p.id).sort(),['edta-0p5m-ph8','low-te-4479554','qiagen-qbt','qiagen-qc','qiagen-qf','tae-50x-qiagen','tris-hcl-1m-ph8']);
 // High-fold scaling and solvent volume gates continue to apply to corrected presets.
 const low=compose({...batch,fold:'10'},p('low-te-4479554').rows);assert.deepEqual(low.rows.map(r=>r.amount),['100 mL','2 mL']);
 assert.equal(compose({...batch,fold:'10'},p('qiagen-qbt').rows.map(r=>({...r,mw:r.name==='NaCl'?'58.44':'209.26'}))).complete,false);
-console.log('14 independently specified preset oracles + material/pH/source/boundary checks passed.');
+console.log('20 independently specified preset oracles + material/pH/source/boundary checks passed.');
+
+const direct=p('te-am9849').routes.find(r=>r.id==='tris-base');
+assert.equal(direct.rows[0].name,'Tris base');assert.equal(direct.rows[0].mw,'');
+const teDirect=compose(batch,direct.rows.map((r,i)=>({...r,...(i===0?{mw:'121.14'}:{})})));
+assert.equal(teDirect.complete,true);assert.deepEqual(teDirect.rows.map(r=>r.amount),['1.2114 g','2 mL']);
+assert(direct.steps.includes('HCl'));assert(direct.note.includes('製造')===false);assert(direct.note.includes('제조사'));
+const tae50=compose({...batch,fold:'50'},p('tae-50x-qiagen').rows);
+assert.equal(tae50.complete,true);assert.deepEqual(tae50.rows.map(r=>r.amount),['242 g','57.1 mL','100 mL']);
+assert.equal(p('tae-50x-qiagen').sources.length,1);assert(!p('tae-50x-qiagen').sources[0].url.includes('promega'));
+assert(p('tris-hcl-1m-ph8').fixedFold&&p('edta-0p5m-ph8').fixedFold);
+assert(p('qiagen-ae').ph.includes('9.0'));assert(p('qiagen-ae').note.includes('보장되지'));
+console.log('20 preset source specifications + TE direct route + exact TAE50X source amounts passed.');

@@ -1,5 +1,5 @@
 import {rational as Q,parseDecimal,format} from './core.mjs';
-export const TOOL_VERSION='1.1.1',COMPOSER_VERSION='0.2.0';
+export const TOOL_VERSION='1.2.0',COMPOSER_VERSION='0.2.0';
 const zero=Q(0n),one=Q(1n);
 const mul=(a,b)=>Q(a.n*b.n,a.d*b.d),div=(a,b)=>{if(!b.n)throw Error('Stock 농도는 0보다 커야 합니다.');return Q(a.n*b.d,a.d*b.n);};
 const add=(a,b)=>Q(a.n*b.d+b.n*a.d,a.d*b.d),cmp=(a,b)=>a.n*b.d-b.n*a.d;

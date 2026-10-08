@@ -1,12 +1,12 @@
 {
-  "edition": "2026-10-07-method-corrected",
+  "edition": "2026-10-08-default-fold-corrected",
   "recipes": [
     {
       "id": "te-am9849",
       "name": "TE",
       "purpose": "핵산 보관·용출",
       "ph": "출처 pH 8.0",
-      "note": "공개된 완성품 조성을 기준으로 Stock 혼합 방식을 사용합니다. 제조사의 전체 제조공정을 뜻하지 않습니다.",
+      "note": "공개 10 mM Tris·1 mM EDTA 조성에 대해 조제 경로를 선택합니다. 기본 1 M Tris/0.5 M EDTA는 수정 가능한 편의값이며 제조사 지정 공정이 아닙니다.",
       "sources": [
         {
           "label": "제조사 조성",
@@ -24,9 +24,9 @@
           "unit": "mM",
           "mode": "stock",
           "mw": "",
-          "stock": "",
+          "stock": "1",
           "stockUnit": "M",
-          "hint": "pH 조절된 보유 원액 농도를 입력하세요."
+          "hint": "보유 원액의 실제 농도·pH를 확인하고 수정하세요. 기본 농도는 도구가 선택한 경로의 편의값입니다."
         },
         {
           "name": "EDTA 용액 (pH 8.0)",
@@ -34,13 +34,98 @@
           "unit": "mM",
           "mode": "stock",
           "mw": "",
-          "stock": "",
+          "stock": "0.5",
           "stockUnit": "M",
-          "hint": "pH 조절된 보유 원액 농도를 입력하세요."
+          "hint": "보유 원액의 실제 농도·pH를 확인하고 수정하세요. 기본 농도는 도구가 선택한 경로의 편의값입니다."
         }
       ],
       "presetType": "composition",
-      "steps": "pH 8.0으로 조절된 Tris·EDTA 원액을 혼합하고 DW로 최종 부피를 맞추세요."
+      "steps": "pH 8.0으로 조절된 Tris·EDTA 원액을 혼합하고 DW로 최종 부피를 맞추세요.",
+      "routes": [
+        {
+          "id": "stocks",
+          "label": "Stock 혼합",
+          "rows": [
+            {
+              "name": "Tris-HCl 용액 (pH 8.0)",
+              "target": "10",
+              "unit": "mM",
+              "mode": "stock",
+              "mw": "",
+              "stock": "1",
+              "stockUnit": "M",
+              "hint": "보유 원액의 실제 농도·pH를 확인하고 수정하세요. 기본 농도는 도구가 선택한 경로의 편의값입니다."
+            },
+            {
+              "name": "EDTA 용액 (pH 8.0)",
+              "target": "1",
+              "unit": "mM",
+              "mode": "stock",
+              "mw": "",
+              "stock": "0.5",
+              "stockUnit": "M",
+              "hint": "보유 원액의 실제 농도·pH를 확인하고 수정하세요. 기본 농도는 도구가 선택한 경로의 편의값입니다."
+            }
+          ],
+          "steps": "pH 8.0으로 조절된 Tris·EDTA 원액을 혼합하고 DW로 최종 부피를 맞추세요.",
+          "note": "공개 10 mM Tris·1 mM EDTA 조성에 대해 조제 경로를 선택합니다. 기본 1 M Tris/0.5 M EDTA는 수정 가능한 편의값이며 제조사 지정 공정이 아닙니다.",
+          "sources": [
+            {
+              "label": "제조사 조성",
+              "url": "https://www.thermofisher.com/order/catalog/product/AM9849"
+            },
+            {
+              "label": "제조사 조성",
+              "url": "https://www.thermofisher.com/order/catalog/product/A15608/faqs"
+            }
+          ],
+          "presetType": "composition"
+        },
+        {
+          "id": "tris-base",
+          "label": "Tris base + EDTA Stock",
+          "rows": [
+            {
+              "name": "Tris base",
+              "target": "10",
+              "unit": "mM",
+              "mode": "solid",
+              "mw": "",
+              "stock": "",
+              "stockUnit": "M",
+              "hint": "실제 Tris base의 MW를 입력하세요. HCl로 pH를 조절하며 HCl 양은 계산하지 않습니다."
+            },
+            {
+              "name": "EDTA 용액 (pH 8.0)",
+              "target": "1",
+              "unit": "mM",
+              "mode": "stock",
+              "mw": "",
+              "stock": "0.5",
+              "stockUnit": "M",
+              "hint": "보유 원액의 실제 농도·pH를 확인하고 수정하세요. 기본 농도는 도구가 선택한 경로의 편의값입니다."
+            }
+          ],
+          "steps": "Tris base를 최종 부피보다 적은 DW에 녹이고 HCl로 pH 8.0을 조절한 뒤 pH 8.0 EDTA 원액을 혼합하세요. 최종 pH를 확인하고 DW로 최종 부피를 맞추세요.",
+          "note": "TE 공개 조성과 Tris 원액 제조 원리에 기반해 도구가 선택한 조제 경로입니다. 제조사 TE 제조공정 확인을 뜻하지 않습니다. HCl 투입량·최종 pH는 자동 계산하지 않습니다.",
+          "sources": [
+            {
+              "label": "제조사 조성",
+              "url": "https://www.thermofisher.com/order/catalog/product/AM9849"
+            },
+            {
+              "label": "제조사 조성",
+              "url": "https://www.thermofisher.com/order/catalog/product/A15608/faqs"
+            },
+            {
+              "label": "Thermo Fisher · 1 M Tris-HCl pH 8.0 preparation",
+              "url": "https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_040971.pdf"
+            }
+          ],
+          "presetType": "composition"
+        }
+      ],
+      "defaultFold": "1"
     },
     {
       "id": "low-te-4479554",
@@ -77,14 +162,15 @@
         }
       ],
       "presetType": "recipe",
-      "steps": "pH 8.0의 Tris-HCl·EDTA 원액을 혼합하고 DW로 최종 부피를 맞추세요."
+      "steps": "pH 8.0의 Tris-HCl·EDTA 원액을 혼합하고 DW로 최종 부피를 맞추세요.",
+      "defaultFold": "1"
     },
     {
       "id": "tae-15558042",
-      "name": "TAE — UltraPure 15558042",
+      "name": "TAE — UltraPure 15558042 — 10X",
       "purpose": "핵산 전기영동",
       "ph": "출처 1X pH 8.3",
-      "note": "15558042의 공개 1X 조성을 기준으로 한 Stock 혼합 방식입니다. Tris base와 아세트산의 투입 비율 또는 제조사 제조공정은 자동 산출하지 않습니다.",
+      "note": "15558042의 공개 1X 조성을 기준으로 한 Stock 혼합 방식입니다. Tris base와 아세트산의 투입 비율 또는 제조사 제조공정은 자동 산출하지 않습니다. 불러오기·복원 시 기본 제조 배수는 10X입니다. 성분 표는 1X 기준이며 원하는 제조 배수로 수정할 수 있습니다.",
       "sources": [
         {
           "label": "제조사 조성",
@@ -114,14 +200,15 @@
         }
       ],
       "presetType": "composition",
-      "steps": "pH가 조절된 Tris-acetate·EDTA 원액을 혼합하고 최종 부피를 맞춘 뒤 pH를 확인하세요."
+      "steps": "pH가 조절된 Tris-acetate·EDTA 원액을 혼합하고 최종 부피를 맞춘 뒤 pH를 확인하세요.",
+      "defaultFold": "10"
     },
     {
       "id": "tbe-am986x",
-      "name": "TBE — AM986x 조성 기준",
+      "name": "TBE — AM986x 조성 기준 — 10X",
       "purpose": "핵산 전기영동",
       "ph": "출처 1X pH 8.0–8.5 (25°C)",
-      "note": "AM986x의 공개 성분과 1X 조성 기준입니다. EDTA는 pH 조절된 Stock을 쓰는 본 도구의 조제 방식이며, 제조사 분말 제품의 제조공정을 재현한다는 뜻이 아닙니다. 기존 J62449 제품의 pH 규격과 혼합하지 않습니다.",
+      "note": "AM986x의 공개 성분과 1X 조성 기준입니다. EDTA는 pH 조절된 Stock을 쓰는 본 도구의 조제 방식이며, 제조사 분말 제품의 제조공정을 재현한다는 뜻이 아닙니다. 기존 J62449 제품의 pH 규격과 혼합하지 않습니다. 불러오기·복원 시 기본 제조 배수는 10X입니다. 성분 표는 1X 기준이며 원하는 제조 배수로 수정할 수 있습니다.",
       "sources": [
         {
           "label": "AM9863/AM9864/AM9865 · MAN0018494 Rev. A.0",
@@ -159,14 +246,15 @@
         }
       ],
       "presetType": "composition",
-      "steps": "Tris base와 붕산을 일부 DW에 녹이고 EDTA 원액을 넣으세요. 최종 부피를 맞춘 뒤 pH를 실제 확인하세요."
+      "steps": "Tris base와 붕산을 일부 DW에 녹이고 EDTA 원액을 넣으세요. 최종 부피를 맞춘 뒤 pH를 실제 확인하세요.",
+      "defaultFold": "10"
     },
     {
       "id": "ssc-reference",
-      "name": "SSC — 공개 조성 기준",
+      "name": "SSC — 공개 조성 기준 — 20X",
       "purpose": "핵산 혼성화·세척",
       "ph": "출처 20X pH 7.0",
-      "note": "공급 20X의 3 M NaCl·0.3 M trisodium citrate를 1X로 정규화한 조성입니다. 실제 원료 MW는 직접 입력합니다. 공개 조성을 기반으로 계산하며 J60839 제조공정이나 모든 배수의 pH를 보장하지 않습니다.",
+      "note": "공급 20X의 3 M NaCl·0.3 M trisodium citrate를 1X로 정규화한 조성입니다. 실제 원료 MW는 직접 입력합니다. 공개 조성을 기반으로 계산하며 J60839 제조공정이나 모든 배수의 pH를 보장하지 않습니다. 불러오기·복원 시 기본 제조 배수는 20X입니다. 성분 표는 1X 기준이며 원하는 제조 배수로 수정할 수 있습니다.",
       "sources": [
         {
           "label": "G-Biosciences · SSC 20X 공개 조성",
@@ -195,7 +283,8 @@
         }
       ],
       "presetType": "composition",
-      "steps": "NaCl과 trisodium citrate를 일부 DW에 녹이고 HCl로 pH 7.0을 조절한 뒤 최종 부피를 맞추세요."
+      "steps": "NaCl과 trisodium citrate를 일부 DW에 녹이고 HCl로 pH 7.0을 조절한 뒤 최종 부피를 맞추세요.",
+      "defaultFold": "20"
     },
     {
       "id": "pbs-10010023",
@@ -244,14 +333,15 @@
         }
       ],
       "presetType": "composition",
-      "steps": "표의 정확한 염형을 DW에 녹여 최종 부피를 맞추고 pH를 실제 확인하세요."
+      "steps": "표의 정확한 염형을 DW에 녹여 최종 부피를 맞추고 pH를 실제 확인하세요.",
+      "defaultFold": "1"
     },
     {
       "id": "rcutsmart-b6004",
-      "name": "NEB rCutSmart (B6004)",
+      "name": "NEB rCutSmart (B6004) — 10X",
       "purpose": "제한효소 반응",
       "ph": "출처 1X pH 7.9 (25°C)",
-      "note": "공개 조성 기반 재구성입니다. Recombinant Albumin을 BSA로 임의 대체하지 마세요. 제조사의 실제 제조공정·제품 성능 동등성을 뜻하지 않습니다.",
+      "note": "공개 조성 기반 재구성입니다. Recombinant Albumin을 BSA로 임의 대체하지 마세요. 제조사의 실제 제조공정·제품 성능 동등성을 뜻하지 않습니다. 불러오기·복원 시 기본 제조 배수는 10X입니다. 성분 표는 1X 기준이며 원하는 제조 배수로 수정할 수 있습니다.",
       "sources": [
         {
           "label": "제조사 조성",
@@ -302,14 +392,15 @@
         }
       ],
       "presetType": "composition",
-      "steps": "pH가 조절된 Tris-acetate 원액과 나머지 성분을 혼합한 뒤 최종 부피와 pH를 확인하세요."
+      "steps": "pH가 조절된 Tris-acetate 원액과 나머지 성분을 혼합한 뒤 최종 부피와 pH를 확인하세요.",
+      "defaultFold": "10"
     },
     {
       "id": "isothermal-b0537",
-      "name": "NEB Isothermal Amplification Buffer (B0537)",
+      "name": "NEB Isothermal Amplification Buffer (B0537) — 10X",
       "purpose": "등온 증폭 · LAMP",
       "ph": "출처 1X pH 8.8 (25°C)",
-      "note": "성분 농도는 NEB 공개 조성입니다. Tween 20의 v/v 기준은 Cole 등(2022)의 사용 조성에 근거합니다. NEB 제품 페이지에는 % 종류가 명시되지 않습니다. 반응에 추가하는 MgSO₄는 별도로 입력하세요. 공개 조성 기반 재구성이며 제조사 제조공정·제품 성능 동등성을 뜻하지 않습니다.",
+      "note": "성분 농도는 NEB 공개 조성입니다. Tween 20의 v/v 기준은 Cole 등(2022)의 사용 조성에 근거합니다. NEB 제품 페이지에는 % 종류가 명시되지 않습니다. 반응에 추가하는 MgSO₄는 별도로 입력하세요. 공개 조성 기반 재구성이며 제조사 제조공정·제품 성능 동등성을 뜻하지 않습니다. 불러오기·복원 시 기본 제조 배수는 10X입니다. 성분 표는 1X 기준이며 원하는 제조 배수로 수정할 수 있습니다.",
       "sources": [
         {
           "label": "NEB 제품 조성",
@@ -369,7 +460,8 @@
         }
       ],
       "presetType": "composition",
-      "steps": "pH가 조절된 Tris 원액과 나머지 성분을 혼합하고 최종 부피를 맞춘 뒤 pH를 실제 확인하세요."
+      "steps": "pH가 조절된 Tris 원액과 나머지 성분을 혼합하고 최종 부피를 맞춘 뒤 pH를 실제 확인하세요.",
+      "defaultFold": "10"
     },
     {
       "id": "qiagen-p1",
@@ -415,7 +507,8 @@
         }
       ],
       "presetType": "composition",
-      "steps": "pH 8.0의 Tris·EDTA 원액을 혼합하고 RNase A를 넣어 최종 부피를 맞추세요. RNase A 첨가 후 2–8°C에서 보관하세요."
+      "steps": "pH 8.0의 Tris·EDTA 원액을 혼합하고 RNase A를 넣어 최종 부피를 맞추세요. RNase A 첨가 후 2–8°C에서 보관하세요.",
+      "defaultFold": "1"
     },
     {
       "id": "qiagen-p2",
@@ -450,7 +543,8 @@
         }
       ],
       "presetType": "composition",
-      "steps": "NaOH와 SDS를 DW에 용해하고 최종 부피를 맞추세요. 공식 FAQ의 보관 조건은 실온입니다."
+      "steps": "NaOH와 SDS를 DW에 용해하고 최종 부피를 맞추세요. 공식 FAQ의 보관 조건은 실온입니다.",
+      "defaultFold": "1"
     },
     {
       "id": "qiagen-qbt",
@@ -504,7 +598,8 @@
         }
       ],
       "presetType": "recipe",
-      "steps": "NaCl과 MOPS free acid를 일부 DW에 녹이고 NaOH로 pH 7.0을 조절하세요. 이소프로판올과 Triton Stock을 넣은 뒤 DW로 최종 부피를 맞추세요."
+      "steps": "NaCl과 MOPS free acid를 일부 DW에 녹이고 NaOH로 pH 7.0을 조절하세요. 이소프로판올과 Triton Stock을 넣은 뒤 DW로 최종 부피를 맞추세요.",
+      "defaultFold": "1"
     },
     {
       "id": "qiagen-qc",
@@ -548,7 +643,8 @@
         }
       ],
       "presetType": "recipe",
-      "steps": "NaCl과 MOPS free acid를 일부 DW에 녹이고 NaOH로 pH 7.0을 조절하세요. 이소프로판올을 넣은 뒤 DW로 최종 부피를 맞추세요."
+      "steps": "NaCl과 MOPS free acid를 일부 DW에 녹이고 NaOH로 pH 7.0을 조절하세요. 이소프로판올을 넣은 뒤 DW로 최종 부피를 맞추세요.",
+      "defaultFold": "1"
     },
     {
       "id": "qiagen-qf",
@@ -592,14 +688,15 @@
         }
       ],
       "presetType": "recipe",
-      "steps": "NaCl과 Tris base를 일부 DW에 녹이고 HCl로 pH 8.5를 조절하세요. 이소프로판올을 넣은 뒤 DW로 최종 부피를 맞추세요."
+      "steps": "NaCl과 Tris base를 일부 DW에 녹이고 HCl로 pH 8.5를 조절하세요. 이소프로판올을 넣은 뒤 DW로 최종 부피를 맞추세요.",
+      "defaultFold": "1"
     },
     {
       "id": "ssiii-first",
-      "name": "SuperScript III First-Strand — 18080093",
+      "name": "SuperScript III First-Strand — 18080093 — 5X",
       "purpose": "역전사",
       "ph": "출처 공급 5X의 pH 8.3",
-      "note": "18080093에 공급되는 5X First-Strand의 공개 조성 기준입니다. 다른 kit의 10X RT Buffer와 구별하세요. DTT는 별도 시약입니다. 제조사 제조공정이나 임의 제조 배수의 pH를 보장하지 않습니다.",
+      "note": "18080093에 공급되는 5X First-Strand의 공개 조성 기준입니다. 다른 kit의 10X RT Buffer와 구별하세요. DTT는 별도 시약입니다. 제조사 제조공정이나 임의 제조 배수의 pH를 보장하지 않습니다. 불러오기·복원 시 기본 제조 배수는 5X입니다. 성분 표는 1X 기준이며 원하는 제조 배수로 수정할 수 있습니다.",
       "sources": [
         {
           "label": "제조사 조성",
@@ -641,7 +738,258 @@
         }
       ],
       "presetType": "composition",
-      "steps": "pH가 조절된 Tris 원액과 KCl·MgCl2를 혼합하고 최종 부피를 맞춘 뒤 pH를 실제 확인하세요."
+      "steps": "pH가 조절된 Tris 원액과 KCl·MgCl2를 혼합하고 최종 부피를 맞춘 뒤 pH를 실제 확인하세요.",
+      "defaultFold": "5"
+    },
+    {
+      "id": "tris-hcl-1m-ph8",
+      "name": "Tris-HCl 1 M, pH 8.0 — Stock",
+      "purpose": "공통 Stock · 핵산 보관·용출·버퍼 제조",
+      "ph": "pH 8.0 (실온에서 실제 측정)",
+      "presetType": "recipe",
+      "steps": "Tris base를 최종 부피의 약 80% DW에 용해하고 HCl로 pH 8.0을 맞춘 뒤 DW로 최종 부피까지 맞추세요.",
+      "note": "TE 등 여러 버퍼의 기반 Stock. pH 조절에 필요한 HCl 양은 자동 계산하지 않습니다. QIAGEN은 1 M Tris·Cl 제조 시 Tris base 121.1 g/L 후 HCl로 pH 조절하는 방법을 제시합니다. 목표 농도는 원액 자체의 농도이며 제조 배수는 1X로 고정합니다. MW는 실제 원료 기준으로 직접 입력하며 계산 질량은 원문의 반올림값과 다를 수 있습니다.",
+      "sources": [
+        {
+          "label": "Thermo Fisher · 1 M Tris-HCl pH 8.0 preparation",
+          "url": "https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_040971.pdf"
+        },
+        {
+          "label": "QIAGEN · DNA storage / Tris-Cl",
+          "url": "https://www.qiagen.com/au/knowledge-and-support/knowledge-hub/bench-guide/dna/handling-dna/storage-of-dna"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Tris base",
+          "target": "1",
+          "unit": "M",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "M",
+          "hint": "HCl로 pH 8.0 조절. HCl 투입량은 계산하지 않습니다."
+        }
+      ],
+      "fixedFold": true,
+      "defaultFold": "1"
+    },
+    {
+      "id": "edta-0p5m-ph8",
+      "name": "EDTA 0.5 M, pH 8.0 — Stock",
+      "purpose": "공통 Stock · TE/TAE/TBE·핵산 보관",
+      "ph": "출처 pH 8.0 · 실제 확인",
+      "presetType": "recipe",
+      "steps": "Disodium EDTA dihydrate를 최종 부피의 약 80% DW에 넣고 교반하면서 NaOH로 pH 8.0을 맞춰 완전히 용해한 뒤 DW로 최종 부피까지 맞추세요.",
+      "note": "EDTA는 pH를 올리지 않으면 잘 용해되지 않습니다. NaOH 사용량은 자동 계산하지 않습니다. 정확한 수화물 형태를 유지해야 합니다. 목표 농도는 원액 자체의 농도이며 제조 배수는 1X로 고정합니다. MW는 실제 원료 기준으로 직접 입력하며 계산 질량은 원문의 반올림값과 다를 수 있습니다.",
+      "sources": [
+        {
+          "label": "Thermo Fisher · 0.5 M EDTA preparation",
+          "url": "https://assets.thermofisher.com/TFS-Assets/LSG/manuals/cms_040971.pdf"
+        },
+        {
+          "label": "Thermo Fisher · 0.5 M EDTA product",
+          "url": "https://www.thermofisher.com/order/catalog/product/kr/en/AM9262"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Disodium EDTA dihydrate (Na2EDTA·2H2O)",
+          "target": "0.5",
+          "unit": "M",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "M",
+          "hint": "정확한 dihydrate 염형 사용. NaOH로 pH 8.0 조절해야 완전 용해됩니다."
+        }
+      ],
+      "fixedFold": true,
+      "defaultFold": "1"
+    },
+    {
+      "id": "tae-50x-qiagen",
+      "name": "TAE — QIAGEN 50X 제조법",
+      "purpose": "핵산 전기영동",
+      "ph": "출처 pH 미지정 · 실제 확인",
+      "presetType": "recipe",
+      "steps": "Tris base를 최종 부피보다 적은 DW에 녹이고 빙초산·pH 8.0의 EDTA 원액을 혼합한 뒤 DW로 최종 부피를 맞추세요. 기본 제조 배수는 원문과 같은 50X입니다. 1X 사용액을 만들려면 제조 배수를 1로 수정하세요. pH·용해도는 실제 확인하세요.",
+      "note": "QIAGEN 50X 1 L 원문: Tris base 242 g·빙초산 57.1 mL·0.5 M EDTA 100 mL. 표는 이를 1X 기준으로 정규화했으며 원문 50X 제조 배수를 기본으로 불러옵니다. Tris는 질량 기준으로 원문을 보존합니다(명목 약 40 mM). Promega의 다른 EDTA 제조법과 혼합하지 않습니다. 불러오기·복원 시 기본 제조 배수는 50X입니다. 성분 표는 1X 기준이며 원하는 제조 배수로 수정할 수 있습니다.",
+      "sources": [
+        {
+          "label": "QIAGEN · DNA analytical gels · TAE",
+          "url": "https://www.qiagen.com/us/knowledge-and-support/knowledge-hub/bench-guide/dna/analysing-dna/dna-analysis-using-analytical-gels"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Tris base",
+          "target": "4840",
+          "unit": "mg/L",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM",
+          "hint": "원문 50X 1 L의 Tris base 242 g을 1X 질량농도로 환산했습니다. MW 입력은 필요 없습니다."
+        },
+        {
+          "name": "Glacial acetic acid",
+          "target": "0.1142",
+          "unit": "%v/v",
+          "mode": "pure",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "%v/v",
+          "hint": "QIAGEN 50X recipe의 57.1 mL/L를 1X 기준으로 정규화한 부피비."
+        },
+        {
+          "name": "EDTA 용액 (pH 8.0)",
+          "target": "1",
+          "unit": "mM",
+          "mode": "stock",
+          "mw": "",
+          "stock": "0.5",
+          "stockUnit": "M",
+          "hint": "QIAGEN 50X recipe에서 0.5 M EDTA 100 mL/L."
+        }
+      ],
+      "defaultFold": "50"
+    },
+    {
+      "id": "dpbs-14190",
+      "name": "DPBS — Gibco 14190, no Ca/Mg",
+      "purpose": "검체·세포 세척·희석·전처리",
+      "ph": "출처 조성표 pH 미지정 · 실제 확인",
+      "presetType": "composition",
+      "steps": "표에 지정된 정확한 염형을 DW에 용해하여 최종 부피까지 맞추세요. pH와 삼투압은 실제 확인이 필요합니다.",
+      "note": "Ca2+/Mg2+가 없는 Dulbecco's PBS. Na2HPO4·7H2O 질량농도 기준이며 anhydrous salt로 임의 치환하지 않습니다.",
+      "sources": [
+        {
+          "label": "Thermo Fisher · 14190 DPBS formulation",
+          "url": "https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.147.html"
+        },
+        {
+          "label": "Thermo Fisher · PBS vs DPBS guide",
+          "url": "https://www.thermofisher.com/kr/ko/home/life-science/cell-culture/mammalian-cell-culture/reagents/balanced-salt-solutions.html"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Potassium chloride (KCl)",
+          "target": "200",
+          "unit": "mg/L",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mg/L",
+          "hint": ""
+        },
+        {
+          "name": "Potassium phosphate monobasic (KH2PO4)",
+          "target": "200",
+          "unit": "mg/L",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mg/L",
+          "hint": ""
+        },
+        {
+          "name": "Sodium chloride (NaCl)",
+          "target": "8000",
+          "unit": "mg/L",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mg/L",
+          "hint": ""
+        },
+        {
+          "name": "Sodium phosphate dibasic heptahydrate (Na2HPO4·7H2O)",
+          "target": "2160",
+          "unit": "mg/L",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mg/L",
+          "hint": "7수화물 질량 기준. 다른 수화물/무수염으로 자동 보정하지 않습니다."
+        }
+      ],
+      "defaultFold": "1"
+    },
+    {
+      "id": "qiagen-eb",
+      "name": "QIAGEN Buffer EB",
+      "purpose": "DNA 용출·PCR cleanup 후 보관",
+      "ph": "pH 8.5",
+      "presetType": "composition",
+      "steps": "Tris base를 일부 DW에 용해하고 HCl로 pH 8.5를 맞춘 뒤 최종 부피까지 맞추세요. 제조사 실제 제조공정을 의미하지 않습니다.",
+      "note": "공식 조성은 10 mM Tris-Cl, pH 8.5. EDTA가 없어 후속 효소반응에 유리한 대표적인 DNA elution buffer입니다.",
+      "sources": [
+        {
+          "label": "QIAGEN FAQ-199 · Buffer EB",
+          "url": "https://www.qiagen.com/ko-us/resources/faq/199"
+        },
+        {
+          "label": "QIAGEN Buffer EB product",
+          "url": "https://www.qiagen.com/us/products/discovery-and-translational-research/lab-essentials/buffers-reagents/buffer-eb"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Tris base",
+          "target": "10",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM",
+          "hint": "HCl로 최종 pH 8.5 조절. 제조사 제품의 실제 생산공정을 의미하지 않습니다."
+        }
+      ],
+      "defaultFold": "1"
+    },
+    {
+      "id": "qiagen-ae",
+      "name": "QIAGEN Buffer AE",
+      "purpose": "DNA 용출·보관",
+      "ph": "pH 9.0",
+      "presetType": "composition",
+      "steps": "Tris base를 최종 부피보다 적은 DW에 녹이고 EDTA 원액을 혼합하세요. HCl 등으로 최종 pH 9.0을 실제 조절·확인한 뒤 DW로 최종 부피를 맞추세요. pH 조절량은 계산하지 않습니다.",
+      "note": "공식 공개 조성은 10 mM Tris-Cl·0.5 mM EDTA, pH 9.0입니다. 도구는 Tris base + EDTA Stock 경로를 선택하며 제조사 실제 공정을 뜻하지 않습니다. EDTA pH 8.0 원액을 넣는 것만으로 최종 pH 9.0이 보장되지 않습니다.",
+      "sources": [
+        {
+          "label": "QIAGEN FAQ-730 · Buffer AE",
+          "url": "https://www.qiagen.com/us/resources/faq/730"
+        },
+        {
+          "label": "QIAGEN QIAwave DNA kits FAQ",
+          "url": "https://www.qiagen.com/us/products/discovery-and-translational-research/dna-rna-purification/dna-purification/genomic-dna/qiawave-dna-kits"
+        }
+      ],
+      "rows": [
+        {
+          "name": "Tris base",
+          "target": "10",
+          "unit": "mM",
+          "mode": "solid",
+          "mw": "",
+          "stock": "",
+          "stockUnit": "mM",
+          "hint": "최종 pH 9.0 실제 확인."
+        },
+        {
+          "name": "EDTA 용액 (pH 8.0)",
+          "target": "0.5",
+          "unit": "mM",
+          "mode": "stock",
+          "mw": "",
+          "stock": "0.5",
+          "stockUnit": "M",
+          "hint": "0.5 M EDTA pH 8.0 Stock 사용 권장."
+        }
+      ],
+      "defaultFold": "1"
     }
   ]
 }

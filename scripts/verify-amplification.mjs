@@ -33,6 +33,10 @@ for(const e of manifest.files){
  if(!contract.baseline.files.some(p=>p.target===e.target))assert(!/(?:^|\/)(?:node_modules|\.git|src|validation|references|docs|tests)(?:\/|$)|\.map$|\.xlsx?$|\.pcrd$/i.test(e.target),'No new development/private/experimental files: '+e.target);
 }
 const targets=new Set(manifest.files.map(e=>e.target));
+const enhancement=contract.bufferEnhancementRelease;assert.equal(enhancement.previousSHA,'54074e6c37fbbe905128e531f9a502d1310db7da');assert.equal(enhancement.toolVersion,'1.2.0');assert.equal(enhancement.algorithmVersion,'0.2.0');assert.equal(enhancement.previousPublic.length,111);
+assert.deepEqual(enhancement.selectedTargets,['index.html','info/dilution.html',...['index.html','composer-core.mjs','composer.mjs','composer.css','presets.json'].map(p=>'tools/dilution-calculator/'+p)]);
+for(const e of enhancement.previousPublic){assert(targets.has(e.target),'AP161 path retained');if(!enhancement.selectedTargets.includes(e.target))assert.equal(hash(await readFile(resolve(dist,e.target))),e.sha256,'AP161 nonselected bytes retained: '+e.target);}
+
 const patch=contract.bufferPatchRelease;assert.equal(patch.previousSHA,'d9a9fe6b0371d97274ba2ade4b8ffe32c7e73468');assert.equal(patch.toolVersion,'1.1.1');assert.equal(patch.algorithmVersion,'0.2.0');assert.equal(patch.releasedOn,'2026-10-08');assert.equal(patch.previousPublic.length,111);
 assert.deepEqual(patch.selectedTargets,['index.html','info/dilution.html',...['index.html','composer-core.mjs','composer.mjs','composer.css','presets.json'].map(p=>'tools/dilution-calculator/'+p)]);
 for(const e of patch.previousPublic){assert(targets.has(e.target),'AP158 path retained');if(!patch.selectedTargets.includes(e.target))assert.equal(hash(await readFile(resolve(dist,e.target))),e.sha256,'AP158 nonselected bytes retained: '+e.target);}
@@ -47,7 +51,7 @@ assert.equal(contract.appVersion,'0.1.0-beta.1');assert.equal(contract.analysisS
 const nucRows=[...home.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].filter(m=>m[0].includes('tools/nucleic-acid-calculator/'));
 assert.equal(nucRows.length,1);assert(nucRows[0][0].includes('도구 v1.1.0 · 알고리즘 v0.3.0')&&nucRows[0][0].includes('확인 2026-10-06'));
 const reagentRows=[...home.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].filter(m=>m[0].includes('tools/dilution-calculator/'));
-assert.equal(reagentRows.length,1);assert(reagentRows[0][0].includes('시약·버퍼 조제')&&reagentRows[0][0].includes('도구 v1.1.1 · 조제 v0.2.0')&&reagentRows[0][0].includes('2026-10-08'));
+assert.equal(reagentRows.length,1);assert(reagentRows[0][0].includes('시약·버퍼 조제')&&reagentRows[0][0].includes('도구 v1.2.0 · 조제 v0.2.0')&&reagentRows[0][0].includes('2026-10-08'));
 const priorHome=home.replace(reagentRows[0][0],buffer.oldRow).replaceAll('포털 v1.3.0','포털 v1.2.1');
 assert.equal(hash(priorHome),buffer.previousPublic.find(e=>e.target==='index.html').sha256,'Only selected reagent row and portal version changed');
 for(const e of buffer.previousPublic){
