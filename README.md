@@ -1,9 +1,10 @@
 # JSU LabTools
 
-분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.4.0.
+분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.5.0.
 
 | 도구 | 도구 버전 / 계산 식별 |
 |---|---|
+| Oligo-dimer analysis | 0.2.0 / IDT·Thermo dimer · DNA 혼합염기·3가닥 후보 |
 | Oligo Mix | 1.0.1 / 알고리즘 0.5.0 |
 | 검사법 비교 분석 | 0.3.0 / 정성·수치·날짜·Median·PI |
 | Sequence | 1.0.1 / 알고리즘 0.2.2 |
@@ -26,7 +27,7 @@ LoBDQ의 첫 R 분석은 고정 webR/R 계산 환경을 외부에서 내려받�
 
 ## 구성과 게시
 
-public-manifest.json의 명시 목록을 scripts/build.mjs가 전체 dist135파일로 구성합니다.
+public-manifest.json의 명시 목록을 scripts/build.mjs가 전체 dist142파일로 구성합니다.
 이전 도구 경로를 모두 포함한 전체 dist를 GitHub Pages에 게시합니다.
 내부 문서·검증/참고·원본 프로젝트·회사자료·첨부는 이 저장소/게시 목록에 포함하지 않습니다.
 기존 Node.js24 이상에서 별도 패키지 설치 없이 확인할 수 있습니다.
@@ -41,7 +42,7 @@ GitHub Actions가 main의 변경 또는 수동 실행 시 이전 게시 목록 �
 
 입력 보완 베타 v0.9.1-beta.3 / 화면 v0.2.0. 행 간격·번호/오류 안내와 LoQ 검체 관리를 보완했습니다.
 
-핵산 MW 기준 안내·Thermo 메뉴·FASTA 입력 보완판입니다. GitHub Actions는 게시 전에 Oligo·Sequence·핵산의 20개 합성 회귀 시험 모듈을 실행합니다. tests는 저장소 소스에만 포함하며 Pages 산출물에 포함하지 않습니다.
+핵산 MW 기준 안내·Thermo 메뉴·FASTA 입력 보완판입니다. GitHub Actions는 게시 전에 Oligo·Sequence·핵산의 24개 합성 회귀 시험 모듈을 실행합니다. tests는 저장소 소스에만 포함하며 Pages 산출물에 포함하지 않습니다.
 
 ## LoBDQ 진단 보완 beta.3
 동일 Probit 적합의 Pearson/Deviance 카이제곱 상측 꼬리 근사 p값·Pearson/자유도 및 기대수 주의를 제공합니다. 기존 적합/후보값/CI dispersion=1 유지, 자동 적합 판정/CI 보정 없음입니다. LoB 지원 α5%·LoD 검출률 확인·LoQ Westgard TE 이름을 명확히 했습니다.
@@ -77,3 +78,7 @@ NEBioCalculator dsDNA 길이 기준과 Thermo DNA Copy Calculator 기본650 기�
 ## 검사법 비교 분석0.3.0
 
 동일 검체의 두 시험법을6열 입력으로 비교합니다. ID필수/입력 형식오류 전체 제외·날짜 공란 날짜 분석만 제외·ND 유효 미검출·양쪽Positive+두숫자·중복행 유지입니다. 헤더/무헤더와 원래 행을 보존하며D1–D6 달력/직접입력·실제 구간을 지원합니다. PPA/NPA/OPA·Pearson/OLS·전체 고정 PI·구간별 막대/중앙값·PNG복사·맑은고딕9pt의9시트/7 native차트 Excel 리포트입니다. 입력 자동 저장/전송·기관/Ct-Tt 종류 선택·자동 동등성/합격 판정은 없습니다. 기존 도구111개 공개경로와 계산파일을 보존합니다.
+
+## Oligo-dimer analysis0.2.0
+
+DNA IUPAC 전수 확장·Self/Hetero-dimer, IDT 기준 ΔG25와 Thermo optimal3 고정 도식을 제공합니다. IDT에만 기본−9 또는3′연속3bp 표시·사용자cut-off를 적용하며 Thermo는 추가cut-off/ΔG경고가 없습니다. Polydimer는 별도3가닥 두 비겹침 구간 후보이며 점수 합은 실제 복합체 에너지가 아닙니다. 계산 전 범위 선택·과다작업 경고·취소·미완료 안내와 Excel 복사(맑은고딕9pt/Courier New9pt/도식3행)를 제공합니다. 일반Tm/TmExtreme/profile/Hairpin/Mismatch 계산기는 포함하지 않습니다. 기존135개 공개경로와 계산파일을 보존합니다.

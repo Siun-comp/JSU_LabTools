@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';import * as c from '../../tools/oligo-analysis/core.mjs';
+const checks=[],test=(name,fn)=>{fn();checks.push({name,pass:true});},decode=s=>s.replace(/&nbsp;/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');
+const fixtures=['F ATGACCTGATCGTAGCTAGC\nR GCTAGCTACGATCAGGTCAT','Top GGGATCGCGC\nBottom GCGCGATCCC','Mixed GCNGC\nOther GCGCAAAAGCGC','Empty AAAAAAAAAAAA\nOther AAAAAAAAAAAAA'];
+for(const mode of ['idt','thermo'])for(const [i,raw] of fixtures.entries())for(const scope of ['all','selected'])test(`${mode} fixture${i} ${scope}: exact diagram lines in adjacent physical rows`,()=>{
+ const rs=c.parseInput(raw).records,result=c.runAnalysis(rs,mode,{poly:false}),pairs=c.filteredPairs(result.pairs,{cutoff:null}),shown=scope==='selected'?pairs.slice(0,1):pairs,html=c.excelReport(rs,shown,mode,result);
+ assert.doesNotMatch(html,/<br\b|<span\b|colspan|rowspan|mso-spacerun|mso-data-placement/i);const rows=[...html.matchAll(/<tr\b[^>]*>(.*?)<\/tr>/g)].map(x=>x[1]);assert.ok(rows.every(x=>[...x.matchAll(/<td\b/g)].length===1));const cells=rows.map(x=>decode(x.match(/<td[^>]*>(.*?)<\/td>/)[1]));
+ for(const block of c.reportBlocks(rs,shown,mode,result).filter(x=>x.kind==='diagram')){const start=cells.findIndex((_,j)=>block.lines.every((line,k)=>cells[j+k]===line));assert.ok(start>=0);for(let k=0;k<block.lines.length;k++)assert.match(rows[start+k],/font-family:'Courier New';font-size:9pt/);}
+ assert.ok(rows.every(x=>x.includes('height:16pt')));
+});
+test('200nt sequences are separate physical rows with no combined 400nt cell',()=>{const rs=c.parseInput('F '+'GC'.repeat(100)).records,p={kind:'self',first:'F',mode:'idt',structures:[{deltaGMicros:-1,terminal:{top:0,bottom:0},variantFirst:rs[0].sequence,variantSecond:rs[0].sequence,diagram:['5\' '+rs[0].sequence,'   ||','3\' '+rs[0].sequence]}]};const html=c.excelReport(rs,[p],'idt');assert.doesNotMatch(html,/[ACGT]{200}(?:&nbsp;)*\/(?:&nbsp;)*[ACGT]{200}/);assert.match(html,/실제&nbsp;서열&nbsp;1:/);assert.match(html,/실제&nbsp;서열&nbsp;2:/);});
+test('Names are escaped and literal text formatting retained',()=>{const rs=c.parseInput('=A<&> GCGC').records,html=c.excelReport(rs,[],'idt');assert.ok(html.includes('=A&lt;&amp;&gt;'));assert.doesNotMatch(html,/<&>/);assert.match(html,/mso-number-format/);});
+test('Current report name/version',()=>assert.match(c.textReport([],[],'idt'),/^Oligo-dimer analysis v0\.2\.0/));
+console.log('PASS: '+checks.length+' Excel literal text, fonts, 16pt rows and exact adjacent alignment lines.');

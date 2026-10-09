@@ -1,0 +1,2054 @@
+{
+  "material": "Invented DNA; previously observed vendor web fixtures, no new web runs.",
+  "observedDate": "2026-10-09",
+  "idt": [
+    {
+      "id": "S01",
+      "a": "ATGACCTGATCGTAGCTAGC",
+      "b": "ATGACCTGATCGTAGCTAGC",
+      "rows": [
+        [
+          -10.44,
+          6,
+          0,
+          14,
+          "                 ||||||"
+        ],
+        [
+          -8.26,
+          6,
+          0,
+          10,
+          "               ||||||"
+        ],
+        [
+          -4.62,
+          4,
+          2,
+          0,
+          "       :    ||||    :"
+        ],
+        [
+          -3.61,
+          2,
+          0,
+          2,
+          "     :       ||       :"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          18,
+          "                     ||"
+        ],
+        [
+          -1.6,
+          2,
+          0,
+          0,
+          "      : ||      :: :"
+        ],
+        [
+          -1.6,
+          2,
+          0,
+          4,
+          "        ||          ::"
+        ],
+        [
+          -1.57,
+          2,
+          7,
+          0,
+          "          : || : : :: :"
+        ],
+        [
+          -1.47,
+          2,
+          18,
+          0,
+          "                     ||"
+        ],
+        [
+          -1.47,
+          2,
+          10,
+          0,
+          "             || :  : ::"
+        ],
+        [
+          -1.34,
+          2,
+          4,
+          0,
+          "          ||      ::"
+        ],
+        [
+          -0.96,
+          2,
+          0,
+          6,
+          "               ||"
+        ]
+      ]
+    },
+    {
+      "id": "S02",
+      "a": "GCGCGCGCGCGC",
+      "b": "GCGCGCGCGCGC",
+      "rows": [
+        [
+          -36.89,
+          12,
+          0,
+          0,
+          "   ||||||||||||"
+        ],
+        [
+          -30.14,
+          10,
+          2,
+          0,
+          "     ||||||||||"
+        ],
+        [
+          -30.14,
+          10,
+          0,
+          2,
+          "     ||||||||||"
+        ],
+        [
+          -23.39,
+          8,
+          4,
+          0,
+          "       ||||||||"
+        ],
+        [
+          -23.39,
+          8,
+          0,
+          4,
+          "       ||||||||"
+        ],
+        [
+          -16.64,
+          6,
+          6,
+          0,
+          "         ||||||"
+        ],
+        [
+          -16.64,
+          6,
+          0,
+          6,
+          "         ||||||"
+        ],
+        [
+          -9.89,
+          4,
+          8,
+          0,
+          "           ||||"
+        ],
+        [
+          -9.89,
+          4,
+          0,
+          8,
+          "           ||||"
+        ],
+        [
+          -3.14,
+          2,
+          10,
+          0,
+          "             ||"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          10,
+          "             ||"
+        ]
+      ]
+    },
+    {
+      "id": "S03",
+      "a": "AAAAAAAAAAAA",
+      "b": "AAAAAAAAAAAA",
+      "rows": []
+    },
+    {
+      "id": "S04",
+      "a": "GCTAGCGCTAGC",
+      "b": "GCTAGCGCTAGC",
+      "rows": [
+        [
+          -24.49,
+          12,
+          0,
+          0,
+          "   ||||||||||||"
+        ],
+        [
+          -10.44,
+          6,
+          6,
+          0,
+          "         ||||||"
+        ],
+        [
+          -10.44,
+          6,
+          0,
+          6,
+          "         ||||||"
+        ],
+        [
+          -3.14,
+          2,
+          10,
+          0,
+          "             ||"
+        ],
+        [
+          -3.14,
+          2,
+          2,
+          0,
+          "         ||"
+        ],
+        [
+          -3.14,
+          2,
+          4,
+          0,
+          "       ||    ::"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          2,
+          "         ||"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          4,
+          "       ||    ::"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          10,
+          "             ||"
+        ]
+      ]
+    },
+    {
+      "id": "S05",
+      "a": "ATATATATATAT",
+      "b": "ATATATATATAT",
+      "rows": [
+        [
+          -13.65,
+          12,
+          0,
+          0,
+          "   ||||||||||||"
+        ],
+        [
+          -11.22,
+          10,
+          2,
+          0,
+          "     ||||||||||"
+        ],
+        [
+          -11.22,
+          10,
+          0,
+          2,
+          "     ||||||||||"
+        ],
+        [
+          -8.78,
+          8,
+          4,
+          0,
+          "       ||||||||"
+        ],
+        [
+          -8.78,
+          8,
+          0,
+          4,
+          "       ||||||||"
+        ],
+        [
+          -6.35,
+          6,
+          6,
+          0,
+          "         ||||||"
+        ],
+        [
+          -6.35,
+          6,
+          0,
+          6,
+          "         ||||||"
+        ],
+        [
+          -3.91,
+          4,
+          8,
+          0,
+          "           ||||"
+        ],
+        [
+          -3.91,
+          4,
+          0,
+          8,
+          "           ||||"
+        ],
+        [
+          -1.47,
+          2,
+          10,
+          0,
+          "             ||"
+        ],
+        [
+          -1.47,
+          2,
+          0,
+          10,
+          "             ||"
+        ]
+      ]
+    },
+    {
+      "id": "H01",
+      "a": "ATGACCTGATCGTAGCTAGC",
+      "b": "GCTAGCTACGATCAGGTCAT",
+      "rows": [
+        [
+          -35.54,
+          20,
+          0,
+          0,
+          "   ||||||||||||||||||||"
+        ],
+        [
+          -5.7,
+          4,
+          4,
+          0,
+          "              :    ||||"
+        ],
+        [
+          -5.7,
+          4,
+          0,
+          4,
+          "              :    ||||"
+        ],
+        [
+          -3.53,
+          3,
+          5,
+          0,
+          "         ||| :  : :"
+        ],
+        [
+          -3.53,
+          3,
+          0,
+          5,
+          "         ||| :  : :"
+        ],
+        [
+          -1.6,
+          2,
+          10,
+          0,
+          "                : ||"
+        ],
+        [
+          -1.6,
+          2,
+          0,
+          10,
+          "                : ||"
+        ],
+        [
+          -1.47,
+          2,
+          8,
+          0,
+          "           ||"
+        ],
+        [
+          -1.47,
+          2,
+          0,
+          8,
+          "           ||"
+        ]
+      ]
+    },
+    {
+      "id": "H02",
+      "a": "AAAAAAGCGCGC",
+      "b": "CCCCCCGCGCGC",
+      "rows": [
+        [
+          -16.64,
+          6,
+          0,
+          6,
+          "         ||||||"
+        ],
+        [
+          -13.5,
+          5,
+          0,
+          4,
+          "         |||||"
+        ],
+        [
+          -9.89,
+          4,
+          0,
+          8,
+          "           ||||"
+        ],
+        [
+          -6.75,
+          3,
+          0,
+          2,
+          "         ||| :"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          10,
+          "             ||"
+        ]
+      ]
+    },
+    {
+      "id": "H03",
+      "a": "AAAAGCGCGCAAAA",
+      "b": "CCCCGCGCGCCCCC",
+      "rows": [
+        [
+          -16.64,
+          6,
+          0,
+          0,
+          "       ||||||"
+        ],
+        [
+          -13.5,
+          5,
+          2,
+          0,
+          "         |||||"
+        ],
+        [
+          -9.89,
+          4,
+          0,
+          2,
+          "       : ||||"
+        ],
+        [
+          -6.75,
+          3,
+          4,
+          0,
+          "           ||| :"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          4,
+          "       : : ||"
+        ]
+      ]
+    },
+    {
+      "id": "H04",
+      "a": "AAAAGCGCATGCGCAAAA",
+      "b": "CCCCGCGCTTGCGCCCCC",
+      "rows": [
+        [
+          -13.79,
+          6,
+          0,
+          6,
+          "         :   ||||||"
+        ],
+        [
+          -13.43,
+          6,
+          6,
+          0,
+          "           ||||||  :"
+        ],
+        [
+          -11.84,
+          5,
+          0,
+          0,
+          "       ||||| ::::"
+        ],
+        [
+          -6.75,
+          3,
+          8,
+          0,
+          "           ::  |||"
+        ],
+        [
+          -6.75,
+          3,
+          2,
+          0,
+          "         ::    |||"
+        ],
+        [
+          -3.14,
+          2,
+          4,
+          0,
+          "             ||  : :"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          4,
+          "       : :   ||"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          2,
+          "       : ||    ::"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          8,
+          "             : ||  ::"
+        ],
+        [
+          -1.94,
+          2,
+          7,
+          0,
+          "           ||       :"
+        ],
+        [
+          -1.94,
+          2,
+          0,
+          7,
+          "             :    ||"
+        ]
+      ]
+    },
+    {
+      "id": "H02_REVERSED",
+      "a": "CCCCCCGCGCGC",
+      "b": "AAAAAAGCGCGC",
+      "rows": [
+        [
+          -16.64,
+          6,
+          0,
+          6,
+          "         ||||||"
+        ],
+        [
+          -13.5,
+          5,
+          0,
+          4,
+          "        |||||"
+        ],
+        [
+          -9.89,
+          4,
+          0,
+          8,
+          "           ||||"
+        ],
+        [
+          -6.75,
+          3,
+          0,
+          2,
+          "      : |||"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          10,
+          "             ||"
+        ]
+      ]
+    },
+    {
+      "id": "V01",
+      "a": "TCGATACGGTCAAGTCCGATGCTA",
+      "b": "TCGATACGGTCAAGTCCGATGCTA",
+      "rows": [
+        [
+          -6.76,
+          4,
+          20,
+          0,
+          "                       ||||"
+        ],
+        [
+          -6.68,
+          3,
+          0,
+          0,
+          "   : :   ||| :  : :::   : :"
+        ],
+        [
+          -5.19,
+          3,
+          5,
+          0,
+          "        |||     : :     :::"
+        ],
+        [
+          -3.61,
+          2,
+          15,
+          0,
+          "                   ||   ::"
+        ],
+        [
+          -3.61,
+          2,
+          10,
+          0,
+          "                   ||"
+        ],
+        [
+          -3.61,
+          2,
+          0,
+          10,
+          "              :    ||    :"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          18,
+          "                       ||"
+        ],
+        [
+          -1.95,
+          2,
+          0,
+          7,
+          "             ||       ::"
+        ],
+        [
+          -1.6,
+          2,
+          0,
+          11,
+          "               ||       ::"
+        ],
+        [
+          -1.57,
+          2,
+          11,
+          0,
+          "              : ||     :: :"
+        ],
+        [
+          -1.57,
+          2,
+          6,
+          0,
+          "           ||   :  :   ::"
+        ],
+        [
+          -1.57,
+          2,
+          0,
+          4,
+          "       ::   ||      ::   ::"
+        ],
+        [
+          -1.57,
+          2,
+          0,
+          9,
+          "            :    || ::    :"
+        ],
+        [
+          -1.47,
+          2,
+          16,
+          0,
+          "                      ||"
+        ],
+        [
+          -1.47,
+          2,
+          1,
+          0,
+          "       ||  :       :  ::"
+        ],
+        [
+          -1.47,
+          2,
+          0,
+          14,
+          "                 :   ||   :"
+        ],
+        [
+          -1.34,
+          2,
+          9,
+          0,
+          "             :   || ::   :"
+        ],
+        [
+          -1.34,
+          2,
+          4,
+          0,
+          "            ||      ::"
+        ],
+        [
+          -0.96,
+          2,
+          14,
+          0,
+          "                  :  ||  :"
+        ],
+        [
+          -0.96,
+          2,
+          0,
+          22,
+          "                         ||"
+        ]
+      ]
+    },
+    {
+      "id": "V02",
+      "a": "AACTGGTCAGGATCTACGTCCTAGTGCA",
+      "b": "AACTGGTCAGGATCTACGTCCTAGTGCA",
+      "rows": [
+        [
+          -7.05,
+          4,
+          0,
+          24,
+          "                           ||||"
+        ],
+        [
+          -6.3,
+          4,
+          0,
+          6,
+          "         :        ||||        :"
+        ],
+        [
+          -6.24,
+          4,
+          0,
+          2,
+          "           ||||  ::  ::::"
+        ],
+        [
+          -4.62,
+          4,
+          4,
+          0,
+          "           :     ||||     :"
+        ],
+        [
+          -4.16,
+          4,
+          0,
+          16,
+          "                    :  ||||  :"
+        ],
+        [
+          -3.55,
+          3,
+          16,
+          0,
+          "                     |||  :::"
+        ],
+        [
+          -3.07,
+          2,
+          3,
+          0,
+          "      :   || :         : ::   :"
+        ],
+        [
+          -2.94,
+          3,
+          2,
+          0,
+          "      ||| :   : :  : :   : :::"
+        ],
+        [
+          -2.56,
+          3,
+          0,
+          9,
+          "             :  ||| : : :::  :"
+        ],
+        [
+          -1.95,
+          2,
+          0,
+          5,
+          "          ||  :         :  ::"
+        ],
+        [
+          -1.95,
+          2,
+          0,
+          3,
+          "      ||  :  :  :   :  :  :  ::"
+        ],
+        [
+          -1.6,
+          2,
+          5,
+          0,
+          "         :      ||   ::      :"
+        ],
+        [
+          -1.57,
+          2,
+          10,
+          0,
+          "                 : ||  :: :"
+        ],
+        [
+          -1.34,
+          2,
+          20,
+          0,
+          "                        ||  ::"
+        ],
+        [
+          -1.34,
+          2,
+          6,
+          0,
+          "         :    ||        ::    :"
+        ],
+        [
+          -1.34,
+          2,
+          8,
+          0,
+          "            ||              ::"
+        ],
+        [
+          -1.34,
+          2,
+          0,
+          12,
+          "               :  ||      ::  :"
+        ]
+      ]
+    },
+    {
+      "id": "V03",
+      "a": "TCGATACGGTCAAGTCCGATGCTA",
+      "b": "TGCGATCCATGACCTAGTCGGA",
+      "rows": [
+        [
+          -9.83,
+          5,
+          0,
+          14,
+          "                 |||||"
+        ],
+        [
+          -7.94,
+          5,
+          1,
+          0,
+          "     :::   ||||| :"
+        ],
+        [
+          -5.19,
+          3,
+          17,
+          0,
+          "                    |||"
+        ],
+        [
+          -3.61,
+          2,
+          12,
+          0,
+          "                 :   ||"
+        ],
+        [
+          -3.61,
+          2,
+          2,
+          0,
+          "         :: :     :  ||"
+        ],
+        [
+          -3.61,
+          2,
+          0,
+          4,
+          "       : ||   : :::"
+        ],
+        [
+          -3.43,
+          3,
+          0,
+          6,
+          "                     |||"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          1,
+          "        ::       :     ||"
+        ],
+        [
+          -3.07,
+          2,
+          7,
+          0,
+          "            :  : ||"
+        ],
+        [
+          -3.05,
+          3,
+          13,
+          0,
+          "                : |||"
+        ],
+        [
+          -3.05,
+          3,
+          0,
+          2,
+          "                    |||   :"
+        ],
+        [
+          -2.56,
+          3,
+          0,
+          16,
+          "                        |||"
+        ],
+        [
+          -1.95,
+          2,
+          10,
+          0,
+          "             ::        ||"
+        ],
+        [
+          -1.6,
+          2,
+          0,
+          5,
+          "         : : : ||  :   : :"
+        ],
+        [
+          -1.57,
+          2,
+          8,
+          0,
+          "                  : ||"
+        ],
+        [
+          -1.57,
+          2,
+          3,
+          0,
+          "                    ||  :"
+        ],
+        [
+          -1.57,
+          2,
+          0,
+          0,
+          "   ||      :   :"
+        ],
+        [
+          -1.57,
+          2,
+          0,
+          9,
+          "            ||      : :  :"
+        ],
+        [
+          -1.47,
+          2,
+          9,
+          0,
+          "               ||       :"
+        ]
+      ]
+    },
+    {
+      "id": "V04",
+      "a": "AGTCAGGCTAACCGTTA",
+      "b": "TTAACGGTTAGCCTGACTGCA",
+      "rows": [
+        [
+          -31.05,
+          17,
+          3,
+          0,
+          "      |||||||||||||||||"
+        ],
+        [
+          -3.55,
+          3,
+          0,
+          1,
+          "      ||| :   :"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          5,
+          "         ||   : :"
+        ],
+        [
+          -2.91,
+          3,
+          10,
+          0,
+          "                   : |||"
+        ],
+        [
+          -1.6,
+          2,
+          7,
+          0,
+          "          || :   :"
+        ],
+        [
+          -1.34,
+          2,
+          15,
+          0,
+          "                   || :"
+        ],
+        [
+          -1.34,
+          2,
+          0,
+          9,
+          "              : || :"
+        ],
+        [
+          -0.96,
+          2,
+          0,
+          4,
+          "        :       : ||"
+        ]
+      ]
+    },
+    {
+      "id": "V05",
+      "a": "GACCATGTTACCGAGATCGTACAGGCTTACGA",
+      "b": "GACCATGTTACCGAGATCGTACAGGCTTACGA",
+      "rows": [
+        [
+          -7.49,
+          5,
+          0,
+          16,
+          "                   |||||      :::::"
+        ],
+        [
+          -5.38,
+          4,
+          22,
+          0,
+          "                          : |||| :"
+        ],
+        [
+          -5.19,
+          3,
+          2,
+          0,
+          "     :      :   |||  :::   :      :"
+        ],
+        [
+          -4.62,
+          4,
+          0,
+          0,
+          "       : :       ||||       : :"
+        ],
+        [
+          -3.65,
+          4,
+          0,
+          8,
+          "           :    ::   ||||   ::    :"
+        ],
+        [
+          -3.61,
+          2,
+          8,
+          0,
+          "               : : :  ||  : : :"
+        ],
+        [
+          -3.61,
+          2,
+          0,
+          4,
+          "         :: : :  :  ||  :  : : ::"
+        ],
+        [
+          -3.61,
+          2,
+          0,
+          10,
+          "              ||  : : :  : : :  ::"
+        ],
+        [
+          -3.61,
+          2,
+          0,
+          28,
+          "                                ||"
+        ],
+        [
+          -3.3,
+          3,
+          4,
+          0,
+          "        : : |||            ::: : :"
+        ],
+        [
+          -3.14,
+          2,
+          0,
+          18,
+          "                         : || :"
+        ],
+        [
+          -3.07,
+          2,
+          5,
+          0,
+          "          ||                   ::"
+        ],
+        [
+          -3.07,
+          2,
+          0,
+          3,
+          "             ||   :   :   ::"
+        ],
+        [
+          -2.3,
+          3,
+          3,
+          0,
+          "       :      |||       :::      :"
+        ],
+        [
+          -1.6,
+          2,
+          0,
+          17,
+          "                         || ::"
+        ],
+        [
+          -1.57,
+          2,
+          14,
+          0,
+          "                 || :  : :: :  : ::"
+        ],
+        [
+          -1.47,
+          2,
+          11,
+          0,
+          "               :: || :     : :: ::"
+        ],
+        [
+          -1.34,
+          2,
+          23,
+          0,
+          "                           ||   ::"
+        ],
+        [
+          -1.34,
+          2,
+          15,
+          0,
+          "                    :   || ::   :"
+        ],
+        [
+          -0.96,
+          2,
+          0,
+          5,
+          "        :  ||      :   :      ::  :"
+        ],
+        [
+          -0.96,
+          2,
+          0,
+          24,
+          "                            : || :"
+        ]
+      ]
+    },
+    {
+      "id": "V06",
+      "a": "ACGTGATCTGACCGTATGCAAG",
+      "b": "GTTCAGATCGGACTTGCATACG",
+      "rows": [
+        [
+          -17.98,
+          10,
+          0,
+          12,
+          "               ||||||||||"
+        ],
+        [
+          -9.75,
+          7,
+          9,
+          0,
+          "                ||||||| :"
+        ],
+        [
+          -6.68,
+          3,
+          0,
+          0,
+          "            : |||     ::"
+        ],
+        [
+          -4.95,
+          3,
+          0,
+          1,
+          "    |||   :    :  ::   :"
+        ],
+        [
+          -3.61,
+          2,
+          11,
+          0,
+          "               ||   :"
+        ],
+        [
+          -3.53,
+          3,
+          14,
+          0,
+          "                 :  ||| :"
+        ],
+        [
+          -1.95,
+          2,
+          1,
+          0,
+          "       ||      :  : :: :"
+        ],
+        [
+          -1.95,
+          2,
+          0,
+          4,
+          "         : ||   ::  :"
+        ],
+        [
+          -1.57,
+          2,
+          4,
+          0,
+          "             || :: :  :"
+        ],
+        [
+          -1.47,
+          2,
+          0,
+          2,
+          "        ||   :       :"
+        ],
+        [
+          -1.34,
+          2,
+          20,
+          0,
+          "                       ||"
+        ],
+        [
+          -1.34,
+          2,
+          10,
+          0,
+          "              :        ||"
+        ],
+        [
+          -1.34,
+          2,
+          7,
+          0,
+          "          : ||    :"
+        ]
+      ]
+    }
+  ],
+  "thermo": [
+    {
+      "a": "ATGACCTGATCGTAGCTAGC",
+      "b": "ATGACCTGATCGTAGCTAGC",
+      "rows": [
+        [
+          0,
+          14,
+          "                ||||||"
+        ]
+      ]
+    },
+    {
+      "a": "ATGACCTGATCGTAGCTAGC",
+      "b": "GCGCGCGCGCGC",
+      "rows": []
+    },
+    {
+      "a": "ATGACCTGATCGTAGCTAGC",
+      "b": "AAAAAAAAAAAA",
+      "rows": []
+    },
+    {
+      "a": "ATGACCTGATCGTAGCTAGC",
+      "b": "GCTAGCGCTAGC",
+      "rows": [
+        [
+          0,
+          14,
+          "                ||||||"
+        ]
+      ]
+    },
+    {
+      "a": "ATGACCTGATCGTAGCTAGC",
+      "b": "ATATATATATAT",
+      "rows": []
+    },
+    {
+      "a": "ATGACCTGATCGTAGCTAGC",
+      "b": "GCTAGCTACGATCAGGTCAT",
+      "rows": [
+        [
+          0,
+          0,
+          "  ||||||||||||||||||||"
+        ]
+      ]
+    },
+    {
+      "a": "GCGCGCGCGCGC",
+      "b": "GCGCGCGCGCGC",
+      "rows": [
+        [
+          0,
+          0,
+          "  ||||||||||||"
+        ],
+        [
+          0,
+          2,
+          "    ||||||||||"
+        ],
+        [
+          0,
+          4,
+          "      ||||||||"
+        ],
+        [
+          0,
+          6,
+          "        ||||||"
+        ],
+        [
+          2,
+          0,
+          "    ||||||||||"
+        ]
+      ]
+    },
+    {
+      "a": "GCGCGCGCGCGC",
+      "b": "AAAAAAAAAAAA",
+      "rows": []
+    },
+    {
+      "a": "GCGCGCGCGCGC",
+      "b": "GCTAGCGCTAGC",
+      "rows": []
+    },
+    {
+      "a": "GCGCGCGCGCGC",
+      "b": "ATATATATATAT",
+      "rows": []
+    },
+    {
+      "a": "GCGCGCGCGCGC",
+      "b": "GCTAGCTACGATCAGGTCAT",
+      "rows": []
+    },
+    {
+      "a": "AAAAAAAAAAAA",
+      "b": "AAAAAAAAAAAA",
+      "rows": []
+    },
+    {
+      "a": "AAAAAAAAAAAA",
+      "b": "GCTAGCGCTAGC",
+      "rows": []
+    },
+    {
+      "a": "AAAAAAAAAAAA",
+      "b": "ATATATATATAT",
+      "rows": []
+    },
+    {
+      "a": "AAAAAAAAAAAA",
+      "b": "GCTAGCTACGATCAGGTCAT",
+      "rows": []
+    },
+    {
+      "a": "GCTAGCGCTAGC",
+      "b": "GCTAGCGCTAGC",
+      "rows": [
+        [
+          0,
+          0,
+          "  ||||||||||||"
+        ],
+        [
+          0,
+          6,
+          "        ||||||"
+        ]
+      ]
+    },
+    {
+      "a": "GCTAGCGCTAGC",
+      "b": "ATATATATATAT",
+      "rows": []
+    },
+    {
+      "a": "GCTAGCGCTAGC",
+      "b": "GCTAGCTACGATCAGGTCAT",
+      "rows": []
+    },
+    {
+      "a": "ATATATATATAT",
+      "b": "ATATATATATAT",
+      "rows": [
+        [
+          0,
+          0,
+          "  ||||||||||||"
+        ],
+        [
+          0,
+          2,
+          "    ||||||||||"
+        ],
+        [
+          0,
+          4,
+          "      ||||||||"
+        ],
+        [
+          0,
+          6,
+          "        ||||||"
+        ],
+        [
+          2,
+          0,
+          "    ||||||||||"
+        ]
+      ]
+    },
+    {
+      "a": "ATATATATATAT",
+      "b": "GCTAGCTACGATCAGGTCAT",
+      "rows": []
+    },
+    {
+      "a": "GCTAGCTACGATCAGGTCAT",
+      "b": "GCTAGCTACGATCAGGTCAT",
+      "rows": []
+    },
+    {
+      "a": "TCGATACGGTCAAGTCCGATGCTA",
+      "b": "TCGATACGGTCAAGTCCGATGCTA",
+      "rows": []
+    },
+    {
+      "a": "TCGATACGGTCAAGTCCGATGCTA",
+      "b": "AACTGGTCAGGATCTACGTCCTAGTGCA",
+      "rows": []
+    },
+    {
+      "a": "TCGATACGGTCAAGTCCGATGCTA",
+      "b": "TGCGATCCATGACCTAGTCGGA",
+      "rows": []
+    },
+    {
+      "a": "TCGATACGGTCAAGTCCGATGCTA",
+      "b": "AGTCAGGCTAACCGTTA",
+      "rows": []
+    },
+    {
+      "a": "TCGATACGGTCAAGTCCGATGCTA",
+      "b": "TTAACGGTTAGCCTGACTGCA",
+      "rows": [
+        [
+          0,
+          4,
+          "      | | |||| |      | ||"
+        ]
+      ]
+    },
+    {
+      "a": "TCGATACGGTCAAGTCCGATGCTA",
+      "b": "GACCATGTTACCGAGATCGTACAGGCTTACGA",
+      "rows": []
+    },
+    {
+      "a": "TCGATACGGTCAAGTCCGATGCTA",
+      "b": "ACGTGATCTGACCGTATGCAAG",
+      "rows": [
+        [
+          2,
+          0,
+          "    |  |||||||||  ||   |"
+        ]
+      ]
+    },
+    {
+      "a": "TCGATACGGTCAAGTCCGATGCTA",
+      "b": "GTTCAGATCGGACTTGCATACG",
+      "rows": [
+        [
+          0,
+          4,
+          "            ||||||||||   |"
+        ]
+      ]
+    },
+    {
+      "a": "AACTGGTCAGGATCTACGTCCTAGTGCA",
+      "b": "AACTGGTCAGGATCTACGTCCTAGTGCA",
+      "rows": []
+    },
+    {
+      "a": "AACTGGTCAGGATCTACGTCCTAGTGCA",
+      "b": "TGCGATCCATGACCTAGTCGGA",
+      "rows": []
+    },
+    {
+      "a": "AACTGGTCAGGATCTACGTCCTAGTGCA",
+      "b": "AGTCAGGCTAACCGTTA",
+      "rows": []
+    },
+    {
+      "a": "AACTGGTCAGGATCTACGTCCTAGTGCA",
+      "b": "TTAACGGTTAGCCTGACTGCA",
+      "rows": []
+    },
+    {
+      "a": "AACTGGTCAGGATCTACGTCCTAGTGCA",
+      "b": "GACCATGTTACCGAGATCGTACAGGCTTACGA",
+      "rows": []
+    },
+    {
+      "a": "AACTGGTCAGGATCTACGTCCTAGTGCA",
+      "b": "ACGTGATCTGACCGTATGCAAG",
+      "rows": []
+    },
+    {
+      "a": "AACTGGTCAGGATCTACGTCCTAGTGCA",
+      "b": "GTTCAGATCGGACTTGCATACG",
+      "rows": []
+    },
+    {
+      "a": "TGCGATCCATGACCTAGTCGGA",
+      "b": "TGCGATCCATGACCTAGTCGGA",
+      "rows": []
+    },
+    {
+      "a": "TGCGATCCATGACCTAGTCGGA",
+      "b": "AGTCAGGCTAACCGTTA",
+      "rows": []
+    },
+    {
+      "a": "TGCGATCCATGACCTAGTCGGA",
+      "b": "TTAACGGTTAGCCTGACTGCA",
+      "rows": []
+    },
+    {
+      "a": "TGCGATCCATGACCTAGTCGGA",
+      "b": "GACCATGTTACCGAGATCGTACAGGCTTACGA",
+      "rows": []
+    },
+    {
+      "a": "TGCGATCCATGACCTAGTCGGA",
+      "b": "ACGTGATCTGACCGTATGCAAG",
+      "rows": []
+    },
+    {
+      "a": "TGCGATCCATGACCTAGTCGGA",
+      "b": "GTTCAGATCGGACTTGCATACG",
+      "rows": []
+    },
+    {
+      "a": "AGTCAGGCTAACCGTTA",
+      "b": "AGTCAGGCTAACCGTTA",
+      "rows": [
+        [
+          0,
+          8,
+          "          |||| ||||"
+        ]
+      ]
+    },
+    {
+      "a": "AGTCAGGCTAACCGTTA",
+      "b": "TTAACGGTTAGCCTGACTGCA",
+      "rows": [
+        [
+          0,
+          1,
+          "   |||||||||||||||||"
+        ]
+      ]
+    },
+    {
+      "a": "AGTCAGGCTAACCGTTA",
+      "b": "GACCATGTTACCGAGATCGTACAGGCTTACGA",
+      "rows": []
+    },
+    {
+      "a": "AGTCAGGCTAACCGTTA",
+      "b": "ACGTGATCTGACCGTATGCAAG",
+      "rows": []
+    },
+    {
+      "a": "AGTCAGGCTAACCGTTA",
+      "b": "GTTCAGATCGGACTTGCATACG",
+      "rows": []
+    },
+    {
+      "a": "TTAACGGTTAGCCTGACTGCA",
+      "b": "TTAACGGTTAGCCTGACTGCA",
+      "rows": []
+    },
+    {
+      "a": "TTAACGGTTAGCCTGACTGCA",
+      "b": "GACCATGTTACCGAGATCGTACAGGCTTACGA",
+      "rows": []
+    },
+    {
+      "a": "TTAACGGTTAGCCTGACTGCA",
+      "b": "ACGTGATCTGACCGTATGCAAG",
+      "rows": []
+    },
+    {
+      "a": "TTAACGGTTAGCCTGACTGCA",
+      "b": "GTTCAGATCGGACTTGCATACG",
+      "rows": []
+    },
+    {
+      "a": "GACCATGTTACCGAGATCGTACAGGCTTACGA",
+      "b": "GACCATGTTACCGAGATCGTACAGGCTTACGA",
+      "rows": []
+    },
+    {
+      "a": "GACCATGTTACCGAGATCGTACAGGCTTACGA",
+      "b": "ACGTGATCTGACCGTATGCAAG",
+      "rows": []
+    },
+    {
+      "a": "GACCATGTTACCGAGATCGTACAGGCTTACGA",
+      "b": "GTTCAGATCGGACTTGCATACG",
+      "rows": []
+    },
+    {
+      "a": "ACGTGATCTGACCGTATGCAAG",
+      "b": "ACGTGATCTGACCGTATGCAAG",
+      "rows": []
+    },
+    {
+      "a": "ACGTGATCTGACCGTATGCAAG",
+      "b": "GTTCAGATCGGACTTGCATACG",
+      "rows": [
+        [
+          0,
+          12,
+          "              ||||||||||"
+        ]
+      ]
+    },
+    {
+      "a": "GTTCAGATCGGACTTGCATACG",
+      "b": "GTTCAGATCGGACTTGCATACG",
+      "rows": []
+    },
+    {
+      "a": "AAAAGCGCGCAAAA",
+      "b": "AAAAGCGCGCAAAA",
+      "rows": []
+    },
+    {
+      "a": "AAAAGCGCGCAAAA",
+      "b": "CCCCGCGCGCCCCC",
+      "rows": []
+    },
+    {
+      "a": "AAAAGCGCGCAAAA",
+      "b": "AAAAGCGCGCGCAAAA",
+      "rows": []
+    },
+    {
+      "a": "AAAAGCGCGCAAAA",
+      "b": "CCCCGCGCGCGCCCCC",
+      "rows": []
+    },
+    {
+      "a": "AAAAGCGCGCAAAA",
+      "b": "AAAAGCGCGCGCGAAAA",
+      "rows": []
+    },
+    {
+      "a": "AAAAGCGCGCAAAA",
+      "b": "CCCCCGCGCGCGCCCCC",
+      "rows": []
+    },
+    {
+      "a": "CCCCGCGCGCCCCC",
+      "b": "CCCCGCGCGCCCCC",
+      "rows": []
+    },
+    {
+      "a": "CCCCGCGCGCCCCC",
+      "b": "AAAAGCGCGCGCAAAA",
+      "rows": [
+        [
+          0,
+          4,
+          "      | | ||||"
+        ]
+      ]
+    },
+    {
+      "a": "CCCCGCGCGCCCCC",
+      "b": "CCCCGCGCGCGCCCCC",
+      "rows": [
+        [
+          0,
+          4,
+          "      | | |||| |"
+        ]
+      ]
+    },
+    {
+      "a": "CCCCGCGCGCCCCC",
+      "b": "AAAAGCGCGCGCGAAAA",
+      "rows": [
+        [
+          0,
+          4,
+          "      | | |||||"
+        ]
+      ]
+    },
+    {
+      "a": "CCCCGCGCGCCCCC",
+      "b": "CCCCCGCGCGCGCCCCC",
+      "rows": [
+        [
+          0,
+          5,
+          "       | | |||| |"
+        ]
+      ]
+    },
+    {
+      "a": "AAAAGCGCGCGCAAAA",
+      "b": "AAAAGCGCGCGCAAAA",
+      "rows": []
+    },
+    {
+      "a": "AAAAGCGCGCGCAAAA",
+      "b": "CCCCGCGCGCGCCCCC",
+      "rows": [
+        [
+          0,
+          4,
+          "      | | ||||"
+        ]
+      ]
+    },
+    {
+      "a": "AAAAGCGCGCGCAAAA",
+      "b": "AAAAGCGCGCGCGAAAA",
+      "rows": []
+    },
+    {
+      "a": "AAAAGCGCGCGCAAAA",
+      "b": "CCCCCGCGCGCGCCCCC",
+      "rows": []
+    },
+    {
+      "a": "CCCCGCGCGCGCCCCC",
+      "b": "CCCCGCGCGCGCCCCC",
+      "rows": [
+        [
+          0,
+          4,
+          "      | | |||| | |"
+        ]
+      ]
+    },
+    {
+      "a": "CCCCGCGCGCGCCCCC",
+      "b": "AAAAGCGCGCGCGAAAA",
+      "rows": [
+        [
+          0,
+          0,
+          "      |||||||||"
+        ],
+        [
+          0,
+          4,
+          "      | | |||||"
+        ]
+      ]
+    },
+    {
+      "a": "CCCCGCGCGCGCCCCC",
+      "b": "CCCCCGCGCGCGCCCCC",
+      "rows": [
+        [
+          0,
+          5,
+          "       | | |||| | |"
+        ]
+      ]
+    },
+    {
+      "a": "AAAAGCGCGCGCGAAAA",
+      "b": "AAAAGCGCGCGCGAAAA",
+      "rows": []
+    },
+    {
+      "a": "AAAAGCGCGCGCGAAAA",
+      "b": "CCCCCGCGCGCGCCCCC",
+      "rows": [
+        [
+          0,
+          0,
+          "      |||||||||"
+        ],
+        [
+          0,
+          4,
+          "      | | |||||"
+        ]
+      ]
+    },
+    {
+      "a": "CCCCCGCGCGCGCCCCC",
+      "b": "CCCCCGCGCGCGCCCCC",
+      "rows": [
+        [
+          0,
+          5,
+          "       | | |||| | |"
+        ]
+      ]
+    },
+    {
+      "a": "AAAAGCGCGC",
+      "b": "AAAAGCGCGC",
+      "rows": [
+        [
+          0,
+          4,
+          "      ||||||"
+        ]
+      ]
+    },
+    {
+      "a": "AAAAGCGCGC",
+      "b": "CCCCGCGCGC",
+      "rows": [
+        [
+          0,
+          4,
+          "      ||||||"
+        ]
+      ]
+    },
+    {
+      "a": "AAAAGCGCGC",
+      "b": "GCTAGCGCTAGC",
+      "rows": []
+    },
+    {
+      "a": "AAAAGCGCGC",
+      "b": "GCGCGCGCGCGC",
+      "rows": [
+        [
+          0,
+          2,
+          "    ||||||"
+        ],
+        [
+          0,
+          4,
+          "      ||||||"
+        ],
+        [
+          0,
+          6,
+          "        ||||||"
+        ]
+      ]
+    },
+    {
+      "a": "AAAAGCGCGC",
+      "b": "CGATACGGTCAAGTCCGATGCTATCG",
+      "rows": []
+    },
+    {
+      "a": "CCCCGCGCGC",
+      "b": "CCCCGCGCGC",
+      "rows": [
+        [
+          0,
+          4,
+          "      ||||||"
+        ],
+        [
+          0,
+          2,
+          "     ||||||"
+        ]
+      ]
+    },
+    {
+      "a": "CCCCGCGCGC",
+      "b": "GCTAGCGCTAGC",
+      "rows": []
+    },
+    {
+      "a": "CCCCGCGCGC",
+      "b": "GCGCGCGCGCGC",
+      "rows": [
+        [
+          0,
+          2,
+          "    ||||||| |"
+        ],
+        [
+          0,
+          4,
+          "      |||||||"
+        ],
+        [
+          0,
+          6,
+          "        ||||||"
+        ]
+      ]
+    },
+    {
+      "a": "CCCCGCGCGC",
+      "b": "CGATACGGTCAAGTCCGATGCTATCG",
+      "rows": []
+    },
+    {
+      "a": "GCTAGCGCTAGC",
+      "b": "GCGCGCGCGCGC",
+      "rows": []
+    },
+    {
+      "a": "GCTAGCGCTAGC",
+      "b": "CGATACGGTCAAGTCCGATGCTATCG",
+      "rows": [
+        [
+          0,
+          19,
+          "                     |||| ||"
+        ]
+      ]
+    },
+    {
+      "a": "GCGCGCGCGCGC",
+      "b": "CGATACGGTCAAGTCCGATGCTATCG",
+      "rows": []
+    },
+    {
+      "a": "CGATACGGTCAAGTCCGATGCTATCG",
+      "b": "CGATACGGTCAAGTCCGATGCTATCG",
+      "rows": []
+    }
+  ]
+}
