@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>검사법 비교 분석</title><link rel="stylesheet" href="tool.css"><script src="vendor/jszip.min.js" defer></script><script type="module" src="app.mjs"></script></head>
+<body><main>
+<header><div><h1>검사법 비교 분석</h1><p>동일 검체의 두 시험법 결과를 전체·검출값 구간·채취일별로 비교합니다.</p></div><span class="version">도구 v0.3.0</span></header>
+<section aria-labelledby="input-title">
+  <h2 id="input-title">검체 입력</h2>
+  <p class="hint">Excel A–F의 6개 열을 붙여넣으세요. 기존 양식의 헤더는 자동 인식하며, 헤더가 없으면 첫 행부터 사용합니다. ID가 없거나 입력한 날짜·수치·결과의 형식이 잘못된 행은 분석에서 제외합니다. 날짜가 비어 있으면 다른 분석은 가능합니다. ND는 검사 후 미검출입니다.</p>
+  <div class="toolbar input-toolbar"><label class="file"><span>Excel / CSV / TSV 불러오기</span><input id="file" type="file" accept=".xlsx,.csv,.tsv,.txt"></label><button id="example">예제 입력</button><button id="clear">비우기</button></div>
+  <label for="input">검체 ID · 채취일 · Reference 결과 · Reference 검출값 · Product 결과 · Product 검출값</label>
+  <textarea id="input" rows="7" spellcheck="false" placeholder="Excel에서 6개 열을 복사해 여기에 붙여넣으세요. 검출값은 Ct 또는 Tt를 입력합니다."></textarea><p id="source" class="hint"></p>
+  <details><summary>구간·신뢰구간 설정</summary><div class="settings">
+    <label>Reference 검출값 경계<input id="ct-cuts" value="10, 15, 20, 25, 30, 35"><small>검출률·잔차·PI 비교에 사용합니다. 경계값은 다음 구간에 포함됩니다.</small></label>
+    <label>Median 전용 Reference 경계<input id="median-cuts" value="20, 30"><small>중앙값 분포를 비교할 구간입니다. 빈칸이면 전체만 표시합니다.</small></label>
+    <label>신뢰수준<select id="confidence"><option value=".95">95%</option><option value=".90">90%</option><option value=".99">99%</option></select></label>
+    <label>정성·검출률 CI<select id="ci-method"><option value="exact">Exact (Clopper–Pearson)</option><option value="wilson">Wilson score</option></select></label>
+    <label>PI 수준 (%)<input id="pi-level" type="number" min="0.1" max="99.9" step="0.1" value="95"><small>검토용 예측구간입니다. CI 수준과 별도로 적용합니다.</small></label>
+  </div><div id="date-boundaries" class="date-boundaries">
+    <h3>채취일 구간 경계 (선택)</h3>
+    <p class="hint">D1부터 순서대로 지정하세요. 연·월·일을 직접 입력하거나 날짜 칸의 달력 아이콘에서 선택할 수 있습니다. 모두 비우면 개별 채취일별로 분석합니다.</p>
+    <div class="table-wrap"><table><thead><tr><th>경계</th><th>날짜</th><th>해당 구간의 채취일</th></tr></thead><tbody>
+      <tr><th scope="row"><label for="date-boundary-1">D1</label></th><td><div class="date-entry"><input id="date-boundary-1" type="date" min="1900-01-01" max="9999-12-31" aria-label="D1 날짜 경계"><button type="button" data-clear-date="0" aria-label="D1 날짜 지우기">지우기</button></div></td><td data-date-description="0">미설정</td></tr>
+      <tr><th scope="row"><label for="date-boundary-2">D2</label></th><td><div class="date-entry"><input id="date-boundary-2" type="date" min="1900-01-01" max="9999-12-31" aria-label="D2 날짜 경계"><button type="button" data-clear-date="1" aria-label="D2 날짜 지우기">지우기</button></div></td><td data-date-description="1">미설정</td></tr>
+      <tr><th scope="row"><label for="date-boundary-3">D3</label></th><td><div class="date-entry"><input id="date-boundary-3" type="date" min="1900-01-01" max="9999-12-31" aria-label="D3 날짜 경계"><button type="button" data-clear-date="2" aria-label="D3 날짜 지우기">지우기</button></div></td><td data-date-description="2">미설정</td></tr>
+      <tr><th scope="row"><label for="date-boundary-4">D4</label></th><td><div class="date-entry"><input id="date-boundary-4" type="date" min="1900-01-01" max="9999-12-31" aria-label="D4 날짜 경계"><button type="button" data-clear-date="3" aria-label="D4 날짜 지우기">지우기</button></div></td><td data-date-description="3">미설정</td></tr>
+      <tr><th scope="row"><label for="date-boundary-5">D5</label></th><td><div class="date-entry"><input id="date-boundary-5" type="date" min="1900-01-01" max="9999-12-31" aria-label="D5 날짜 경계"><button type="button" data-clear-date="4" aria-label="D5 날짜 지우기">지우기</button></div></td><td data-date-description="4">미설정</td></tr>
+      <tr><th scope="row"><label for="date-boundary-6">D6</label></th><td><div class="date-entry"><input id="date-boundary-6" type="date" min="1900-01-01" max="9999-12-31" aria-label="D6 날짜 경계"><button type="button" data-clear-date="5" aria-label="D6 날짜 지우기">지우기</button></div></td><td data-date-description="5">미설정</td></tr>
+    </tbody></table></div><p data-last-range class="hint"></p><p role="status" aria-live="polite"></p>
+  </div></details>
+  <div class="toolbar"><button id="analyze" class="primary">분석</button><span id="status" role="status" aria-live="polite">자료를 입력하세요.</span></div>
+</section>
+<section id="results" hidden>
+  <div class="toolbar filters"><strong>표시 범위</strong><label>Reference 검출값 구간<select id="ct-filter"></select></label><label>채취일 구간<select id="date-filter"></select></label><div class="filter-actions"><button id="copy">현재 결과 복사</button><button id="export">Excel 리포트 저장</button></div><span id="copy-status" role="status"></span></div>
+  <details class="report-style"><summary>리포트 제목·강조 크기</summary><div class="settings"><label>제목 (pt)<input id="report-title-size" type="number" min="9" max="24" value="14"></label><label>강조 (pt)<input id="report-emphasis-size" type="number" min="9" max="18" value="10"></label><p class="hint">본문은 맑은 고딕 9pt입니다. 제목·강조도 같은 글꼴을 사용합니다.</p></div></details><p id="export-status" role="status"></p><p id="scope" class="hint"></p><div id="overview" class="cards"></div>
+  <nav aria-label="분석 결과"><button data-tab="qual" aria-pressed="true">정성 비교</button><button data-tab="numeric" aria-pressed="false">수치 관계·PI</button><button data-tab="groups" aria-pressed="false">구간별 분석</button><button data-tab="median" aria-pressed="false">중앙값 분석</button><button data-tab="rows" aria-pressed="false">검체 목록</button></nav>
+  <div id="qual" class="panel"></div><div id="numeric" class="panel" hidden></div><div id="groups" class="panel" hidden></div><div id="median" class="panel" hidden></div><div id="rows" class="panel" hidden></div>
+</section>
+<footer><details><summary>계산 기준·출처</summary>
+  <p>ID 누락 또는 입력한 날짜·수치·결과의 형식 오류가 있으면 행을 전체 분석에서 제외하고 원행과 제외 사유는 보존합니다. 입력하지 않은 날짜는 날짜 분석만 제외합니다. 정성 비교는 유효 결과 쌍, 수치 관계·paired 중앙값은 양쪽 Positive이면서 두 유효 숫자가 있는 검체를 사용합니다. ND는 음성이며 수치 0이나 최대 cycle을 대입하지 않습니다. 중복 ID는 합치지 않습니다.</p>
+  <p>검출률은 Reference 양성 중 Product 유효 결과를 분모로 합니다. Product Invalid·미입력·미인식은 별도로 표시합니다. 날짜가 없어도 날짜 분석 외의 가능한 분석은 유지합니다.</p>
+  <p>회귀는 Product = 절편 + 기울기 × Reference의 OLS입니다. 전체 입력의 적격 검체로 회귀선을 만들고 표시 범위를 바꿔도 잔차·PI의 기준 모델은 유지합니다. 그룹별 상관·회귀는 별도 요약입니다. PI 이탈은 추가 검토 대상이며 자동 제외·합격 판정하지 않습니다.</p>
+  <p>Median [Q1–Q3]는 분포 요약이며 CI가 아닙니다. 사분위수는 Excel QUARTILE.INC의 포함형 보간을 사용합니다. 각 시험법의 척도를 유지하며 Ct/Tt 직접 차이·자동 동등성 판정은 제공하지 않습니다.</p>
+  <p><a href="https://www.fda.gov/regulatory-information/search-fda-guidance-documents/statistical-guidance-reporting-results-studies-evaluating-diagnostic-tests-guidance-industry-and-fda">FDA 정성 비교 지침</a> · <a href="https://www.itl.nist.gov/div898/software/dataplot/refman2/auxillar/exacbici.htm">NIST Exact CI</a> · <a href="https://itl.nist.gov/div898/handbook/pmd/section5/pmd512.htm">NIST 예측구간</a></p>
+  <p>입력은 이 브라우저에서 처리하며 자동 저장하지 않습니다. <a href="notices.html">외부 구성요소</a></p>
+</details></footer>
+</main></body></html>

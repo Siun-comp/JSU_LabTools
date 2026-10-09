@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0",
+  "version": "1.4.0",
   "files": [
     {
       "source": "portal/index.html",
@@ -444,6 +444,102 @@
     {
       "source": "tools/dilution-calculator/presets.json",
       "target": "tools/dilution-calculator/presets.json"
+    },
+    {
+      "source": "tools/method-comparison/app.mjs",
+      "target": "tools/method-comparison/app.mjs"
+    },
+    {
+      "source": "tools/method-comparison/bar-chart.mjs",
+      "target": "tools/method-comparison/bar-chart.mjs"
+    },
+    {
+      "source": "tools/method-comparison/core.mjs",
+      "target": "tools/method-comparison/core.mjs"
+    },
+    {
+      "source": "tools/method-comparison/date-boundaries.mjs",
+      "target": "tools/method-comparison/date-boundaries.mjs"
+    },
+    {
+      "source": "tools/method-comparison/example.mjs",
+      "target": "tools/method-comparison/example.mjs"
+    },
+    {
+      "source": "tools/method-comparison/format.mjs",
+      "target": "tools/method-comparison/format.mjs"
+    },
+    {
+      "source": "tools/method-comparison/graph-copy.mjs",
+      "target": "tools/method-comparison/graph-copy.mjs"
+    },
+    {
+      "source": "tools/method-comparison/headers.mjs",
+      "target": "tools/method-comparison/headers.mjs"
+    },
+    {
+      "source": "tools/method-comparison/import.mjs",
+      "target": "tools/method-comparison/import.mjs"
+    },
+    {
+      "source": "tools/method-comparison/index.html",
+      "target": "tools/method-comparison/index.html"
+    },
+    {
+      "source": "tools/method-comparison/math.mjs",
+      "target": "tools/method-comparison/math.mjs"
+    },
+    {
+      "source": "tools/method-comparison/notes.mjs",
+      "target": "tools/method-comparison/notes.mjs"
+    },
+    {
+      "source": "tools/method-comparison/notices.html",
+      "target": "tools/method-comparison/notices.html"
+    },
+    {
+      "source": "tools/method-comparison/report-export.mjs",
+      "target": "tools/method-comparison/report-export.mjs"
+    },
+    {
+      "source": "tools/method-comparison/report-template.xlsx",
+      "target": "tools/method-comparison/report-template.xlsx"
+    },
+    {
+      "source": "tools/method-comparison/tool.css",
+      "target": "tools/method-comparison/tool.css"
+    },
+    {
+      "source": "tools/method-comparison/licenses/immediate-LICENSE.txt",
+      "target": "tools/method-comparison/licenses/immediate-LICENSE.txt"
+    },
+    {
+      "source": "tools/method-comparison/licenses/JSZip-LICENSE.markdown",
+      "target": "tools/method-comparison/licenses/JSZip-LICENSE.markdown"
+    },
+    {
+      "source": "tools/method-comparison/licenses/lie-LICENSE.txt",
+      "target": "tools/method-comparison/licenses/lie-LICENSE.txt"
+    },
+    {
+      "source": "tools/method-comparison/licenses/pako-LICENSE.txt",
+      "target": "tools/method-comparison/licenses/pako-LICENSE.txt"
+    },
+    {
+      "source": "tools/method-comparison/licenses/pako-zlib-LICENSE.txt",
+      "target": "tools/method-comparison/licenses/pako-zlib-LICENSE.txt"
+    },
+    {
+      "source": "tools/method-comparison/licenses/setimmediate-LICENSE.txt",
+      "target": "tools/method-comparison/licenses/setimmediate-LICENSE.txt"
+    },
+    {
+      "source": "tools/method-comparison/vendor/jszip.min.js",
+      "target": "tools/method-comparison/vendor/jszip.min.js"
+    },
+    {
+      "source": "portal/info/method-comparison.html",
+      "target": "info/method-comparison.html"
     }
   ],
   "date": "2026-10-06"
