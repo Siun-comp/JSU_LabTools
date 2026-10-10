@@ -1,6 +1,6 @@
 import {dateLabels,dateMode} from './date-boundaries.mjs';
-import {HEADERS,VERSION,summarize,groups,medianSummary,medianGroups,medianDateGroups,evaluateRow,prediction} from './core.mjs';
-import {numberFormat,formatNumber} from './format.mjs';
+import {HEADERS,VERSION,summarize,groups,medianSummary,medianGroups,medianDateGroups,evaluateRow,prediction,inputAuditEntries,numericCaution} from './core.mjs';
+import {numberFormat,formatNumber,formatPercent} from './format.mjs';
 import {NOTES} from './notes.mjs';
 
 // Native chart/layout template is authored with artifact-tool. The browser fills
@@ -18,8 +18,8 @@ const serial=date=>({value:Math.round((Date.parse(date+'T00:00:00Z')-Date.UTC(18
 const inputRow=r=>[count(r.sourceRow),...r.raw.map((v,i)=>i===1&&r.date?serial(r.date):i===3&&r.x!==null?num(r.x):i===5&&r.y!==null?num(r.y):v)];
 const modelValues=m=>[['모델 n',count(m.n)],['Pearson r',num(m.r)],['r CI 하한',num(m.rCI?.[0]??null)],['r CI 상한',num(m.rCI?.[1]??null)],['R²',num(m.r2)],['OLS 기울기',num(m.slope)],['기울기 CI 하한',num(m.slopeCI?.[0]??null)],['기울기 CI 상한',num(m.slopeCI?.[1]??null)],['OLS 절편',num(m.intercept)],['절편 CI 하한',num(m.interceptCI?.[0]??null)],['절편 CI 상한',num(m.interceptCI?.[1]??null)],['잔차 표준오차',num(m.se)]];
 const medianRows=gs=>gs.map(g=>[g.label,num(g.reference.median),num(g.product.median),count(g.reference.n),count(g.all.n),num(g.all.median),num(g.all.q1),num(g.all.q3),num(g.reference.q1),num(g.reference.q3),num(g.product.q1),num(g.product.q3)]);
-const extraGroup=g=>{const s=g.summary;return [count(s.numeric.n),num(s.numeric.r),num(s.numeric.slope),num(s.numeric.xMean),num(s.numeric.yMean),num(s.pi.residualMean),count(s.pi.n),count(s.pi.outliers),pct(s.pi.rate),num(s.pi.meanExcess)];};
-const extraHeaders=['양성 수치쌍 n','그룹 Pearson r','그룹 OLS 기울기','Ref 평균','Product 평균','전체 기준 잔차 평균','PI 계산 가능 n','PI 이탈 n','PI 이탈률','평균 초과량'];
+const extraGroup=g=>{const s=g.summary;return [count(s.numeric.n),num(s.numeric.r),num(s.numeric.slope),num(s.numeric.xMean),num(s.numeric.yMean),num(s.pi.residualMean),count(s.pi.n),count(s.pi.outliers),pct(s.pi.rate),num(s.pi.meanExcess),numericCaution(s.numeric.n)];};
+const extraHeaders=['양성 수치쌍 n','그룹 Pearson r','그룹 OLS 기울기','Ref 평균','Product 평균','전체 기준 잔차 평균','PI 계산 가능 n','PI 이탈 n','PI 이탈률','평균 초과량','수치 해석 참고'];
 
 export function reportData(snapshot,rows,scope){
   const s=summarize(rows,snapshot.confidence,snapshot.method,snapshot.model),m=snapshot.model;
@@ -29,20 +29,22 @@ export function reportData(snapshot,rows,scope){
   const medDate=dates.length?medianDateGroups(rows,snapshot.dates):[];
   const meta=[`검사법 비교 분석 ${VERSION} · ${snapshot.source}`,`표시 범위: ${scope}`,`CI ${formatNumber(snapshot.confidence*100)}% ${snapshot.method==='exact'?'Exact':'Wilson'} · PI ${formatNumber(snapshot.piLevel*100)}% · 전체 입력 고정 모델 n=${m.n}`];
   const sheet=(name,key,headers,data,chart=null)=>({name,notes:[...meta,...NOTES[key]],headers,rows:data,chart,header:chart?33:12});
-  const summary=[['작성 시점',new Date().toISOString()],['보고서 성격','분석 시점의 결과 스냅샷 — 원본 편집 후 자동 재계산 없음'],['입력 전체 행',count(snapshot.rows.length)],['현재 표시 원행',count(rows.length)],['분석 적격 검체',count(s.eligible)],['유효 정성 쌍',count(s.valid)],['양성 수치쌍',count(s.numeric.n)],['전체 입력 ID 누락 제외',count(snapshot.rows.filter(r=>!r.id).length)],['전체 입력 형식 오류 제외 (ID 존재)',count(snapshot.rows.filter(r=>r.id&&r.inputErrors.length).length)],['현재 범위 날짜 누락',count(s.dateMissing)],['검출값 경계',snapshot.ct.join(', ')||'전체'],['Median 경계',snapshot.median.join(', ')||'전체'],['채취일 분석 방식',dateMode(snapshot.dates)],...snapshot.dates.map((date,i)=>['D'+(i+1),date]),...dateLabels(snapshot.dates).map((label,i)=>['채취일 구간 '+(i+1),label]),['전체 기준 모델','전체 적격 양성 수치쌍 고정 OLS — 필터 재적합 없음'],...modelValues(m),['선택 검체 PI 계산 가능',count(s.pi.n)],['선택 검체 PI 계산 불가',count(s.pi.unavailable)],['선택 검체 PI 이탈',count(s.pi.outliers)],['PI 이탈률',pct(s.pi.rate)],['전체 기준 잔차 평균',num(s.pi.residualMean)],['이탈 평균 초과량',num(s.pi.meanExcess)]];
+  const summary=[['작성 시점',new Date().toISOString()],['보고서 성격','분석 시점의 결과 스냅샷 — 원본 편집 후 자동 재계산 없음'],['입력 전체 행',count(snapshot.rows.length)],['현재 표시 원행',count(rows.length)],['분석 적격 검체',count(s.eligible)],['유효 정성 쌍',count(s.valid)],['양성 수치쌍',count(s.numeric.n)],['현재 범위 채취일 공란',count(s.dateMissing)],...inputAuditEntries(snapshot.rows).map(([label,value])=>[label,count(value)]),['전체 입력 검증 기준','필터와 무관. 항목별 오류는 중복될 수 있으며 ID 누락 행도 포함. 0 이하 수치는 자동 제외 사유 아님'],['현재 범위 Reference 양성 n',count(s.refPositive)],['현재 범위 Product 유효 n (Reference 양성)',count(s.evaluability.k)],['현재 범위 Product Invalid (Reference 양성)',count(s.productInvalid)],['현재 범위 Product 미입력 (Reference 양성)',count(s.productMissing)],['현재 범위 Product 평가 가능률',pct(s.evaluability.p)],['현재 범위 유효 결과 중 검출률',pct(s.detection.p)],['검출값 경계',snapshot.ct.join(', ')||'전체'],['Median 경계',snapshot.median.join(', ')||'전체'],['채취일 분석 방식',dateMode(snapshot.dates)],...snapshot.dates.map((date,i)=>['D'+(i+1),date]),...dateLabels(snapshot.dates).map((label,i)=>['채취일 구간 '+(i+1),label]),['전체 기준 모델','전체 적격 양성 수치쌍 고정 OLS — 필터 재적합 없음'],...modelValues(m),['선택 검체 PI 계산 가능',count(s.pi.n)],['선택 검체 PI 계산 불가',count(s.pi.unavailable)],['선택 검체 PI 이탈',count(s.pi.outliers)],['PI 이탈률',pct(s.pi.rate)],['전체 기준 잔차 평균',num(s.pi.residualMean)],['이탈 평균 초과량',num(s.pi.meanExcess)]];
   const qual=['ppa','npa','opa'].map(k=>[k.toUpperCase(),pct(s[k].p),count(s[k].k),count(s[k].n),...ci(s[k])]);
   const numeric=rows.filter(r=>r.pair).map(r=>{const e=evaluateRow(r,m);return [num(r.x),num(r.y),num(e.residual),r.id,count(r.sourceRow),num(e.fit),num(e.lo),num(e.hi),e.state,num(e.excess)];});
   const out=[
     sheet('분석요약','report',['항목','값'],summary),
     sheet('정성비교','qual',['지표','비율','일치 수','분모',`${snapshot.confidence*100}% CI 하한`,`${snapshot.confidence*100}% CI 상한`],qual,{type:'bar',series:['일치율'],percent:true}),
     sheet('수치관계','numeric',['Reference','Product','전체 잔차','검체 ID','원래 행','전체 예상값','PI 하한','PI 상한','PI 상태','초과량'],numeric,{type:'scatter',series:['Product']}),
-    sheet('검출값구간','groups',['구간','Product 검출률','검출 수','유효 분모','Reference 양성 n','미검출 n','CI 하한','CI 상한','Product Invalid','Product 미입력',...extraHeaders],ref.map(g=>{const s=g.summary;return [g.label,pct(s.detection.p),count(s.detection.k),count(s.detection.n),count(s.refPositive),count(s.FN),...ci(s.detection),count(s.productInvalid),count(s.productMissing),...extraGroup(g)];}),{type:'bar',series:['Product 검출률'],percent:true}),
+    sheet('검출값구간','groups',['구간','유효 결과 중 검출률','검출 수','유효 분모','분석 적격 Reference 양성 n','미검출 n','CI 하한','CI 상한','Product Invalid','Product 미입력','평가 가능률',...extraHeaders],ref.map(g=>{const s=g.summary;return [g.label,pct(s.detection.p),count(s.detection.k),count(s.detection.n),count(s.refPositive),count(s.FN),...ci(s.detection),count(s.productInvalid),count(s.productMissing),pct(s.evaluability.p),...extraGroup(g)];}),{type:'bar',series:['유효 결과 중 검출률'],percent:true}),
     sheet('채취일구간','groups',['채취일 구간','PPA','NPA','TP','FN','FP','TN','PPA 분모','NPA 분모','PPA CI 하한','PPA CI 상한','NPA CI 하한','NPA CI 상한','유효 정성 n','정성 제외',...extraHeaders],dates.map(g=>{const s=g.summary;return [g.label,pct(s.ppa.p),pct(s.npa.p),count(s.TP),count(s.FN),count(s.FP),count(s.TN),count(s.ppa.n),count(s.npa.n),...ci(s.ppa),...ci(s.npa),count(s.valid),count(s.excluded),...extraGroup(g)];}),{type:'bar',series:['PPA','NPA'],percent:true}),
     ...[['중앙값_검출구간',med],['중앙값_채취일',medDate]].map(([name,gs])=>sheet(name,'median',['구간','Paired Reference Median','Paired Product Median','양성 수치쌍 n','전체 Reference n','전체 Reference Median','전체 Ref Q1','전체 Ref Q3','Paired Ref Q1','Paired Ref Q3','Paired Product Q1','Paired Product Q3'],medianRows(gs),{type:'bar',series:['Reference','Product'],percent:false})),
     sheet('검체목록','input',['원래 행',...HEADERS,'입력 적격','정성 비교','양성 수치쌍','전체 예상값','전체 잔차','PI 하한','PI 상한','PI 상태','초과량','누락·확인 사항'],rows.map(r=>{const e=evaluateRow(r,m);return [...inputRow(r),r.eligible?'포함':!r.id?'ID 누락 제외':'형식 오류 제외',r.cls??'제외',r.pair?'포함':'제외',num(e.fit),num(e.residual),num(e.lo),num(e.hi),e.state,num(e.excess),r.issues.join('; ')];})),
     sheet('원본입력','input',['원래 행',...HEADERS,'입력 적격','형식 오류','누락·확인 사항'],snapshot.rows.map(r=>[count(r.sourceRow),...r.raw,r.eligible?'포함':!r.id?'ID 누락 제외':'형식 오류 제외',r.inputErrors.join('; '),r.issues.join('; ')]))
   ];
-  out[1].notes.push(`2×2 집계: TP=${s.TP}, FN=${s.FN}, FP=${s.FP}, TN=${s.TN}. 유효 정성 n=${s.valid}.`);
+  out[1].notes.push(`Reference 양성 ${s.refPositive}개 / Product 유효 ${s.evaluability.k}개 / Invalid ${s.productInvalid}개 / 미입력 ${s.productMissing}개. 평가 가능률 ${formatPercent(s.evaluability.p)} / 유효 결과 중 검출률 ${formatPercent(s.detection.p)}.`, `2×2 집계: TP=${s.TP}, FN=${s.FN}, FP=${s.FP}, TN=${s.TN}. 유효 정성 n=${s.valid}.`);
+  if(numericCaution(m.n))out[2].notes.push('전체 기준 모델: '+numericCaution(m.n));
+  if(numericCaution(s.numeric.n)&&s.numeric.n!==m.n)out[2].notes.push('현재 선택 범위: '+numericCaution(s.numeric.n));
   out[2].notes.push(`전체 OLS: Product = ${formatNumber(m.intercept)} + ${formatNumber(m.slope)} × Reference. 전체 Pearson r=${formatNumber(m.r)}. 계수/CI는 분석요약 시트 참조.`);
   out[4].chart.title=dateMode(snapshot.dates)+' PPA / NPA';
   out[6].chart.title=snapshot.dates.length?'채취일 구간별 중앙값':'채취일별 중앙값 — 구간 경계 미설정';

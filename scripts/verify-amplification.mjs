@@ -2,6 +2,8 @@ import {readFile,readdir} from 'node:fs/promises';
 import {resolve,dirname,relative,isAbsolute,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {existsSync} from 'node:fs';
 import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),dist=resolve(root,'dist');
 const manifest=JSON.parse(await readFile(resolve(root,'public-manifest.json'),'utf8'));
@@ -11,9 +13,14 @@ async function files(base,prefix=''){const out=[];for(const e of await readdir(b
 const update=contract.nucleicRelease,buffer=contract.bufferRelease;
 const method=contract.methodComparisonRelease;
 const oligo=contract.oligoDimerRelease;
-assert.equal(oligo.previousSHA,'7149d51aa75509415d8dc55a6373b22ae5f217d6');assert.equal(oligo.portalVersion,manifest.version);assert.equal(oligo.toolVersion,'0.2.0');assert.equal(oligo.previousPublic.length,135);
+const methodPatch=contract.methodComparisonPatchRelease;
+assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,manifest.version);assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
+const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+async function preMethodPatchBytes(target){const entry=methodPatch.previousPublic.find(e=>e.target===target);assert(entry,'Prior target retained');const bytes=await readFile(resolve(dist,target));const selected=methodPatch.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected public bytes preserved: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected patch bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',methodPatch.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Historical bytes verified against previous release');return old;}
+for(const e of methodPatch.previousPublic)await preMethodPatchBytes(e.target);
+assert.equal(oligo.previousSHA,'7149d51aa75509415d8dc55a6373b22ae5f217d6');assert.equal(oligo.portalVersion,'1.5.0');assert.equal(oligo.toolVersion,'0.2.0');assert.equal(oligo.previousPublic.length,135);
 const preOligoHome=html=>html.replace(oligo.portalRow,'').replace('실행 가능 9개','실행 가능 8개').replaceAll('포털 v1.5.0','포털 v1.4.0');
-async function preOligoBytes(target){const bytes=await readFile(resolve(dist,target));return target==='index.html'?Buffer.from(preOligoHome(bytes.toString())):/^info\/.*\.html$/.test(target)?Buffer.from(bytes.toString().replaceAll('포털 v1.5.0','포털 v1.4.0')):bytes;}
+async function preOligoBytes(target){const bytes=await preMethodPatchBytes(target);return target==='index.html'?Buffer.from(preOligoHome(bytes.toString())):/^info\/.*\.html$/.test(target)?Buffer.from(bytes.toString().replaceAll('포털 v1.5.0','포털 v1.4.0')):bytes;}
 for(const entry of oligo.previousPublic)assert.equal(hash(await preOligoBytes(entry.target)),entry.sha256,'Previous public content retained before Oligo: '+entry.target);
 
 assert.equal(method.previousSHA,'6676a974052082676efbe953e9570517462f6bbd');assert.equal(method.portalVersion,'1.4.0');assert.equal(method.toolVersion,'0.3.0');assert.equal(method.previousPublic.length,111);
@@ -21,7 +28,7 @@ const previousHome=html=>preOligoHome(html).replace(method.portalRow,'').replace
 async function historicBytes(target){const bytes=await preOligoBytes(target);return target==='index.html'?Buffer.from(previousHome(bytes.toString())):/^info\/.*\.html$/.test(target)?Buffer.from(bytes.toString().replaceAll('포털 v1.4.0','포털 v1.3.0')):bytes;}
 for(const entry of method.previousPublic)assert.equal(hash(await historicBytes(entry.target)),entry.sha256,'Previous public content retained: '+entry.target);
 
-assert.equal(manifest.version,'1.5.0');assert.equal(manifest.candidate,undefined);
+assert.equal(manifest.version,'1.5.1');assert.equal(manifest.candidate,undefined);
 assert.equal(update.portalVersion,'1.2.1');assert.equal(buffer.portalVersion,'1.3.0');
 assert.equal(buffer.previousPortalVersion,'1.2.1');assert.equal(buffer.previousSHA,'d5b8ca0778a1e536867415156f081c9f2ebadacc');
 assert.equal(buffer.toolVersion,'1.1.0');assert.equal(buffer.algorithmVersion,'0.2.0');assert.equal(buffer.releasedOn,'2026-10-07');
@@ -65,7 +72,7 @@ const nucRows=[...home.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].filter
 assert.equal(nucRows.length,1);assert(nucRows[0][0].includes('도구 v1.1.0 · 알고리즘 v0.3.0')&&nucRows[0][0].includes('확인 2026-10-06'));
 const reagentRows=[...home.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].filter(m=>m[0].includes('tools/dilution-calculator/'));
 assert.equal(reagentRows.length,1);assert(reagentRows[0][0].includes('시약·버퍼 조제')&&reagentRows[0][0].includes('도구 v1.2.0 · 조제 v0.2.0')&&reagentRows[0][0].includes('2026-10-08'));
-const priorHome=previousHome(home).replace(reagentRows[0][0],buffer.oldRow).replaceAll('포털 v1.3.0','포털 v1.2.1');
+const priorHome=previousHome((await preMethodPatchBytes('index.html')).toString()).replace(reagentRows[0][0],buffer.oldRow).replaceAll('포털 v1.3.0','포털 v1.2.1');
 assert.equal(hash(priorHome),buffer.previousPublic.find(e=>e.target==='index.html').sha256,'Only selected reagent row and portal version changed');
 for(const e of buffer.previousPublic){
  assert(targets.has(e.target),'AP148 public path retained');
@@ -103,4 +110,4 @@ assert(mainText.includes('증폭 곡선 분석 · 베타'),'Beta display');
 const webManifest=JSON.parse(await readFile(resolve(appBase,'manifest.webmanifest'),'utf8'));
 assert.equal(webManifest.name,'Amplification Analysis');assert.equal(webManifest.scope,'.');assert.equal(webManifest.start_url,'.');
 for(const icon of webManifest.icons)await readFile(resolve(appBase,icon.src));
-console.log('PASS: frozen142-file portal1.5.0 artifact; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');
+console.log('PASS: frozen142-file portal1.5.1 artifact; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');

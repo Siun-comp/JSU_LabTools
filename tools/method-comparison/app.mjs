@@ -1,5 +1,5 @@
 import {initDateBoundaries,dateLabels,dateMode} from './date-boundaries.mjs';
-import {HEADERS,VERSION,parseDelimited,readDelimited,normalize,bounds,labels,subset,summarize,groups,buildModel,prediction,evaluateRow,medianSummary,medianGroups,medianDateGroups} from './core.mjs';
+import {HEADERS,VERSION,parseDelimited,readDelimited,normalize,bounds,labels,subset,summarize,groups,buildModel,prediction,evaluateRow,medianSummary,medianGroups,medianDateGroups,inputAudit,inputAuditEntries,numericCaution} from './core.mjs';
 import {formatNumber,formatPercent} from './format.mjs';
 import {barChart,detectionBars,agreementBars,medianBars} from './bar-chart.mjs';
 import {NOTES} from './notes.mjs';
@@ -50,6 +50,8 @@ function render(){
   const s=summary,allIds=snapshot.rows.filter(r=>!r.id).length;
   $('scope').textContent=`Reference: ${$('ct-filter').selectedOptions[0].textContent} / ${dateMode(snapshot.dates)}: ${$('date-filter').selectedOptions[0].textContent} · CI ${snapshot.confidence*100}% ${snapshot.method==='exact'?'Exact':'Wilson'} · PI ${snapshot.piLevel*100}% · 전체 입력 ID 누락 제외 ${allIds}개 · 형식 오류 제외 ${snapshot.rows.filter(r=>r.id&&r.inputErrors.length).length}개 · 전체 기준 모델 n=${snapshot.model.n}`;
   $('overview').innerHTML=[['표시 원행',s.total],['분석 적격 검체',s.eligible],['유효 정성 쌍',s.valid],['양성 수치 쌍',s.numeric.n],['정성 제외',s.excluded],['수치 제외',s.total-s.numeric.n]].map(([name,n])=>`<div class="card">${name}<strong>${n}</strong></div>`).join('');
+  const audit=inputAudit(snapshot.rows);
+  $('input-review').innerHTML=`<details class="interpretation"><summary>전체 입력 검증 · ID 누락 ${audit.idExcluded} / 형식 오류 ${audit.formatExcluded} · 결과 미인식 Reference ${audit.referenceUnknown} / Product ${audit.productUnknown}</summary><p class="hint">현재 필터와 관계없는 전체 입력 기준입니다. 제외 행 수는 ID 누락과 ID가 있는 형식 오류로 나눕니다. 항목별 오류는 같은 행이 중복 집계될 수 있으며 ID 누락 행도 포함합니다. 원행과 사유는 검체 목록에서 확인하세요.</p>${table(['전체 입력 검증 항목','행 수'],inputAuditEntries(snapshot.rows))}</details>`+(audit.referenceNonpositive||audit.productNonpositive?`<p class="hint">입력 확인: 0 이하 검출값 Reference ${audit.referenceNonpositive}개 / Product ${audit.productNonpositive}개 (전체 입력). 이 사유만으로 분석에서 제외하지 않습니다.</p>`:'');
   renderQual();renderNumeric();renderGroups();renderMedian();renderRows();
   for(const key of ['qual','numeric','groups'])$(key).insertAdjacentHTML('beforeend',notesHTML(key));$('copy-status').textContent='';
   installGraphCopy($('results'),()=>$('scope').textContent);
@@ -58,7 +60,9 @@ function renderQual(){
   const s=summary;
   $('qual').innerHTML='<h2>정성 결과 비교</h2>'+table(['Reference','Product 양성','Product 음성·ND','합계'],[['양성',s.TP,s.FN,s.TP+s.FN],['음성·ND',s.FP,s.TN,s.FP+s.TN],['합계',s.TP+s.FP,s.FN+s.TN,s.valid]])+
     '<h3>일치도</h3>'+table(['지표','일치 수 / 분모','비율',`${snapshot.confidence*100}% CI`],[['PPA (양성일치율)',`${s.ppa.k} / ${s.ppa.n}`,pct(s.ppa.p),pci(s.ppa)],['NPA (음성일치율)',`${s.npa.k} / ${s.npa.n}`,pct(s.npa.p),pci(s.npa)],['OPA (전체일치율)',`${s.opa.k} / ${s.opa.n}`,pct(s.opa.p),pci(s.opa)]])+
-    `<p class="hint">ID 누락 제외 ${s.idExcluded}개. ID가 있는 검체의 Invalid ${s.invalid}개 / 결과 미입력 ${s.missingResult}개 / 미인식 ${s.unknownResult}개는 정성 비교에서 제외합니다. 사유는 중복될 수 있습니다. 날짜·수치 누락은 정성 비교를 막지 않습니다.</p>`;
+    `<p class="hint">현재 표시 범위의 분석 적격 검체 중 Invalid ${s.invalid}개 / 결과 미입력 ${s.missingResult}개는 정성 비교에서 제외합니다. 사유는 중복될 수 있습니다. 미인식 등 형식 오류와 ID 누락은 위의 전체 입력 검증에서 확인하세요. 날짜·수치 공란은 정성 비교를 막지 않습니다.</p>`+
+    '<h3>Reference 양성 검체의 Product 평가</h3>'+table(['분석 적격 Reference 양성 n','Product 유효 n','Product Invalid','Product 미입력','평가 가능률','유효 결과 중 검출률'],[[s.refPositive,s.evaluability.k,s.productInvalid,s.productMissing,`${s.evaluability.k} / ${s.evaluability.n} · ${pct(s.evaluability.p)}`,`${s.detection.k} / ${s.detection.n} · ${pct(s.detection.p)}`]])+
+    '<p class="hint">평가 가능률은 Reference 양성 중 Product 유효 결과의 비율입니다. 검출률은 그 유효 결과 중 양성 비율입니다. Invalid·미입력을 음성으로 바꾸지 않습니다.</p>';
 }
 function chart(rows,residual=false){
   const model=snapshot.model,pairs=rows.filter(r=>r.pair).map(r=>({...r,...evaluateRow(r,model)}));
@@ -91,6 +95,8 @@ function renderNumeric(){
     table(['전체 기준 모델','값',`${snapshot.confidence*100}% CI`],[['양성 수치 쌍 n',n.n,''],['Pearson r',fmt(n.r),ci(n.rCI)],['R²',fmt(n.r2),''],['OLS 기울기',fmt(n.slope),ci(n.slopeCI)],['OLS 절편',fmt(n.intercept),ci(n.interceptCI)],['잔차 표준오차',fmt(n.se),'']])+
     (n.slope===null?'<p class="hint">회귀식을 계산할 수 없습니다.</p>':`<p>전체 기준: Product = ${fmt(n.intercept)} + ${fmt(n.slope)} × Reference</p>`)+
     n.reasons.map(r=>`<p class="hint">${esc(r)}</p>`).join('')+
+    (numericCaution(n.n)?`<p class="hint">전체 기준 모델: ${numericCaution(n.n)}</p>`:'')+
+    (numericCaution(s.numeric.n)&&s.numeric.n!==n.n?`<p class="hint">현재 선택 범위: ${numericCaution(s.numeric.n)}</p>`:'')+
     `<div class="plots"><div><h3>산점도 · 전체 OLS와 ${snapshot.piLevel*100}% PI</h3>${chart(selected)}<p class="hint">실선: 전체 OLS / 점선: PI / 주황 점: PI 이탈 검체</p></div><div><h3>전체 기준 잔차</h3>${chart(selected,true)}<p class="hint">검체의 Product 값 − 전체 회귀 예상값</p></div></div>`+
     '<h3>선택 검체의 PI 검토</h3>'+table(['양성 수치쌍','PI 계산 가능','계산 불가','이탈 / 계산 가능','이탈률','전체 기준 잔차 평균','이탈 검체 평균 초과량','상태'],[[s.numeric.n,s.pi.n,s.pi.unavailable,`${s.pi.outliers} / ${s.pi.n}`,pct(s.pi.rate),fmt(s.pi.residualMean),fmt(s.pi.meanExcess),piDescription(s.pi)]])+
     '<p class="hint">PI 이탈은 추가 검토 대상입니다. 검체를 자동 제외하지 않습니다. 같은 자료로 만든 모델에 대한 탐색적 비교이며 새 검체 성능이나 검사법 동등성을 판정하지 않습니다.</p>';
@@ -99,12 +105,12 @@ function renderGroups(){
   const view=(kind,title,cuts)=>{
     const gs=kind==='date'&&!selected.some(r=>r.eligible&&r.date)?[]:groups(selected,kind,cuts,snapshot.confidence,snapshot.method,snapshot.model);
     if(!gs.length)return `<h3>${title}</h3><p class="hint">채취일이 없어 날짜별 분석을 할 수 없습니다. 다른 분석은 유지됩니다.</p>`;
-    return `<h3>${title}</h3>${kind==='date'?barChart(agreementBars(gs),['PPA','NPA'],title+' PPA / NPA'):barChart(detectionBars(gs),['Product'],title+' 검출률')}`+
-      (kind==='date'?table(['구간','PPA 양성 / 분모','PPA',`${snapshot.confidence*100}% PPA CI`,'NPA 음성 / 분모','NPA',`${snapshot.confidence*100}% NPA CI`,'유효 정성 n','정성 제외'],gs.map(g=>{const s=g.summary;return [g.label,`${s.ppa.k} / ${s.ppa.n}`,pct(s.ppa.p),pci(s.ppa),`${s.npa.k} / ${s.npa.n}`,pct(s.npa.p),pci(s.npa),s.valid,s.excluded];})):table(['구간','Reference 양성 n','Product 검출 / 유효 n','미검출 n','검출률',`${snapshot.confidence*100}% CI`,'Product Invalid','미입력','미인식'],gs.map(g=>{const s=g.summary;return [g.label,s.refPositive,`${s.detection.k} / ${s.detection.n}`,s.FN,pct(s.detection.p),pci(s.detection),s.productInvalid,s.productMissing,s.productUnknown];})))+
+    return `<h3>${title}</h3>${kind==='date'?barChart(agreementBars(gs),['PPA','NPA'],title+' PPA / NPA'):barChart(detectionBars(gs),['Product'],title+' 유효 결과 중 검출률')}`+
+      (kind==='date'?table(['구간','PPA 양성 / 분모','PPA',`${snapshot.confidence*100}% PPA CI`,'NPA 음성 / 분모','NPA',`${snapshot.confidence*100}% NPA CI`,'유효 정성 n','정성 제외'],gs.map(g=>{const s=g.summary;return [g.label,`${s.ppa.k} / ${s.ppa.n}`,pct(s.ppa.p),pci(s.ppa),`${s.npa.k} / ${s.npa.n}`,pct(s.npa.p),pci(s.npa),s.valid,s.excluded];})):table(['구간','분석 적격 Reference 양성 n','Product 검출 / 유효 n','미검출 n','유효 결과 중 검출률',`${snapshot.confidence*100}% CI`,'Product Invalid','미입력','평가 가능률'],gs.map(g=>{const s=g.summary;return [g.label,s.refPositive,`${s.detection.k} / ${s.detection.n}`,s.FN,pct(s.detection.p),pci(s.detection),s.productInvalid,s.productMissing,`${s.evaluability.k} / ${s.evaluability.n} · ${pct(s.evaluability.p)}`];})))+
       '<details class="group-details"><summary>구간별 정성 일치도·수치 관계·잔차·PI</summary>'+
-      table(['구간','유효 정성 n','NPA',`${snapshot.confidence*100}% NPA CI`,'양성 수치쌍 n','그룹 Pearson r','그룹 OLS 기울기','수치쌍 Ref 평균','수치쌍 Product 평균','전체 기준 잔차 평균','PI 계산 가능','이탈 / 계산 가능','이탈률','평균 초과량','PI 상태'],gs.map(g=>{const s=g.summary;return [g.label,s.valid,pct(s.npa.p),pci(s.npa),s.numeric.n,fmt(s.numeric.r),fmt(s.numeric.slope),fmt(s.numeric.xMean),fmt(s.numeric.yMean),fmt(s.pi.residualMean),s.pi.n,`${s.pi.outliers} / ${s.pi.n}`,pct(s.pi.rate),fmt(s.pi.meanExcess),piDescription(s.pi)];}))+'</details>';
+      table(['구간','유효 정성 n','NPA',`${snapshot.confidence*100}% NPA CI`,'양성 수치쌍 n','그룹 Pearson r','그룹 OLS 기울기','수치쌍 Ref 평균','수치쌍 Product 평균','전체 기준 잔차 평균','PI 계산 가능','이탈 / 계산 가능','이탈률','평균 초과량','PI 상태','수치 해석 참고'],gs.map(g=>{const s=g.summary;return [g.label,s.valid,pct(s.npa.p),pci(s.npa),s.numeric.n,fmt(s.numeric.r),fmt(s.numeric.slope),fmt(s.numeric.xMean),fmt(s.numeric.yMean),fmt(s.pi.residualMean),s.pi.n,`${s.pi.outliers} / ${s.pi.n}`,pct(s.pi.rate),fmt(s.pi.meanExcess),piDescription(s.pi),numericCaution(s.numeric.n)];}))+'</details>';
   };
-  $('groups').innerHTML='<h2>구간별 검출률과 경향</h2><p class="hint">검출률은 Reference 양성 중 Product 유효 결과가 있는 검체 기준입니다. ND·Negative는 미검출이며 Invalid·미입력·미인식은 분모에 포함하지 않습니다. CI는 표에 표시하며 막대그래프에서는 생략합니다.</p>'+
+  $('groups').innerHTML='<h2>구간별 검출률과 경향</h2><p class="hint">막대는 유효 결과 중 검출률입니다. Reference 양성 중 Product 유효 결과의 비율인 평가 가능률도 표에서 함께 확인하세요. ND·Negative는 미검출이며 Invalid·미입력은 검출률 분모에 포함하지 않습니다. 형식 오류는 전체 입력 검증에서 확인합니다. CI는 표에 표시하며 막대그래프에서는 생략합니다.</p>'+
     '<p class="hint">표시 범위 안에서 비교합니다. 같은 Reference 구간을 선택한 뒤 날짜 그래프를 보면 검체 구성 차이를 줄여 살펴볼 수 있습니다. 날짜 차이만으로 원인이나 수집기관을 추정하지 않습니다.</p>'+
     view('ct','Reference 검출값 구간',snapshot.ct)+`<p class="hint">분석 적격 검체 중 Reference 수치 없음 ${summary.xMissing}개는 검출값 구간에서만 제외됩니다.</p>`+
     view('date',dateMode(snapshot.dates),snapshot.dates)+`<p class="hint">분석 적격 검체 중 채취일 없음 ${summary.dateMissing}개는 날짜 구간에서만 제외됩니다.</p>`;
@@ -113,7 +119,7 @@ const dist=d=>d.n?`${fmt(d.median)} [${fmt(d.q1)}–${fmt(d.q3)}]`:'—';
 const notesHTML=key=>'<details class="interpretation"><summary>해석 참고</summary>'+NOTES[key].map(n=>`<p>${esc(n)}</p>`).join('')+'</details>';
 function renderMedian(){
   const all=medianSummary(selected),gs=snapshot.median.length?medianGroups(selected,snapshot.median):[],dates=selected.some(r=>r.eligible&&r.date)?medianDateGroups(selected,snapshot.dates):[];
-  const grid=(data,title)=>`<h3>${title}</h3>`+barChart(medianBars(data),['Reference','Product'],title,false)+table(['구간','전체 Reference n','전체 Reference Median [Q1–Q3]','양성 수치쌍 n','Paired Reference Median [Q1–Q3]','Paired Product Median [Q1–Q3]','참고'],data.map(g=>[g.label,g.all.n,dist(g.all),g.reference.n,dist(g.reference),dist(g.product),g.reference.n===0?'양성 수치쌍 없음':g.reference.n<10?'수치쌍 10개 미만 — 해석 주의':'']));
+  const grid=(data,title)=>`<h3>${title}</h3><p class="hint">각 막대는 해당 시험법의 검출값 중앙값입니다. Ct/Tt 등 척도가 다르면 두 막대의 높이 차이를 시험법 오차로 해석하지 마세요.</p>`+barChart(medianBars(data),['Reference','Product'],title,false)+table(['구간','전체 Reference n','전체 Reference Median [Q1–Q3]','양성 수치쌍 n','Paired Reference Median [Q1–Q3]','Paired Product Median [Q1–Q3]','참고'],data.map(g=>[g.label,g.all.n,dist(g.all),g.reference.n,dist(g.reference),dist(g.product),g.reference.n===0?'양성 수치쌍 없음':g.reference.n<10?'수치쌍 10개 미만 — 해석 주의':'']));
   $('median').innerHTML='<h2>중앙값 · 사분위수 비교</h2><p class="hint">막대는 동일 검체쌍 Reference·Product의 중앙값입니다. 전체 Reference 분포와 Q1–Q3는 표에서 함께 확인합니다.</p>'+grid([{label:'현재 표시 범위 전체',...all},...gs],'Reference 구간별 중앙값')+(dates.length?grid(dates,snapshot.dates.length?'채취일 구간별 중앙값':'채취일별 중앙값 — 구간 경계 미설정'):'<p class="hint">채취일이 없어 날짜별 중앙값을 분석할 수 없습니다. 다른 분석은 유지됩니다.</p>')+notesHTML('median');
 }
 function listed(){
@@ -137,8 +143,8 @@ function renderRows(){
 $('copy').onclick=async()=>{
   if(!snapshot)return;
   const current=snapshot,rev=revision,copyTab=tab,scope=$('scope').textContent;
-  const info=[['검사법 비교 분석',VERSION],['입력',snapshot.source],['표시 범위',scope],['포함 기준','ID·입력 형식 유효 / 정성: 유효 결과 쌍 / 수치: 양쪽 Positive + 두 유효 숫자'],['전체 기준 모델 n',snapshot.model.n],['PI 수준',`${snapshot.piLevel*100}%`],['기준 모델','전체 입력 고정 OLS — 필터로 재적합하지 않음'],['표시 원행 n',summary.total],['ID 유효 n',summary.eligible],['전체 입력 ID 누락 제외',snapshot.rows.filter(r=>!r.id).length],['전체 입력 형식 오류 제외',snapshot.rows.filter(r=>r.id&&r.inputErrors.length).length],['유효 정성 n',summary.valid],['양성 수치쌍 n',summary.numeric.n],['정성 제외',summary.excluded],['수치 제외',summary.total-summary.numeric.n],['날짜 없음/오류',summary.dateMissing],['검출값 경계',snapshot.ct.join(', ')||'전체'],['Median 경계',snapshot.median.join(', ')||'전체'],['채취일 분석 방식',dateMode(snapshot.dates)],...snapshot.dates.map((date,i)=>['D'+(i+1),date]),...dateLabels(snapshot.dates).map((label,i)=>['채취일 구간 '+(i+1),label])];
-  let html=table(['분석 정보','값'],info);
+  const info=[['검사법 비교 분석',VERSION],['입력',snapshot.source],['표시 범위',scope],['포함 기준','ID·입력 형식 유효 / 정성: 유효 결과 쌍 / 수치: 양쪽 Positive + 두 유효 숫자'],['전체 기준 모델 n',snapshot.model.n],['PI 수준',`${snapshot.piLevel*100}%`],['기준 모델','전체 입력 고정 OLS — 필터로 재적합하지 않음'],['표시 원행 n',summary.total],['분석 적격 n',summary.eligible],['전체 입력 ID 누락 제외',snapshot.rows.filter(r=>!r.id).length],['전체 입력 형식 오류 제외',snapshot.rows.filter(r=>r.id&&r.inputErrors.length).length],['유효 정성 n',summary.valid],['양성 수치쌍 n',summary.numeric.n],['정성 제외',summary.excluded],['수치 제외',summary.total-summary.numeric.n],['현재 범위 채취일 공란',summary.dateMissing],['검출값 경계',snapshot.ct.join(', ')||'전체'],['Median 경계',snapshot.median.join(', ')||'전체'],['채취일 분석 방식',dateMode(snapshot.dates)],...snapshot.dates.map((date,i)=>['D'+(i+1),date]),...dateLabels(snapshot.dates).map((label,i)=>['채취일 구간 '+(i+1),label])];
+  let html=table(['분석 정보','값'],info)+'<h3>전체 입력 검증 (필터와 무관)</h3>'+table(['항목','행 수'],inputAuditEntries(snapshot.rows))+'<p>항목별 오류는 중복될 수 있으며 ID 누락 행도 포함합니다. 0 이하 수치는 확인 표시이며 자동 제외 사유가 아닙니다.</p>';
   if(tab==='rows')html+=`<p>${['id-excluded','format-excluded'].includes(rowMode)?'입력 제외 목록: 전체 입력 기준':'목록: 현재 표시 범위 기준'}</p>`+table(rowHeaders,listed().map(rowData));
   else html+=Array.from($(tab).querySelectorAll('h2,h3,p,summary,table')).filter(el=>!el.closest('svg')).map(el=>el.tagName==='SUMMARY'?`<h3>${esc(el.textContent)}</h3>`:el.outerHTML).join('');
   const div=document.createElement('div');div.innerHTML=html;
