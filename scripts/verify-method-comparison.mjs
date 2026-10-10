@@ -7,7 +7,7 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),base=resolve(ro
 const manifest=JSON.parse(await readFile(resolve(root,'public-manifest.json'),'utf8'));
 const contract=(text=>{const c=JSON.parse(text);return {...c.methodComparisonRelease,...c.methodComparisonPatchRelease};})(await readFile(resolve(root,'amplification-release-contract.json'),'utf8'));
 const entries=manifest.files.filter(e=>e.target.startsWith('tools/method-comparison/'));
-assert.equal(entries.length,23);assert.equal(manifest.version,'1.5.1');assert.equal(contract.toolVersion,'0.3.1');
+assert.equal(entries.length,23);assert.equal(manifest.version,'1.5.2');assert.equal(contract.toolVersion,'0.3.1');
 const read=name=>readFile(resolve(base,name),'utf8');
 const html=await read('index.html'),app=await read('app.mjs'),core=await read('core.mjs');
 assert(html.includes('도구 v0.3.1')&&!html.includes('로컬 개발판'));assert(core.includes("VERSION='0.3.1'"));
@@ -29,6 +29,6 @@ assert((await read('import.mjs')).includes('extractInput(records)'));assert(!(aw
 const template=await readFile(resolve(root,'dist',contract.reportTemplateTarget));assert.equal(createHash('sha256').update(template).digest('hex'),contract.reportTemplateSHA256);
 const home=await readFile(resolve(root,'dist/index.html'),'utf8');assert(home.includes(contract.portalRow));
 assert.equal((home.match(/<h2>검사법 비교 분석<\/h2>/g)||[]).length,1);
-const info=await readFile(resolve(root,'dist/info/method-comparison.html'),'utf8');assert(info.includes('v0.3.1')&&info.includes('2026-10-10')&&info.includes('포털 v1.5.1'));
+const info=await readFile(resolve(root,'dist/info/method-comparison.html'),'utf8');assert(info.includes('v0.3.1')&&info.includes('2026-10-10')&&info.includes('포털 v1.5.2'));
 assert(!/<(?:script|input|textarea|form|iframe)\b/.test(info));
 console.log('PASS: method-comparison0.3.1 source23, six date controls, header recognition, frozen native report template, local processing and portal entry.');

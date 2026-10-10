@@ -9,5 +9,5 @@ for(const mode of ['idt','thermo'])for(const [i,raw] of fixtures.entries())for(c
 });
 test('200nt sequences are separate physical rows with no combined 400nt cell',()=>{const rs=c.parseInput('F '+'GC'.repeat(100)).records,p={kind:'self',first:'F',mode:'idt',structures:[{deltaGMicros:-1,terminal:{top:0,bottom:0},variantFirst:rs[0].sequence,variantSecond:rs[0].sequence,diagram:['5\' '+rs[0].sequence,'   ||','3\' '+rs[0].sequence]}]};const html=c.excelReport(rs,[p],'idt');assert.doesNotMatch(html,/[ACGT]{200}(?:&nbsp;)*\/(?:&nbsp;)*[ACGT]{200}/);assert.match(html,/실제&nbsp;서열&nbsp;1:/);assert.match(html,/실제&nbsp;서열&nbsp;2:/);});
 test('Names are escaped and literal text formatting retained',()=>{const rs=c.parseInput('=A<&> GCGC').records,html=c.excelReport(rs,[],'idt');assert.ok(html.includes('=A&lt;&amp;&gt;'));assert.doesNotMatch(html,/<&>/);assert.match(html,/mso-number-format/);});
-test('Current report name/version',()=>assert.match(c.textReport([],[],'idt'),/^Oligo-dimer analysis v0\.2\.0/));
+test('Current report name/version',()=>assert.match(c.textReport([],[],'idt'),/^Oligo-dimer analysis v0\.2\.1/));
 console.log('PASS: '+checks.length+' Excel literal text, fonts, 16pt rows and exact adjacent alignment lines.');
