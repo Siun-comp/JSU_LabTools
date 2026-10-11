@@ -7,9 +7,13 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),dist=resolve(ro
 const manifest=JSON.parse(await readFile(resolve(root,'public-manifest.json'),'utf8'));
 const local=JSON.parse(await readFile(resolve(dist,'tools/detection-capability/build-manifest.json'),'utf8'));
 assert.equal(manifest.files.length,142);
-assert.equal(local.version,'0.9.1-beta.3');
+assert.equal(local.version,'0.9.1-beta.4');
 assert.equal(local.files.length,47);
 assert.equal(local.baselineProgramVersion,'0.9.0-beta.6');
+assert.equal(local.uiTheme.version,'0.3.1');
+assert.equal(local.releaseIdentification.version,local.version);
+const css=await readFile(resolve(dist,'tools/detection-capability/tool.css'),'utf8');
+for(const marker of ['grid-template-rows:subgrid','grid-row:1 / span 3','box-shadow:inset 0 0 0 1px #a53232','@media(max-width:700px)'])assert(css.includes(marker),'Validation error layout: '+marker);
 for(const f of local.files){const bytes=await readFile(resolve(dist,'tools/detection-capability',f.name));assert.equal(bytes.length,f.bytes);assert.equal(createHash('sha256').update(bytes).digest('hex'),f.sha256,'LoBDQ immutable asset '+f.name);}
 for(const name of ['index.html','info/detection-capability.html','tools/detection-capability/index.html','tools/detection-capability/THIRD_PARTY_NOTICES.html']){
  const path=resolve(dist,name),text=await readFile(path,'utf8');
@@ -33,6 +37,8 @@ const row=[...home.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].find(m=>m[
 assert(row&&row.includes('사용 검토용 베타')&&row.includes('info/detection-capability.html'));
 for(const attr of ['target="_blank"','rel="noopener noreferrer"','referrerpolicy="no-referrer"'])assert(row.includes(attr));
 const entry=await readFile(resolve(dist,'tools/detection-capability/index.html'),'utf8');
+assert(entry.includes('화면 v0.3.1')&&entry.includes('v0.9.1-beta.4'));
+assert(guide.includes('v0.9.1-beta.4')&&guide.includes('2026-10-11'));
 for(const marker of ['lod-gof-contract.js','LoD 검출률 확인','LoQ · Westgard TE','현재 지원 5%'])assert(entry.includes(marker));
 assert.equal(local.gofDiagnostics.version,'1.0.0');
 const source=await readFile(resolve(dist,'tools/detection-capability/lod-browser-source.js'),'utf8');

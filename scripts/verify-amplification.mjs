@@ -16,9 +16,13 @@ const oligo=contract.oligoDimerRelease;
 const methodPatch=contract.methodComparisonPatchRelease;
 assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,'1.5.1');assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
 const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+const layoutPatch=contract.detectionCapabilityPatchRelease;
+assert.equal(layoutPatch.previousSHA,'0475d17527233fc060aa090875583bb67e5b3c61');assert.equal(layoutPatch.portalVersion,manifest.version);assert.equal(layoutPatch.toolVersion,'0.9.1-beta.4');assert.equal(layoutPatch.previousPublic.length,142);
+async function preLayoutPatchBytes(target){const entry=layoutPatch.previousPublic.find(e=>e.target===target);assert(entry,'Prior LoBDQ patch path retained');const bytes=await readFile(resolve(dist,target)),selected=layoutPatch.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected LoBDQ patch bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected LoBDQ patch bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',layoutPatch.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous LoBDQ release bytes from Git');return old;}
+for(const e of layoutPatch.previousPublic)await preLayoutPatchBytes(e.target);
 const oligoPatch=contract.oligoDimerPatchRelease;
-assert.equal(oligoPatch.previousSHA,'2871d41e902aee1c1c3873587683eb36cf3fe09e');assert.equal(oligoPatch.portalVersion,manifest.version);assert.equal(oligoPatch.toolVersion,'0.2.1');assert.equal(oligoPatch.previousPublic.length,142);
-async function preOligoPatchBytes(target){const entry=oligoPatch.previousPublic.find(e=>e.target===target);assert(entry,'Prior Oligo patch target retained');const bytes=await readFile(resolve(dist,target)),selected=oligoPatch.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected Oligo patch bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected Oligo patch bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',oligoPatch.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous release bytes from Git');return old;}
+assert.equal(oligoPatch.previousSHA,'2871d41e902aee1c1c3873587683eb36cf3fe09e');assert.equal(oligoPatch.portalVersion,'1.5.2');assert.equal(oligoPatch.toolVersion,'0.2.1');assert.equal(oligoPatch.previousPublic.length,142);
+async function preOligoPatchBytes(target){const entry=oligoPatch.previousPublic.find(e=>e.target===target);assert(entry,'Prior Oligo patch target retained');const bytes=await preLayoutPatchBytes(target),selected=oligoPatch.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected Oligo patch bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected Oligo patch bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',oligoPatch.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous release bytes from Git');return old;}
 for(const e of oligoPatch.previousPublic)await preOligoPatchBytes(e.target);
 async function preMethodPatchBytes(target){const entry=methodPatch.previousPublic.find(e=>e.target===target);assert(entry,'Prior target retained');const bytes=await preOligoPatchBytes(target);const selected=methodPatch.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected public bytes preserved: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected patch bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',methodPatch.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Historical bytes verified against previous release');return old;}
 for(const e of methodPatch.previousPublic)await preMethodPatchBytes(e.target);
@@ -32,7 +36,7 @@ const previousHome=html=>preOligoHome(html).replace(method.portalRow,'').replace
 async function historicBytes(target){const bytes=await preOligoBytes(target);return target==='index.html'?Buffer.from(previousHome(bytes.toString())):/^info\/.*\.html$/.test(target)?Buffer.from(bytes.toString().replaceAll('포털 v1.4.0','포털 v1.3.0')):bytes;}
 for(const entry of method.previousPublic)assert.equal(hash(await historicBytes(entry.target)),entry.sha256,'Previous public content retained: '+entry.target);
 
-assert.equal(manifest.version,'1.5.2');assert.equal(manifest.candidate,undefined);
+assert.equal(manifest.version,'1.5.3');assert.equal(manifest.candidate,undefined);
 assert.equal(update.portalVersion,'1.2.1');assert.equal(buffer.portalVersion,'1.3.0');
 assert.equal(buffer.previousPortalVersion,'1.2.1');assert.equal(buffer.previousSHA,'d5b8ca0778a1e536867415156f081c9f2ebadacc');
 assert.equal(buffer.toolVersion,'1.1.0');assert.equal(buffer.algorithmVersion,'0.2.0');assert.equal(buffer.releasedOn,'2026-10-07');
@@ -114,4 +118,4 @@ assert(mainText.includes('증폭 곡선 분석 · 베타'),'Beta display');
 const webManifest=JSON.parse(await readFile(resolve(appBase,'manifest.webmanifest'),'utf8'));
 assert.equal(webManifest.name,'Amplification Analysis');assert.equal(webManifest.scope,'.');assert.equal(webManifest.start_url,'.');
 for(const icon of webManifest.icons)await readFile(resolve(appBase,icon.src));
-console.log('PASS: frozen142-file portal1.5.2 artifact; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');
+console.log('PASS: frozen142-file portal1.5.3 artifact; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');

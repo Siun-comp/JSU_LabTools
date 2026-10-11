@@ -1,6 +1,6 @@
 {
-  "version": "0.9.1-beta.3",
-  "date": "2026-10-04",
+  "version": "0.9.1-beta.4",
+  "date": "2026-10-11",
   "developer": "Jang Si Un",
   "entry": "index.html",
   "deployment": "JSU LabTools GitHub Pages portal derivative beta",
@@ -143,13 +143,13 @@
     },
     {
       "name": "app-release.js",
-      "bytes": 8521,
-      "sha256": "06f008c63b1d144c87db491f983a18a09842ad42b94fef5f745f3007199f2f94"
+      "bytes": 9151,
+      "sha256": "cea197ce08f919944104ce98980cf20e4a3c4717ddafd50ebca41a6680a8c074"
     },
     {
       "name": "index.html",
-      "bytes": 12492,
-      "sha256": "2a62df7bd635d240c9cc602c5d0edc90a230b9065e084bd03c1fdb085d93ec42"
+      "bytes": 12503,
+      "sha256": "a3ffc2c1e5bf6ddcad77172972868b5ef1de6c4559ebb9ad313e63c01c5442d4"
     },
     {
       "name": "downloads/Molecular_Detection_Minimal_Template_v3_layout.xlsx",
@@ -209,7 +209,7 @@
     {
       "name": "README.md",
       "bytes": 4763,
-      "sha256": "dc59585c536ef3dca86dc591518cbf11c426ed9f25f83542a0bd334210047f02"
+      "sha256": "1fdeb5b378f1c95712ac532d61b72ff24afc8a83321a4fa35a2223e46d9c2e2b"
     },
     {
       "name": "THIRD_PARTY_NOTICES.html",
@@ -228,8 +228,8 @@
     },
     {
       "name": "tool.css",
-      "bytes": 10184,
-      "sha256": "7a6b15f0351829ae3c2c03ba18c19b97dbebf95a076246301b2e946f4e7697fa"
+      "bytes": 10857,
+      "sha256": "94ee35b3847009a68797a4467edf673a55b95571513dfd1f557cfbbda999709c"
     },
     {
       "name": "input-ux.js",
@@ -243,8 +243,8 @@
     }
   ],
   "uiTheme": {
-    "version": "0.3.0",
-    "date": "2026-10-04",
+    "version": "0.3.1",
+    "date": "2026-10-11",
     "status": "portal_derivative_beta",
     "calculationAndDataFormatReview": "AP78/AP79/AP81 evidence retained; company-specific applicability is internal",
     "sourceProgramVersion": "0.9.0-beta.6",
@@ -255,7 +255,8 @@
       "Presentation-only AP-75 baseline; later input validation tracked separately",
       "AP87 input actions/count/error locations, LoQ management and raw preview tables",
       "AP88 compact LoD/confirmation input rows; separate body row-number styling from column headers",
-      "AP96 explicit supported alpha, confirmation/Westgard labels and GOF diagnostic presentation"
+      "AP96 explicit supported alpha, confirmation/Westgard labels and GOF diagnostic presentation",
+      "AP197 shared settings title/input/error rows, stable error border dimensions, top-aligned input table cells and narrow single-column settings"
     ]
   },
   "inputValidation": {
@@ -277,11 +278,11 @@
   },
   "baselineProgramVersion": "0.9.0-beta.6",
   "releaseIdentification": {
-    "version": "0.9.1-beta.3",
-    "date": "2026-10-04",
+    "version": "0.9.1-beta.4",
+    "date": "2026-10-11",
     "status": "portal_derivative_beta",
     "baselineProgramVersion": "0.9.0-beta.6",
-    "calculationImpact": "Existing fitted model/point/CI and dispersion1 retained; GOF diagnostics and export/result fields added. Input schemas unchanged."
+    "calculationImpact": "Validation error layout CSS only; statistical programs, input validation, clipboard and file schemas unchanged."
   },
   "gofDiagnostics": {
     "version": "1.0.0",
