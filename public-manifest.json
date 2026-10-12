@@ -1,5 +1,5 @@
 {
-  "version": "1.6.0",
+  "version": "1.6.1",
   "files": [
     {
       "source": "portal/index.html",
@@ -612,6 +612,30 @@
     {
       "source": "tools/method-comparison/unified-report.mjs",
       "target": "tools/method-comparison/unified-report.mjs"
+    },
+    {
+      "source": "tools/detection-capability/mass-package.js",
+      "target": "tools/detection-capability/mass-package.js"
+    },
+    {
+      "source": "tools/detection-capability/runtime/MASS_7.3-66.tgz",
+      "target": "tools/detection-capability/runtime/MASS_7.3-66.tgz"
+    },
+    {
+      "source": "tools/detection-capability/runtime/MASS_7.3-66.metadata.json",
+      "target": "tools/detection-capability/runtime/MASS_7.3-66.metadata.json"
+    },
+    {
+      "source": "tools/detection-capability/runtime/MASS_7.3-66.source.tar.gz",
+      "target": "tools/detection-capability/runtime/MASS_7.3-66.source.tar.gz"
+    },
+    {
+      "source": "tools/detection-capability/licenses/GPL-2.txt",
+      "target": "tools/detection-capability/licenses/GPL-2.txt"
+    },
+    {
+      "source": "tools/detection-capability/licenses/GPL-3.txt",
+      "target": "tools/detection-capability/licenses/GPL-3.txt"
     }
   ],
   "date": "2026-10-06"

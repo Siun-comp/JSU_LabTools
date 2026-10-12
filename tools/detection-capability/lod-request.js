@@ -21,7 +21,7 @@ window.LoDRequest=(()=>{
  const available=['http:','https:'].includes(location.protocol);
  run.disabled=!available;run.title=available?'브라우저 R Probit · 적합도 검토 전 후보값':'HTTP/HTTPS 페이지에서 계산할 수 있습니다.';
  const stop=document.createElement('button');stop.id='lod-cancel';stop.textContent='계산 취소';stop.hidden=true;run.after(stop);
- const connection=document.createElement('p');connection.className='hint';connection.textContent=available?'브라우저에서 계산 · 첫 실행 시 R/CI 라이브러리를 다운로드합니다. 분석 입력은 서버로 전송하지 않습니다. Excel 결과서도 브라우저에서 생성합니다.':'파일 모드: 입력 확인만 가능합니다. HTTP/HTTPS 페이지에서 계산하세요.';stop.after(connection);
+ const connection=document.createElement('p');connection.className='hint';connection.textContent=available?'브라우저에서 계산 · 첫 실행 시 webR 환경과 이 사이트의 검증한 LoD 패키지를 다운로드합니다. 분석 입력은 서버로 전송하지 않습니다. Excel 결과서도 브라우저에서 생성합니다.':'파일 모드: 입력 확인만 가능합니다. HTTP/HTTPS 페이지에서 계산하세요.';stop.after(connection);
  let serial=0,controller=null;
  let result=null,fingerprint=null;
  const current=()=>{const s=MinimalInputs.snapshot('lod');return JSON.stringify([s.raw,s.revision]);};
@@ -57,7 +57,9 @@ window.LoDRequest=(()=>{
     if(g.warnings.includes('EXECUTION_WARNING'))box.append(make('p','실행 경고가 있어 진단값의 해석도 검토해야 합니다.'));
     const more=make('details','');more.append(make('summary','모형 진단·계산 버전'));more.append(make('p',`수렴: 확인 · 잔차 자유도: ${e.residualDF} · Deviance: ${e.deviance.toPrecision(5)} · Pearson: ${e.pearson.toPrecision(5)}`));
     more.append(make('p',`브라우저 webR ${e.method.webRVersion} · R ${e.method.rVersion} · stats ${e.method.statsVersion} · MASS ${e.method.massVersion} · 프로그램 ${e.method.applicationVersion}`));
-    more.append(make('p',`wrapper ${e.method.wrapperVersion} · ${e.method.link}/${e.method.scale} · 목표 ${e.method.target}`));
+    if(e.method.massPackageSHA256)more.append(make('p',`MASS 파일 SHA-256: ${e.method.massPackageSHA256}`));
+   if(e.method.massPackageSource)more.append(make('p',`MASS 공식 출처: ${e.method.massPackageSource}`));
+   more.append(make('p',`wrapper ${e.method.wrapperVersion} · ${e.method.link}/${e.method.scale} · 목표 ${e.method.target}`));
     for(const [label,value]of [['CI 방법',e.ci.method.id],['CI 근거',e.ci.method.source],['CI 방법 버전',e.ci.method.version],['신뢰수준',e.ci.confidence],['log10 추정값',e.ci.logEstimate],['log10 표준오차',e.ci.logSE],['log10 하한',e.ci.logLower],['log10 상한',e.ci.logUpper]])more.append(make('p',`${label}: ${value??'미제공'}`));
     more.append(make('p','적합도 방법 '+g.method.id+' · 버전 '+g.method.version+' · R 원본 SHA-256 '+e.method.sourceSHA256));
     more.append(make('p',`절편: ${e.coefficients[0]} · 기울기: ${e.coefficients[1]} · 반복: ${e.iterations}`));
@@ -83,7 +85,7 @@ window.LoDRequest=(()=>{
    if(e.curve!==undefined&&e.curve!==null&&!LoDCurveContract.valid(e.curve,result.request.c))throw Error('invalid_response');
    if(!LoDGOFContract.valid(e.gof,e,q))throw Error('invalid_response');
    result.execution=e;p.querySelector('.input-feedback').textContent='브라우저 R 계산 완료 · 최종 LoD 미확정';
-  }catch(e){if(id===serial&&current()===fp){const messages={input_blocked:'계산 입력 범위를 확인하세요(N은 행당 최대 10억).',busy:'다른 계산이 실행 중입니다. 잠시 후 다시 실행하세요.',invalid_response:'계산 응답을 검증하지 못했습니다.',runtime_version_mismatch:'검증한 계산 환경 버전과 달라 계산을 차단했습니다.',startup_timeout:'계산 환경 준비 제한시간(60초)을 초과했습니다. 네트워크 연결을 확인하고 다시 실행하세요.',calculation_timeout:'계산 제한시간(20초)을 초과했습니다. 다시 실행하세요.',aborted:'계산을 취소했습니다.'};result.executionError=messages[e.message]||'브라우저 계산 환경을 준비하거나 실행하지 못했습니다. 네트워크 연결을 확인하고 다시 실행하세요.';}}
+  }catch(e){if(id===serial&&current()===fp){const messages={input_blocked:'계산 입력 범위를 확인하세요(N은 행당 최대 10억).',busy:'다른 계산이 실행 중입니다. 잠시 후 다시 실행하세요.',invalid_response:'계산 응답을 검증하지 못했습니다.',runtime_version_mismatch:'검증한 계산 환경 버전과 달라 계산을 차단했습니다.',startup_timeout:'계산 환경 준비 제한시간(60초)을 초과했습니다. 네트워크 연결을 확인하고 다시 실행하세요.',calculation_timeout:'계산 제한시간(20초)을 초과했습니다. 다시 실행하세요.',aborted:'계산을 취소했습니다.'};result.executionError=messages[e.message]||BrowserRRuntime.message(e);}}
   finally{if(id===serial){result.pending=false;controller=null;run.disabled=!available;stop.hidden=true;draw();}}
  };
  document.addEventListener('minimal-input-change',()=>{if(result&&current()!==fingerprint){cancel();result.pending=false;}draw();});document.addEventListener('minimal-module-change',draw);

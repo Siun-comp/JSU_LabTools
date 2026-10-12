@@ -1,6 +1,6 @@
 {
-  "version": "0.9.1-beta.4",
-  "date": "2026-10-11",
+  "version": "0.9.1-beta.5",
+  "date": "2026-10-13",
   "developer": "Jang Si Un",
   "entry": "index.html",
   "deployment": "JSU LabTools GitHub Pages portal derivative beta",
@@ -53,8 +53,8 @@
     },
     {
       "name": "browser-r-runtime.js",
-      "bytes": 4883,
-      "sha256": "ad023473f7b8682c3458ebe756819f68f528119ed58eace1fdf5b135dbeeaaee"
+      "bytes": 5544,
+      "sha256": "abca27d7cf3e78f0d13dc1b4dbc2be531060ee1a1285829f81e7f1693ccc50e1"
     },
     {
       "name": "lod-browser.js",
@@ -63,8 +63,8 @@
     },
     {
       "name": "lod-request.js",
-      "bytes": 14504,
-      "sha256": "def5ea46d5c3fc53a56ea2d2e08a20d64fc8c2e6e3c5c5992e440f48b360d250"
+      "bytes": 14647,
+      "sha256": "b29815341944364ed86222b7e96812742dcd90adc8999e0b5ee64b99dd7cbfa6"
     },
     {
       "name": "lob-analysis.js",
@@ -138,18 +138,18 @@
     },
     {
       "name": "result-export.js",
-      "bytes": 22178,
-      "sha256": "37c218f48413ef1b0d4670803d7ca50ddd2218674b8692645d8c84ebbc57b2ed"
+      "bytes": 22912,
+      "sha256": "507251326d1fb94f142e4098ecf89b36ad2800ee01ba7b5c582a6ed68bfe0e29"
     },
     {
       "name": "app-release.js",
-      "bytes": 9151,
-      "sha256": "cea197ce08f919944104ce98980cf20e4a3c4717ddafd50ebca41a6680a8c074"
+      "bytes": 9927,
+      "sha256": "60fd911e8d024d770d264d9c39de2a0d5156884eec5d158a0c5b762384cfbb6d"
     },
     {
       "name": "index.html",
-      "bytes": 12503,
-      "sha256": "a3ffc2c1e5bf6ddcad77172972868b5ef1de6c4559ebb9ad313e63c01c5442d4"
+      "bytes": 12711,
+      "sha256": "cd2677858c44b575318166355a4cb6dc1a8ece947fbc0c12d374c3e813b9f069"
     },
     {
       "name": "downloads/Molecular_Detection_Minimal_Template_v3_layout.xlsx",
@@ -208,13 +208,13 @@
     },
     {
       "name": "README.md",
-      "bytes": 4763,
-      "sha256": "1fdeb5b378f1c95712ac532d61b72ff24afc8a83321a4fa35a2223e46d9c2e2b"
+      "bytes": 5025,
+      "sha256": "d10b172eed078341585d347802ddf6d963d5586b0bbd4766b2e0d90e984d681b"
     },
     {
       "name": "THIRD_PARTY_NOTICES.html",
-      "bytes": 3069,
-      "sha256": "77f2b3b530fabc5a1a1f8016a20def0cdd19ba6abacbdec162532c65a7cfc23a"
+      "bytes": 3798,
+      "sha256": "275a13a99fd01ca0de5a8adfc491dce5407eabfb8d495c3c379befc35862efa2"
     },
     {
       "name": ".nojekyll",
@@ -240,6 +240,36 @@
       "name": "lod-gof-contract.js",
       "bytes": 2754,
       "sha256": "c73136dcfeeefcb0995a9ee184dc9af92a879e4307652bcda1e5d34cedfe7ce5"
+    },
+    {
+      "name": "mass-package.js",
+      "bytes": 2918,
+      "sha256": "d6ebad52e74bd5585e6272637083a9c1d3f569e708dc60dfd91123144429ee22"
+    },
+    {
+      "name": "runtime/MASS_7.3-66.tgz",
+      "bytes": 873258,
+      "sha256": "2abe66de8f442fdc0cd221bdb0e774ea17f56ff963dc0275bcfcd2add27ee3b5"
+    },
+    {
+      "name": "runtime/MASS_7.3-66.metadata.json",
+      "bytes": 2969,
+      "sha256": "c5def108f94855ad32e799c8f868e51363267f0266a215db663fea2f72032116"
+    },
+    {
+      "name": "runtime/MASS_7.3-66.source.tar.gz",
+      "bytes": 510345,
+      "sha256": "59c619c70bfca653f1c74aef880e69405daefd0134e716a1862ecc5334b4e155"
+    },
+    {
+      "name": "licenses/GPL-2.txt",
+      "bytes": 18092,
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+    },
+    {
+      "name": "licenses/GPL-3.txt",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
     }
   ],
   "uiTheme": {
@@ -278,11 +308,11 @@
   },
   "baselineProgramVersion": "0.9.0-beta.6",
   "releaseIdentification": {
-    "version": "0.9.1-beta.4",
-    "date": "2026-10-11",
+    "version": "0.9.1-beta.5",
+    "date": "2026-10-13",
     "status": "portal_derivative_beta",
     "baselineProgramVersion": "0.9.0-beta.6",
-    "calculationImpact": "Validation error layout CSS only; statistical programs, input validation, clipboard and file schemas unchanged."
+    "calculationImpact": "Verified MASS 7.3-66 package acquisition with shared browser/CI loader; actual runtime provenance in outputs. Statistical R source and CI dispersion unchanged."
   },
   "gofDiagnostics": {
     "version": "1.0.0",
@@ -292,5 +322,13 @@
     "sourceSHA256": "53d11ec6b9226192b83c1eb0e6d07c63f0f788a4b225268d3591d8f3736cb9be",
     "ciDispersion": 1,
     "assessment": "review_required"
+  },
+  "runtimePackage": {
+    "name": "MASS",
+    "version": "7.3-66",
+    "runtimeVersion": "7.3.66",
+    "sha256": "2abe66de8f442fdc0cd221bdb0e774ea17f56ff963dc0275bcfcd2add27ee3b5",
+    "metadataSHA256": "c5def108f94855ad32e799c8f868e51363267f0266a215db663fea2f72032116",
+    "policy": "Same-site verified binary; no mutable index or fallback; browser and CI share loader and bytes."
   }
 }

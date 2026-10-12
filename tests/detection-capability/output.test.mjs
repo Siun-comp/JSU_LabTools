@@ -17,4 +17,8 @@ for(const marker of ['Pearson 근사 p값','Deviance 근사 p값','Pearson/자�
 assert(text.includes(String(Math.exp(-1))));assert(summary.includes('자동 판정/CI 분산 보정 없음'));assert(payload.details.some(row=>row[0]==='적합도 진단 · 방법 · 버전'&&row[1]==='1.0.0'));assert(payload.details.some(row=>row[0]==='적합도 진단 · 방법 · 현재 CI 분산계수'&&row[1]===1));
 assert.equal(api.cell('=1+1'),"'=1+1");assert.equal(api.cell('a\tb'),String.raw`a\tb`);assert.equal(payload.module,'lod');assert.equal(payload.graph,null);
 const serialized=JSON.parse(JSON.stringify({archivedResults:{lod:e}}));assert.equal(serialized.archivedResults.lod.gof.pearsonP,Math.exp(-1));
+Object.assign(e.method,{webRVersion:'0.6.0',rVersion:'4.6.0',statsVersion:'4.6.0',massVersion:'7.3.66',massPackageSHA256:'2abe66de8f442fdc0cd221bdb0e774ea17f56ff963dc0275bcfcd2add27ee3b5',massPackageSource:'https://repo.r-wasm.org/bin/emscripten/contrib/4.6/MASS_7.3-66.tgz'});
+for(const output of [api.tsv(x),api.summaryTSV(x),JSON.stringify(api.reportPayload(x))]){assert(output.includes('7.3.66'));assert(output.includes(e.method.massPackageSHA256));}
+e.method.massVersion='7.3.65';delete e.method.massPackageSHA256;delete e.method.massPackageSource;
+const old=JSON.parse(JSON.stringify({archivedResults:{lod:e}}));assert.equal(old.archivedResults.lod.method.massVersion,'7.3.65');assert(api.summaryTSV(x).includes('MASS 7.3.65'));assert(!api.summaryTSV(x).includes('7.3.66'));
 console.log('PASS: real LoBDQ detail/summary TSV and Excel payload carry synthetic GOF values, method/version, warnings and CI dispersion; text protection retained. No OS clipboard/Excel test.');

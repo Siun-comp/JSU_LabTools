@@ -20,30 +20,13 @@ const response=await fetch(archiveURL,{signal:AbortSignal.timeout(60000)});asser
 const bytes=Buffer.from(await response.arrayBuffer());assert.equal(createHash('sha512').update(bytes).digest('base64'),integrity,'Pinned official npm integrity');await fs.writeFile(archive,bytes);
 const list=spawnSync('tar',['-tf',archive],{encoding:'utf8'});assert.equal(list.status,0);assert(list.stdout.trim().split(/\r?\n/).every(p=>p.startsWith('package/')&&!p.split('/').includes('..')),'Archive path boundary');
 const extract=spawnSync('tar',['-xf',archive,'-C',temp]);assert.equal(extract.status,0);
-// CI-only dependency preparation. No public LoBDQ runtime or acceptance criterion changes.
-const massArchiveURL='https://repo.r-wasm.org/bin/emscripten/contrib/4.6/MASS_7.3-65.tgz',massSHA256='9cb66dfbaf017f74e4408117128c04a859697ad8ff49cffad0537b2b15f0d846';
-const massResponse=await fetch(massArchiveURL,{signal:AbortSignal.timeout(60000)});assert(massResponse.ok,'Official pinned MASS download');
-const massBytes=Buffer.from(await massResponse.arrayBuffer());assert.equal(createHash('sha256').update(massBytes).digest('hex'),massSHA256,'Pinned MASS binary SHA256');
-const massArchive=path.join(temp,'MASS.tgz'),massLibrary=path.join(temp,'fixed-library');await fs.writeFile(massArchive,massBytes);await fs.mkdir(massLibrary);
-const massList=spawnSync('tar',['-tf',massArchive],{encoding:'utf8'});assert.equal(massList.status,0);assert(massList.stdout.trim().split(/\r?\n/).every(p=>(p.startsWith('MASS/')||p==='.vfs-index.json')&&!p.split('/').includes('..')),'MASS archive path boundary');
-assert.equal(spawnSync('tar',['-xf',massArchive,'-C',massLibrary]).status,0);
-const massDescription=await fs.readFile(path.join(massLibrary,'MASS/DESCRIPTION'),'utf8');assert.match(massDescription,/^Version: 7\.3-65$/m);assert.match(massDescription,/^Built: R 4\.6\.0; wasm32-unknown-emscripten;/m);
+const fixedMASS=require(path.join(dir,'mass-package.js')),massArchiveURL=fixedMASS.contract.source,massSHA256=fixedMASS.contract.sha256;
 const base=path.join(temp,'package/dist/'),mod=await import(pathToFileURL(path.join(base,'webr.mjs')).href),instances=[];
-const Runtime=class extends mod.WebR{
- constructor(options){super({...options,baseUrl:base});instances.push(this);}
- async init(){
-  if(!this.pinnedInitialisation)this.pinnedInitialisation=(async()=>{
-   await super.init();
-   await this.evalRVoid(`webr::mount("/fixed-library", ${JSON.stringify(massLibrary)}, type="nodefs"); .libPaths(c("/fixed-library", .libPaths()))`);
-   assert.equal(await this.evalRString('as.character(packageVersion("MASS"))'),'7.3.65','Existing MASS version contract');
-  })();
-  return this.pinnedInitialisation;
- }
-};
+const Runtime=class extends mod.WebR{constructor(options){super({...options,baseUrl:base});instances.push(this);}};
+const runtime=require(path.join(dir,'browser-r-runtime.js')).create({loadRuntime:async()=>({...mod,WebR:Runtime}),loadPackageBytes:name=>fs.readFile(path.join(dir,name))});
 require(path.join(dir,'app-release.js'));require(path.join(dir,'lod-browser-source.js'));require(path.join(dir,'continuous-browser-source.js'));
 const source=globalThis.LoDBrowserSource,continuousSources=globalThis.ContinuousBrowserSources;
-const lod=require(path.join(dir,'lod-browser.js')).create({source,ciContract:require(path.join(dir,'lod-ci-contract.js')),curveContract:require(path.join(dir,'lod-curve-contract.js')),gofContract:require(path.join(dir,'lod-gof-contract.js')),loadRuntime:async()=>({...mod,WebR:Runtime})});
-const runtime=require(path.join(dir,'browser-r-runtime.js')).create({loadRuntime:async()=>({...mod,WebR:Runtime})});
+const lod=require(path.join(dir,'lod-browser.js')).create({runtime,source,ciContract:require(path.join(dir,'lod-ci-contract.js')),curveContract:require(path.join(dir,'lod-curve-contract.js')),gofContract:require(path.join(dir,'lod-gof-contract.js')),loadRuntime:async()=>({...mod,WebR:Runtime})});
 const continuous=require(path.join(dir,'continuous-browser.js')).create({runtime,sources:continuousSources,contracts:{confirmation:require(path.join(dir,'confirmation-contract.js')),loq:require(path.join(dir,'loq-contract.js'))}});
 let checks=0;const close=(actual,expected,tolerance=plan.tolerances.analyticScalarRelativeToMax1)=>{assert(Number.isFinite(actual));assert(Math.abs(actual-expected)<=tolerance*Math.max(1,Math.abs(expected)),`${actual} versus ${expected}`);checks++;};
 const results=[];
