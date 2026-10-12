@@ -1,5 +1,6 @@
 /* Actual webR test, separate from pure contract tests. No host package installation.
  * Official fixed npm tarball is downloaded into an isolated temporary directory.
+ * MASS is also pinned to the existing runtime contract, not the mutable latest repository index.
  * Failures are failures: there is no skipped/pass fallback. Supported CI: Linux Node24.
  */
 import fs from 'node:fs/promises';
@@ -19,8 +20,26 @@ const response=await fetch(archiveURL,{signal:AbortSignal.timeout(60000)});asser
 const bytes=Buffer.from(await response.arrayBuffer());assert.equal(createHash('sha512').update(bytes).digest('base64'),integrity,'Pinned official npm integrity');await fs.writeFile(archive,bytes);
 const list=spawnSync('tar',['-tf',archive],{encoding:'utf8'});assert.equal(list.status,0);assert(list.stdout.trim().split(/\r?\n/).every(p=>p.startsWith('package/')&&!p.split('/').includes('..')),'Archive path boundary');
 const extract=spawnSync('tar',['-xf',archive,'-C',temp]);assert.equal(extract.status,0);
+// CI-only dependency preparation. No public LoBDQ runtime or acceptance criterion changes.
+const massArchiveURL='https://repo.r-wasm.org/bin/emscripten/contrib/4.6/MASS_7.3-65.tgz',massSHA256='9cb66dfbaf017f74e4408117128c04a859697ad8ff49cffad0537b2b15f0d846';
+const massResponse=await fetch(massArchiveURL,{signal:AbortSignal.timeout(60000)});assert(massResponse.ok,'Official pinned MASS download');
+const massBytes=Buffer.from(await massResponse.arrayBuffer());assert.equal(createHash('sha256').update(massBytes).digest('hex'),massSHA256,'Pinned MASS binary SHA256');
+const massArchive=path.join(temp,'MASS.tgz'),massLibrary=path.join(temp,'fixed-library');await fs.writeFile(massArchive,massBytes);await fs.mkdir(massLibrary);
+const massList=spawnSync('tar',['-tf',massArchive],{encoding:'utf8'});assert.equal(massList.status,0);assert(massList.stdout.trim().split(/\r?\n/).every(p=>p.startsWith('MASS/')&&!p.split('/').includes('..')),'MASS archive path boundary');
+assert.equal(spawnSync('tar',['-xf',massArchive,'-C',massLibrary]).status,0);
+const massDescription=await fs.readFile(path.join(massLibrary,'MASS/DESCRIPTION'),'utf8');assert.match(massDescription,/^Version: 7\.3-65$/m);assert.match(massDescription,/^Built: R 4\.6\.0; wasm32-unknown-emscripten;/m);
 const base=path.join(temp,'package/dist/'),mod=await import(pathToFileURL(path.join(base,'webr.mjs')).href),instances=[];
-const Runtime=class extends mod.WebR{constructor(options){super({...options,baseUrl:base});instances.push(this);}};
+const Runtime=class extends mod.WebR{
+ constructor(options){super({...options,baseUrl:base});instances.push(this);}
+ async init(){
+  if(!this.pinnedInitialisation)this.pinnedInitialisation=(async()=>{
+   await super.init();
+   await this.evalRVoid(`webr::mount("/fixed-library", ${JSON.stringify(massLibrary)}, type="nodefs"); .libPaths(c("/fixed-library", .libPaths()))`);
+   assert.equal(await this.evalRString('as.character(packageVersion("MASS"))'),'7.3.65','Existing MASS version contract');
+  })();
+  return this.pinnedInitialisation;
+ }
+};
 require(path.join(dir,'app-release.js'));require(path.join(dir,'lod-browser-source.js'));require(path.join(dir,'continuous-browser-source.js'));
 const source=globalThis.LoDBrowserSource,continuousSources=globalThis.ContinuousBrowserSources;
 const lod=require(path.join(dir,'lod-browser.js')).create({source,ciContract:require(path.join(dir,'lod-ci-contract.js')),curveContract:require(path.join(dir,'lod-curve-contract.js')),gofContract:require(path.join(dir,'lod-gof-contract.js')),loadRuntime:async()=>({...mod,WebR:Runtime})});
@@ -59,6 +78,6 @@ try{
  const mixedQuery={c:[1,2,4,8],k:[1,12,8,19],n:[20,20,20,20],target:.95},mixed=await lod.run(mixedQuery);
  assert.equal(mixed.status,'candidate');assert.equal(mixed.residualDF,2);assert(mixed.pearson>1&&mixed.deviance>1);
  close(mixed.gof.pearsonP,Math.exp(-mixed.pearson/2),2e-13);close(mixed.gof.devianceP,Math.exp(-mixed.deviance/2),2e-13);assert.equal(mixed.ci.method.dispersion,1);assert.equal(mixed.fitAssessment,'review_required');results.push({name:'nonzero-GOF-df2',execution:mixed});
- console.log(JSON.stringify({status:'PASS',checks,lodCases:13,cpRows:21,loqSamples:4,runtime:'Actual webR under Linux Node PostMessage; browser verification is a separate check',webR:r.version,r:await r.evalRString('as.character(getRversion())'),stats:await r.evalRString('as.character(packageVersion("stats"))'),mass:await r.evalRString('as.character(packageVersion("MASS"))'),sourceSHA256:source.sha256,archiveURL,integrity}));
+ console.log(JSON.stringify({status:'PASS',checks,lodCases:13,cpRows:21,loqSamples:4,runtime:'Actual webR under Linux Node PostMessage; browser verification is a separate check',webR:r.version,r:await r.evalRString('as.character(getRversion())'),stats:await r.evalRString('as.character(packageVersion("stats"))'),mass:await r.evalRString('as.character(packageVersion("MASS"))'),sourceSHA256:source.sha256,archiveURL,integrity,massArchiveURL,massSHA256}));
  if(process.env.JSU_LOBDQ_TEST_OUTPUT)await fs.writeFile(process.env.JSU_LOBDQ_TEST_OUTPUT,JSON.stringify({results,cp,loq:l,checks},null,2));
 }finally{for(const r of instances)r.close();}
