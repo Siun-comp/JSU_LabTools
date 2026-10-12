@@ -1,6 +1,6 @@
 import {formatNumber,formatPercent} from './format.mjs';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function barChart(data,names,title,percent=true){
+export function barChart(data,names,title,percent=true,options={}){
   if(!data.length)return '<p class="hint">분석할 구간이 없습니다.</p>';
   const dateRanges=data.some(g=>g.label.includes(' 이상 ~ '));
   const width=Math.max(600,data.length*(dateRanges?195:145)+70),left=65,right=width-20,base=275,top=50,step=(right-left)/data.length;
@@ -11,7 +11,7 @@ export function barChart(data,names,title,percent=true){
   for(const [i,g] of data.entries()){
     const center=left+step*(i+.5),w=Math.min(44,step/(names.length+2));
     for(const [j,s] of g.values.entries()){
-      const c=center+(j-(names.length-1)/2)*Math.max(w+7,names.length>1?68:0),v=s.value;
+      const c=center+(j-(names.length-1)/2)*(options.paired?w+7:Math.max(w+7,names.length>1?68:0)),v=s.value;
       svg+=`<g data-group="${esc(g.label)}" data-series="${esc(names[j])}" data-value="${v===null?'none':v}"><title>${esc(g.label)} ${esc(names[j])}: ${v===null?'대상 없음':percent?formatPercent(v):formatNumber(v)}</title>`;
       if(v!==null&&Number.isFinite(v)){
         const at=y(v),zero=y(0);svg+=`<rect x="${c-w/2}" y="${Math.min(at,zero)}" width="${w}" height="${Math.abs(zero-at)}" fill="${colors[j]}"/>`;

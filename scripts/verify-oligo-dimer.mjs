@@ -5,7 +5,7 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),base=resolve(ro
 const manifest=JSON.parse(await readFile(resolve(root,'public-manifest.json'),'utf8'));
 const contract=(text=>{const c=JSON.parse(text);return {...c.oligoDimerRelease,...c.oligoDimerPatchRelease};})(await readFile(resolve(root,'amplification-release-contract.json'),'utf8'));
 const entries=manifest.files.filter(e=>e.target.startsWith('tools/oligo-analysis/'));
-assert.equal(entries.length,6);assert.equal(manifest.version,'1.5.4');assert.equal(contract.toolVersion,'0.2.1');
+assert.equal(entries.length,6);assert.equal(manifest.version,'1.6.0');assert.equal(contract.toolVersion,'0.2.1');
 const read=name=>readFile(resolve(base,name),'utf8'),html=await read('index.html'),core=await read('core.mjs'),app=await read('app.mjs');
 for(const text of ['Oligo-dimer analysis','도구 v0.2.1','optimal sensitivity 3'])assert(html.includes(text));
 assert(!html.includes('로컬 후보')&&!html.includes('공개 배포 전'));assert(core.includes("VERSION='0.2.1'"));
@@ -19,6 +19,6 @@ assert(!html.match(/<input id="include-poly"[^>]*>/)[0].includes('checked'));ass
 assert(core.includes("mono?'Courier New':'Malgun Gothic'")&&core.includes('height:16pt'));
 const home=await readFile(resolve(root,'dist/index.html'),'utf8'),info=await readFile(resolve(root,'dist/info/oligo-analysis.html'),'utf8');
 assert(home.includes(contract.portalRow));assert.equal((home.match(/<h2>Oligo-dimer analysis<\/h2>/g)||[]).length,1);
-for(const text of ['Oligo-dimer analysis','v0.2.1','포털 v1.5.4','2026-10-10','실제 복합체 ΔG가 아닙니다','TmExtreme'])assert(info.includes(text));
+for(const text of ['Oligo-dimer analysis','v0.2.1','포털 v1.6.0','2026-10-10','실제 복합체 ΔG가 아닙니다','TmExtreme'])assert(info.includes(text));
 assert(!/<(?:script|input|textarea|form|iframe)\b/.test(info));
-console.log('PASS: Oligo-dimer analysis0.2.1 source6, frozen engine, local Worker/clipboard, explicit bounds and portal1.5.4 entry.');
+console.log('PASS: Oligo-dimer analysis0.2.1 source6, frozen engine, local Worker/clipboard, explicit bounds and portal1.6.0 entry.');

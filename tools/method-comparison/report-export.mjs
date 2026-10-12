@@ -1,3 +1,4 @@
+import {unifiedReportData} from './unified-report.mjs';
 import {dateLabels,dateMode} from './date-boundaries.mjs';
 import {HEADERS,VERSION,summarize,groups,medianSummary,medianGroups,medianDateGroups,evaluateRow,prediction,inputAuditEntries,numericCaution} from './core.mjs';
 import {numberFormat,formatNumber,formatPercent} from './format.mjs';
@@ -60,26 +61,35 @@ function styles(d,{titleSize,emphasisSize}){
   const xfs=child(d.documentElement,S,'cellXfs'),ids={};
   for(const [i,code] of ['0.00','0.00E+00','0.00%','0','yyyy-mm-dd'].entries()){formats.append(make(d,S,'numFmt',{numFmtId:164+i,formatCode:code}));const f=xfs.children[1].cloneNode(true);f.setAttribute('numFmtId',164+i);f.setAttribute('applyNumberFormat','1');ids[code]=xfs.children.length;xfs.append(f);}
   const wrap=xfs.children[1].cloneNode(true);wrap.setAttribute('applyAlignment','1');wrap.append(make(d,S,'alignment',{wrapText:'1',vertical:'top'}));ids.wrap=xfs.children.length;xfs.append(wrap);
+  for(const f of [...xfs.children]){let alignment=child(f,S,'alignment');if(!alignment){alignment=make(d,S,'alignment');f.append(alignment);}alignment.setAttribute('vertical','center');f.setAttribute('applyAlignment','1');}
   formats.setAttribute('count',formats.children.length);xfs.setAttribute('count',xfs.children.length);return ids;
 }
 
 function fillSheet(d,data,ids,titleSize){
   const root=d.documentElement,sd=child(root,S,'sheetData');sd.replaceChildren();const rowMap=new Map();
-  function add(n,index,value,style=1){let r=rowMap.get(n);if(!r){r=make(d,S,'row',{r:n,ht:18,customHeight:1});rowMap.set(n,r);}const obj=value&&typeof value==='object'?value:{value};if(obj.format)style=ids[obj.format];const c=make(d,S,'c',{r:col(index)+n,s:style});if(obj.value!==null&&obj.value!==undefined){if(typeof obj.value==='number'&&Number.isFinite(obj.value))c.append(make(d,S,'v',{},obj.value));else {c.setAttribute('t','inlineStr');const is=make(d,S,'is'),t=make(d,S,'t',{},String(obj.value).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,''));t.setAttributeNS('http://www.w3.org/XML/1998/namespace','xml:space','preserve');is.append(t);c.append(is);}}r.append(c);return r;}
+  const layoutCols=child(root,S,'cols');
+  if(data.name==='검체목록'||data.name==='원본입력')data.headers.forEach((header,i)=>{const c=els(layoutCols,S,'col').find(c=>Number(c.getAttribute('min'))===i+1);if(c)c.setAttribute('width',header==='확인 사항'||header==='형식 오류'?'44':header==='원행'?'10':header==='검체 ID'?'24':'18');});
+  const columnWidth=i=>Number(els(layoutCols,S,'col').find(c=>Number(c.getAttribute('min'))<=i+1&&Number(c.getAttribute('max'))>=i+1)?.getAttribute('width')||16);
+  const textLines=(v,width)=>String(v).split(/\r?\n/).reduce((total,line)=>total+Math.max(1,Math.ceil([...line].reduce((n,c)=>n+(c.charCodeAt(0)>255?2:1),0)/Math.max(8,width-2))),0);
+  function add(n,index,value,style=1){let r=rowMap.get(n);if(!r){r=make(d,S,'row',{r:n,ht:18,customHeight:1});rowMap.set(n,r);}const obj=value&&typeof value==='object'?value:{value};if(obj.format)style=ids[obj.format];if(n>data.header&&['원행','원래 행'].includes(data.headers[index])&&typeof obj.value==='number')style=ids['0'];const c=make(d,S,'c',{r:col(index)+n,s:style});if(obj.value!==null&&obj.value!==undefined){if(typeof obj.value==='number'&&Number.isFinite(obj.value))c.append(make(d,S,'v',{},obj.value));else {c.setAttribute('t','inlineStr');const is=make(d,S,'is'),t=make(d,S,'t',{},String(obj.value).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,''));t.setAttributeNS('http://www.w3.org/XML/1998/namespace','xml:space','preserve');is.append(t);c.append(is);}}r.append(c);return r;}
   add(2,0,data.name,2).setAttribute('ht',Math.max(26,titleSize*1.5));
   // Three metadata rows and two concise annotation rows above the charts.
   const notes=[...data.notes.slice(0,3),data.notes.slice(3,Math.ceil((data.notes.length+3)/2)).join(' '),data.notes.slice(Math.ceil((data.notes.length+3)/2)).join(' ')];
-  notes.forEach((v,i)=>add(i+4,0,v,ids.wrap).setAttribute('ht',i<3?27:40));
-  data.headers.forEach((h,i)=>add(data.header,i,h,5).setAttribute('ht',48));
-  data.rows.forEach((row,i)=>row.forEach((v,j)=>{const wrap=typeof v==='string'&&(v.length>35||j===0&&v.length>22);const r=add(data.header+i+1,j,v,wrap?ids.wrap:1);if(wrap)r.setAttribute('ht',Math.min(80,Math.max(28,Math.ceil(v.length/35)*14)));}));
-  if(data.curves){['Reference 곡선','전체 OLS','PI 하한','PI 상한'].forEach((v,j)=>add(33,26+j,v,5));data.curves.forEach((r,i)=>r.forEach((v,j)=>add(34+i,26+j,v)));}
-  [...rowMap].sort((a,b)=>a[0]-b[0]).forEach(([,r])=>sd.append(r));
+  notes.forEach((v,i)=>{const units=[...v].reduce((n,c)=>n+(c.charCodeAt(0)>255?2:1),0);add(i+4,0,v,ids.wrap).setAttribute('ht',Math.max(i<3?27:40,Math.ceil(units/190)*14+10));});
+  data.headers.forEach((h,i)=>{const row=add(data.header,i,h,5);row.setAttribute('ht',Math.max(Number(row.getAttribute('ht')),48,textLines(h,columnWidth(i))*14+8));});
+  data.rows.forEach((values,i)=>values.forEach((v,j)=>{const lines=typeof v==='string'?textLines(v,data.chart&&data.headers.length===2&&j===1?94:columnWidth(j)):1,wrap=typeof v==='string'&&lines>1;const row=add(data.header+i+1,j,v,wrap?ids.wrap:1);if(wrap)row.setAttribute('ht',Math.min(400,Math.max(Number(row.getAttribute('ht')),lines*14+8)));}));
+  if(data.chart&&data.headers.length===2)data.rows.forEach((values,i)=>{const row=rowMap.get(data.header+i+1);values.forEach((v,j)=>{if(typeof v!=='string')return;const cell=[...row.children].find(c=>c.getAttribute('r')===col(j)+(data.header+i+1));cell.setAttribute('s',ids.wrap);const length=[...v].reduce((n,c)=>n+(c.charCodeAt(0)>255?2:1),0),height=Math.max(24,Math.ceil(length/(j===0?28:92))*14+8);row.setAttribute('ht',Math.max(Number(row.getAttribute('ht')),height));});});
+  if(data.curves){[data.chart.xTitle||'Reference 곡선',...(data.curveNames||['전체 OLS','PI 하한','PI 상한'])].forEach((v,j)=>add(33,26+j,v,5));data.curves.forEach((r,i)=>r.forEach((v,j)=>add(34+i,26+j,v)));}
+  if(data.plotRows){(data.pointSeries?['그림 X','그림 Y','95% LoA 안 또는 계산 불가','95% LoA 밖']:['그림 X','그림 Y','그림 잔차','검체 ID','원행']).forEach((v,j)=>add(33,38+j,v,5));data.plotRows.forEach((r,i)=>r.slice(0,5).forEach((v,j)=>add(34+i,38+j,v)));}
+  const index=c=>c.getAttribute('r').match(/[A-Z]+/)[0].split('').reduce((v,c)=>v*26+c.charCodeAt(0)-64,0);
+  [...rowMap].sort((a,b)=>a[0]-b[0]).forEach(([,r])=>{[...r.children].sort((a,b)=>index(a)-index(b)).forEach(c=>r.append(c));sd.append(r);});
   let merges=child(root,S,'mergeCells');if(merges)merges.remove();merges=make(d,S,'mergeCells',{count:6});[2,4,5,6,7,8].forEach(n=>merges.append(make(d,S,'mergeCell',{ref:`A${n}:Q${n}`})));root.insertBefore(merges,sd.nextSibling);
+  if(data.chart&&data.headers.length===2){for(let n=data.header;n<=data.header+data.rows.length;n++)merges.append(make(d,S,'mergeCell',{ref:`B${n}:H${n}`}));merges.setAttribute('count',merges.children.length);}
   const view=els(d,S,'sheetView')[0];child(view,S,'pane')?.remove();if(!data.chart&&data.name!=='분석요약')view.prepend(make(d,S,'pane',{ySplit:data.header,topLeftCell:'A'+(data.header+1),activePane:'bottomLeft',state:'frozen'}));
-  let dim=child(root,S,'dimension');if(dim)dim.remove();dim=make(d,S,'dimension',{ref:`A1:${col(Math.max(16,data.headers.length-1,data.curves?29:0))}${Math.max(33,data.header+data.rows.length,data.curves?114:0)}`});root.insertBefore(dim,root.firstChild);
-  const cols=child(root,S,'cols');for(let i=18;i<=Math.max(data.headers.length,data.curves?30:17);i++)cols.append(make(d,S,'col',{min:i,max:i,width:16,customWidth:1}));
+  let dim=child(root,S,'dimension');if(dim)dim.remove();dim=make(d,S,'dimension',{ref:`A1:${col(Math.max(16,data.headers.length-1,data.plotRows?42:data.curves?26+Math.max(0,...data.curves.map(r=>r.length-1)):0))}${Math.max(33,data.header+data.rows.length,data.plotRows?33+data.plotRows.length:0,data.curves?33+data.curves.length:0)}`});root.insertBefore(dim,root.firstChild);
+  const cols=child(root,S,'cols');for(let i=18;i<=Math.max(data.headers.length,data.plotRows?43:data.curves?26+Math.max(0,...data.curves.map(r=>r.length)):17);i++)cols.append(make(d,S,'col',{min:i,max:i,width:16,customWidth:1}));
   if(data.name==='분석요약'){els(cols,S,'col').find(c=>c.getAttribute('min')==='1')?.setAttribute('width','44');els(cols,S,'col').find(c=>c.getAttribute('min')==='2')?.setAttribute('width','90');}
-  if(data.curves)els(cols,S,'col').filter(c=>Number(c.getAttribute('min'))>=27).forEach(c=>c.setAttribute('hidden','1'));
+  if(data.curves||data.plotRows)els(cols,S,'col').filter(c=>Number(c.getAttribute('min'))>=27).forEach(c=>c.setAttribute('hidden','1'));
 }
 
 function reference(d,container,sheet,column,start,values,numeric,format){
@@ -89,35 +99,66 @@ function reference(d,container,sheet,column,start,values,numeric,format){
   values.forEach((v,i)=>{v=v&&typeof v==='object'?v.value:v;if(v===null||v===undefined||numeric&&!Number.isFinite(v))return;const p=make(d,C,'pt',{idx:i});p.append(make(d,C,'v',{},v));cache.append(p);});ref.append(cache);container.append(ref);
 }
 function fillChart(d,data,options,residual=false){
+  if(data.chart.type==='scatter')for(const axis of els(d,C,'valAx')){const bottom=child(axis,C,'axPos')?.getAttribute('val')==='b';const text=bottom?data.chart.xTitle:residual?'Product − 전체 OLS 예상값':data.chart.yTitle;if(!text)continue;child(axis,C,'title')?.remove();const title=make(d,C,'title'),tx=make(d,C,'tx'),rich=make(d,C,'rich');rich.append(make(d,A,'bodyPr'),make(d,A,'lstStyle'));const p=make(d,A,'p'),r=make(d,A,'r');r.append(make(d,A,'rPr',{lang:'ko-KR',sz:900}),make(d,A,'t',{},text));p.append(r);rich.append(p);tx.append(rich);title.append(tx,make(d,C,'overlay',{val:0}));axis.insertBefore(title,child(axis,C,'numFmt'));}
     if(data.chart.title){const title=child(els(d,C,'chart')[0],C,'title');const texts=title?els(title,A,'t'):[];if(texts.length){texts[0].textContent=data.chart.title;texts.slice(1).forEach(t=>t.textContent='');}}
   const chart=els(d,C,'barChart')[0]||els(d,C,'scatterChart')[0],base=els(chart,C,'ser')[0],old=els(chart,C,'ser');old.forEach(s=>s.remove());
-  const scatter=chart.localName==='scatterChart',names=scatter?[residual?'전체 잔차':'Product']:data.chart.series;
-  const addSeries=(name,index,xcol,ycol,values,curve=false)=>{
+  const scatter=chart.localName==='scatterChart',names=scatter?[residual?'전체 잔차':data.chart.series[0]]:data.chart.series;
+  const points=data.barRows||data.plotRows||data.rows;
+  const addSeries=(name,index,xcol,ycol,values,curve=false,pointStyle=null)=>{
     const ser=base.cloneNode(true);child(ser,C,'idx').setAttribute('val',index);child(ser,C,'order').setAttribute('val',index);child(ser,C,'tx').replaceChildren(make(d,C,'v',{},name));
     if(scatter){reference(d,child(ser,C,'xVal'),data.name,xcol,34,values.map(r=>r[0]),true);reference(d,child(ser,C,'yVal'),data.name,ycol,34,values.map(r=>r[1]),true);}
     else{reference(d,child(ser,C,'cat'),data.name,'A',data.header+1,values.map(r=>r[0]),false);reference(d,child(ser,C,'val'),data.name,ycol,data.header+1,values.map(r=>r[1]),true,data.chart.percent?'0.00%':'0.00');const sp=child(ser,C,'spPr');sp.replaceChildren();const fill=make(d,A,'solidFill');fill.append(make(d,A,'srgbClr',{val:index===0?'20668A':'ED7333'}));sp.append(fill);}
-    if(scatter){let sp=child(ser,C,'spPr');if(!sp){sp=make(d,C,'spPr');ser.insertBefore(sp,child(ser,C,'xVal'));}sp.replaceChildren();const line=make(d,A,'ln',{w:curve?19050:0});if(curve){const f=make(d,A,'solidFill');f.append(make(d,A,'srgbClr',{val:index===1?'ED7333':'829CB1'}));line.append(f);if(index>1)line.append(make(d,A,'prstDash',{val:'dash'}));}else line.append(make(d,A,'noFill'));sp.append(line);
-      let marker=child(ser,C,'marker');if(!marker){marker=make(d,C,'marker');ser.insertBefore(marker,child(ser,C,'xVal'));}marker.replaceChildren(make(d,C,'symbol',{val:curve?'none':'circle'}));if(!curve){marker.append(make(d,C,'size',{val:5}));const ms=make(d,C,'spPr'),fill=make(d,A,'solidFill');fill.append(make(d,A,'srgbClr',{val:'20668A'}));ms.append(fill);marker.append(ms);}
+    if(scatter){let sp=child(ser,C,'spPr');if(!sp){sp=make(d,C,'spPr');ser.insertBefore(sp,child(ser,C,'xVal'));}sp.replaceChildren();const line=make(d,A,'ln',{w:curve?19050:0});if(curve){const f=make(d,A,'solidFill');f.append(make(d,A,'srgbClr',{val:name==='평균 차이'||index===1?'ED7333':name.startsWith('사용자')?'80609B':'829CB1'}));line.append(f);if(name!=='평균 차이'&&index>1)line.append(make(d,A,'prstDash',{val:'dash'}));}else line.append(make(d,A,'noFill'));sp.append(line);
+      let marker=child(ser,C,'marker');if(!marker){marker=make(d,C,'marker');ser.insertBefore(marker,child(ser,C,'xVal'));}marker.replaceChildren(make(d,C,'symbol',{val:curve?'none':'circle'}));if(!curve){marker.append(make(d,C,'size',{val:pointStyle?.hollow?7:5}));const ms=make(d,C,'spPr'),fill=make(d,A,'solidFill'),color=(pointStyle?.color||'#20668A').replace('#','').toUpperCase();fill.append(make(d,A,'srgbClr',{val:pointStyle?.hollow?'FFFFFF':color}));ms.append(fill);if(pointStyle?.hollow){const outline=make(d,A,'ln',{w:25400}),f=make(d,A,'solidFill');f.append(make(d,A,'srgbClr',{val:color}));outline.append(f);ms.append(outline);}marker.append(ms);}
     }
     chart.insertBefore(ser,child(chart,C,'axId'));
   };
   if(scatter)child(chart,C,'scatterStyle')?.setAttribute('val','lineMarker');
-  names.forEach((name,i)=>addSeries(name,i,'A',col(residual?2:i+1),data.rows.map(r=>[r[0],r[residual?2:i+1]])));
-  if(scatter&&!residual&&data.curves)for(const [i,name] of ['전체 OLS','PI 하한','PI 상한'].entries())addSeries(name,i+1,'AA',col(27+i),data.curves.map(r=>[r[0],r[i+1]]),true);
-  if(scatter)els(d,C,'valAx').forEach(axis=>{const column=child(axis,C,'axPos')?.getAttribute('val')==='b'?0:residual?2:1,values=data.rows.map(r=>r[column]?.value??r[column]).filter(Number.isFinite);child(axis,C,'numFmt')?.setAttribute('formatCode',values.some(v=>numberFormat(v)==='0.00E+00')?'0.00E+00':'0.00');});
-  if(!scatter){child(chart,C,'barDir').setAttribute('val','col');let grouping=child(chart,C,'grouping');if(!grouping){grouping=make(d,C,'grouping');chart.insertBefore(grouping,child(chart,C,'varyColors'));}grouping.setAttribute('val','clustered');els(d,C,'errBars').forEach(n=>n.remove());if(data.chart.percent){els(d,C,'valAx').forEach(axis=>{const sc=child(axis,C,'scaling');els(sc,C,'min').forEach(n=>n.remove());els(sc,C,'max').forEach(n=>n.remove());sc.append(make(d,C,'max',{val:1}),make(d,C,'min',{val:0}));});}}
+  const pointSeries=scatter&&!residual?data.pointSeries:null;
+  if(pointSeries)pointSeries.forEach((s,i)=>addSeries(s.name,i,'AM',col(s.column),points.map(r=>[r[0],r[s.column-38]]),false,s));
+  else names.forEach((name,i)=>addSeries(name,i,data.plotRows?'AM':'A',col((data.plotRows?38:0)+(residual?2:i+1)),points.map(r=>[r[0],r[residual?2:i+1]])));
+  if(scatter&&!residual&&data.curves)for(const [i,name] of (data.curveNames||['전체 OLS','PI 하한','PI 상한']).entries())addSeries(name,i+(pointSeries?.length||1),'AA',col(27+i),data.curves.map(r=>[r[0],r[i+1]]),true);
+  if(scatter)els(d,C,'valAx').forEach(axis=>{const column=child(axis,C,'axPos')?.getAttribute('val')==='b'?0:residual?2:1,values=points.map(r=>r[column]?.value??r[column]).filter(Number.isFinite);child(axis,C,'numFmt')?.setAttribute('formatCode',values.some(v=>numberFormat(v)==='0.00E+00')?'0.00E+00':'0.00');});
+  if(!scatter){child(chart,C,'barDir').setAttribute('val','col');let grouping=child(chart,C,'grouping');if(!grouping){grouping=make(d,C,'grouping');chart.insertBefore(grouping,child(chart,C,'varyColors'));}grouping.setAttribute('val','clustered');els(d,C,'errBars').forEach(n=>n.remove());els(d,C,'valAx').forEach(axis=>{const sc=child(axis,C,'scaling');els(sc,C,'min').forEach(n=>n.remove());els(sc,C,'max').forEach(n=>n.remove());if(data.chart.percent)sc.append(make(d,C,'max',{val:1}),make(d,C,'min',{val:0}));const format=child(axis,C,'numFmt');if(format){format.setAttribute('formatCode',data.chart.percent?'0.00%':'0.00');format.setAttribute('sourceLinked','0');}});}
   child(els(d,C,'chart')[0],C,'plotVisOnly')?.setAttribute('val','0');
   for(const n of ['latin','ea','cs'])els(d,A,n).forEach(e=>e.setAttribute('typeface','Malgun Gothic'));
   for(const n of ['rPr','defRPr','endParaRPr'])els(d,A,n).forEach(e=>{let p=e,isTitle=false;while(p){if(p.namespaceURI===C&&p.localName==='title')isTitle=true;p=p.parentNode;}e.setAttribute('sz',isTitle?Math.round(options.titleSize*100):900);});
 }
 
-export async function exportReport(snapshot,rows,scope,options={titleSize:14,emphasisSize:10}){
+export {unifiedReportData};
+export async function exportReport(snapshot,rows,scope,options={}){
+  options={titleSize:14,emphasisSize:10,...options};
   const response=await fetch(new URL('./report-template.xlsx',import.meta.url));if(!response.ok)throw Error('리포트 양식을 불러오지 못했습니다.');
-  const zip=await globalThis.JSZip.loadAsync(await response.arrayBuffer()),data=reportData(snapshot,rows,scope);
-  const st=parse(await zip.file('xl/styles.xml').async('string')),ids=styles(st,options);zip.file('xl/styles.xml',xml(st));
-  for(let i=0;i<data.length;i++){const path=`xl/worksheets/sheet${i+1}.xml`,d=parse(await zip.file(path).async('string'));fillSheet(d,data[i],ids,options.titleSize);zip.file(path,xml(d));}
-  const chartData=[[data[1],false],[data[2],false],[data[2],true],[data[3],false],[data[4],false],[data[5],false],[data[6],false]];
-  for(let i=0;i<chartData.length;i++){const path=`xl/drawings/charts/chart${i+1}.xml`,d=parse(await zip.file(path).async('string'));fillChart(d,...[chartData[i][0],options,chartData[i][1]]);zip.file(path,xml(d));}
-  for(const path of Object.keys(zip.files).filter(p=>/^xl\/theme\/.*\.xml$/.test(p))){const d=parse(await zip.file(path).async('string'));for(const n of ['latin','ea','cs','font'])els(d,A,n).forEach(e=>e.setAttribute('typeface','Malgun Gothic'));zip.file(path,xml(d));}
+  const zip=await globalThis.JSZip.loadAsync(await response.arrayBuffer()),data=unifiedReportData(reportData(snapshot,rows,scope),snapshot,rows,scope,options);
+  const templates={};for(const [key,p] of Object.entries({sheet:'xl/worksheets/sheet3.xml',plain:'xl/worksheets/sheet8.xml',drawing:'xl/drawings/drawing2.xml',scatter:'xl/drawings/charts/chart2.xml',residual:'xl/drawings/charts/chart3.xml',bar:'xl/drawings/charts/chart1.xml'}))templates[key]=await zip.file(p).async('string');
+  const R='http://schemas.openxmlformats.org/package/2006/relationships',OR='http://schemas.openxmlformats.org/officeDocument/2006/relationships',CT='http://schemas.openxmlformats.org/package/2006/content-types';
+  const wb=parse(await zip.file('xl/workbook.xml').async('string')),rels=parse(await zip.file('xl/_rels/workbook.xml.rels').async('string')),types=parse(await zip.file('[Content_Types].xml').async('string'));
+  const sheets=els(wb,S,'sheets')[0];sheets.replaceChildren();els(wb,S,'definedNames').forEach(n=>n.remove());
+  for(const n of [...rels.documentElement.children])if(/\/(worksheet|calcChain)$/.test(n.getAttribute('Type')))n.remove();
+  for(const p of Object.keys(zip.files))if(/^xl\/(worksheets\/|drawings\/|calcChain\.xml)/.test(p))zip.remove(p);
+  for(const n of [...types.documentElement.children])if(/^\/xl\/(worksheets\/|drawings\/|calcChain\.xml)/.test(n.getAttribute('PartName')||''))n.remove();
+  const relation=(d,id,type,target)=>{const n=d.createElementNS(R,'Relationship');n.setAttribute('Id',id);n.setAttribute('Type',OR+'/'+type);n.setAttribute('Target',target);d.documentElement.append(n);};
+  const addType=(part,type)=>{const n=types.createElementNS(CT,'Override');n.setAttribute('PartName',part);n.setAttribute('ContentType',type);types.documentElement.append(n);};
+  const newRels=()=>parse('<Relationships xmlns="'+R+'"/>');
+  const st=parse(await zip.file('xl/styles.xml').async('string')),ids=styles(st,options);zip.file('xl/styles.xml',xml(st));let chartIndex=0;
+  for(const [i,item] of data.entries()){
+    const n=i+1,id='ResultSheet'+n,element=wb.createElementNS(S,'sheet');element.setAttribute('name',item.name);element.setAttribute('sheetId',n);element.setAttributeNS(OR,'r:id',id);sheets.append(element);relation(rels,id,'worksheet','worksheets/sheet'+n+'.xml');
+    const d=parse(item.charts.length?templates.sheet:templates.plain);fillSheet(d,item,ids,options.titleSize);els(d,S,'drawing').forEach(n=>n.remove());
+    if(item.charts.length){
+      const draw=d.createElementNS(S,'drawing');draw.setAttributeNS(OR,'r:id','ResultDrawing');const margin=child(d.documentElement,S,'pageMargins');d.documentElement.insertBefore(draw,margin?.nextSibling||null);
+      const sr=newRels();relation(sr,'ResultDrawing','drawing','../drawings/drawing'+n+'.xml');zip.file('xl/worksheets/_rels/sheet'+n+'.xml.rels',xml(sr));
+      const drawing=parse(templates.drawing),anchors=[...drawing.documentElement.children];drawing.documentElement.replaceChildren();const dr=newRels();
+      for(const [j,residual] of item.charts.entries()){
+        chartIndex++;const anchor=anchors[Math.min(j,anchors.length-1)].cloneNode(true),chart=els(anchor,C,'chart')[0];chart.setAttributeNS(OR,'r:id','Chart'+chartIndex);drawing.documentElement.append(anchor);relation(dr,'Chart'+chartIndex,'chart','charts/chart'+chartIndex+'.xml');
+        const chartDoc=parse(residual?templates.residual:item.chart.type==='scatter'?templates.scatter:templates.bar);
+        fillChart(chartDoc,residual?{...item,chart:{...item.chart,title:'전체 OLS 기준 잔차'}}:item,options,residual);
+        zip.file('xl/drawings/charts/chart'+chartIndex+'.xml',xml(chartDoc));addType('/xl/drawings/charts/chart'+chartIndex+'.xml','application/vnd.openxmlformats-officedocument.drawingml.chart+xml');
+      }
+      zip.file('xl/drawings/drawing'+n+'.xml',xml(drawing));zip.file('xl/drawings/_rels/drawing'+n+'.xml.rels',xml(dr));addType('/xl/drawings/drawing'+n+'.xml','application/vnd.openxmlformats-officedocument.drawing+xml');
+    }
+    zip.file('xl/worksheets/sheet'+n+'.xml',xml(d));addType('/xl/worksheets/sheet'+n+'.xml','application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml');
+  }
+  zip.file('xl/workbook.xml',xml(wb));zip.file('xl/_rels/workbook.xml.rels',xml(rels));zip.file('[Content_Types].xml',xml(types));
+  for(const p of Object.keys(zip.files).filter(p=>/^xl\/theme\/.*\.xml$/.test(p))){const d=parse(await zip.file(p).async('string'));for(const n of ['latin','ea','cs','font'])els(d,A,n).forEach(e=>e.setAttribute('typeface','Malgun Gothic'));zip.file(p,xml(d));}
   return zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',compression:'DEFLATE'});
 }

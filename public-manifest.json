@@ -1,5 +1,5 @@
 {
-  "version": "1.5.4",
+  "version": "1.6.0",
   "files": [
     {
       "source": "portal/index.html",
@@ -568,6 +568,50 @@
     {
       "source": "portal/info/oligo-analysis.html",
       "target": "info/oligo-analysis.html"
+    },
+    {
+      "source": "tools/method-comparison/ba-observation.mjs",
+      "target": "tools/method-comparison/ba-observation.mjs"
+    },
+    {
+      "source": "tools/method-comparison/comparison-view.mjs",
+      "target": "tools/method-comparison/comparison-view.mjs"
+    },
+    {
+      "source": "tools/method-comparison/comparison.mjs",
+      "target": "tools/method-comparison/comparison.mjs"
+    },
+    {
+      "source": "tools/method-comparison/help-content.mjs",
+      "target": "tools/method-comparison/help-content.mjs"
+    },
+    {
+      "source": "tools/method-comparison/help-page.mjs",
+      "target": "tools/method-comparison/help-page.mjs"
+    },
+    {
+      "source": "tools/method-comparison/help-ui.mjs",
+      "target": "tools/method-comparison/help-ui.mjs"
+    },
+    {
+      "source": "tools/method-comparison/help.html",
+      "target": "tools/method-comparison/help.html"
+    },
+    {
+      "source": "tools/method-comparison/numeric-screen.mjs",
+      "target": "tools/method-comparison/numeric-screen.mjs"
+    },
+    {
+      "source": "tools/method-comparison/plot-legend.mjs",
+      "target": "tools/method-comparison/plot-legend.mjs"
+    },
+    {
+      "source": "tools/method-comparison/result-contract.mjs",
+      "target": "tools/method-comparison/result-contract.mjs"
+    },
+    {
+      "source": "tools/method-comparison/unified-report.mjs",
+      "target": "tools/method-comparison/unified-report.mjs"
     }
   ],
   "date": "2026-10-06"

@@ -16,9 +16,14 @@ const oligo=contract.oligoDimerRelease;
 const methodPatch=contract.methodComparisonPatchRelease;
 assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,'1.5.1');assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
 const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+const redesign=contract.methodComparisonRedesignRelease;
+assert.equal(redesign.previousSHA,'b70688cb2a8564f10b7fbe67a9d7874670c0b303');assert.equal(redesign.portalVersion,manifest.version);assert.equal(redesign.toolVersion,'0.4.0');assert.equal(redesign.previousPublic.length,142);assert.equal(redesign.addedTargets.length,11);
+async function preRedesignBytes(target){const entry=redesign.previousPublic.find(e=>e.target===target);assert(entry,'Previous method-comparison path retained');const bytes=await readFile(resolve(dist,target)),selected=redesign.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected redesign bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected redesign bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',redesign.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous release bytes from Git');return old;}
+for(const e of redesign.previousPublic)await preRedesignBytes(e.target);
+assert.deepEqual(manifest.files.filter(e=>!redesign.previousPublic.some(p=>p.target===e.target)).map(e=>e.target).sort(),redesign.addedTargets.toSorted(),'Only reviewed additions');
 const mixPatch=contract.oligoMixRelease;
-assert.equal(mixPatch.previousSHA,'8b4a775c709a95f8f01dcc87a01ef538d729bc31');assert.equal(mixPatch.portalVersion,manifest.version);assert.equal(mixPatch.toolVersion,'1.1.0');assert.equal(mixPatch.algorithmVersion,'0.5.0');assert.equal(mixPatch.previousPublic.length,142);
-async function preMixPatchBytes(target){const entry=mixPatch.previousPublic.find(e=>e.target===target);assert(entry,'Prior Oligo Mix path retained');const bytes=await readFile(resolve(dist,target)),selected=mixPatch.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected Oligo Mix bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected Oligo Mix bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',mixPatch.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous release bytes from Git');return old;}
+assert.equal(mixPatch.previousSHA,'8b4a775c709a95f8f01dcc87a01ef538d729bc31');assert.equal(mixPatch.portalVersion,'1.5.4');assert.equal(mixPatch.toolVersion,'1.1.0');assert.equal(mixPatch.algorithmVersion,'0.5.0');assert.equal(mixPatch.previousPublic.length,142);
+async function preMixPatchBytes(target){const entry=mixPatch.previousPublic.find(e=>e.target===target);assert(entry,'Prior Oligo Mix path retained');const bytes=await preRedesignBytes(target),selected=mixPatch.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected Oligo Mix bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected Oligo Mix bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',mixPatch.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous release bytes from Git');return old;}
 for(const e of mixPatch.previousPublic)await preMixPatchBytes(e.target);
 const layoutPatch=contract.detectionCapabilityPatchRelease;
 assert.equal(layoutPatch.previousSHA,'0475d17527233fc060aa090875583bb67e5b3c61');assert.equal(layoutPatch.portalVersion,'1.5.3');assert.equal(layoutPatch.toolVersion,'0.9.1-beta.4');assert.equal(layoutPatch.previousPublic.length,142);
@@ -40,7 +45,7 @@ const previousHome=html=>preOligoHome(html).replace(method.portalRow,'').replace
 async function historicBytes(target){const bytes=await preOligoBytes(target);return target==='index.html'?Buffer.from(previousHome(bytes.toString())):/^info\/.*\.html$/.test(target)?Buffer.from(bytes.toString().replaceAll('포털 v1.4.0','포털 v1.3.0')):bytes;}
 for(const entry of method.previousPublic)assert.equal(hash(await historicBytes(entry.target)),entry.sha256,'Previous public content retained: '+entry.target);
 
-assert.equal(manifest.version,'1.5.4');assert.equal(manifest.candidate,undefined);
+assert.equal(manifest.version,'1.6.0');assert.equal(manifest.candidate,undefined);
 assert.equal(update.portalVersion,'1.2.1');assert.equal(buffer.portalVersion,'1.3.0');
 assert.equal(buffer.previousPortalVersion,'1.2.1');assert.equal(buffer.previousSHA,'d5b8ca0778a1e536867415156f081c9f2ebadacc');
 assert.equal(buffer.toolVersion,'1.1.0');assert.equal(buffer.algorithmVersion,'0.2.0');assert.equal(buffer.releasedOn,'2026-10-07');
@@ -51,7 +56,7 @@ assert.equal(update.previousSHA,'4cabcd75918f58464de6398d268182ca753eba7b');
 assert.equal(update.toolVersion,'1.1.0');assert.equal(update.algorithmVersion,'0.3.0');assert.equal(update.releasedOn,'2026-10-06');
 assert.deepEqual(update.selectedTargets,['info/nucleic-acid.html',...['index.html','core.mjs','app.mjs','clipboard.mjs'].map(p=>'tools/nucleic-acid-calculator/'+p)]);
 assert.equal(update.previousPublic.length,107);assert.equal(new Set(update.previousPublic.map(e=>e.target)).size,107);
-assert.equal(manifest.files.length,142);assert.equal(new Set(manifest.files.map(e=>e.target)).size,142);
+assert.equal(manifest.files.length,153);assert.equal(new Set(manifest.files.map(e=>e.target)).size,153);
 assert.deepEqual((await files(dist)).sort(),manifest.files.map(e=>e.target).sort(),'Exact public allowlist');
 for(const e of manifest.files){
  const source=resolve(root,e.source),target=resolve(dist,e.target);
@@ -122,4 +127,4 @@ assert(mainText.includes('증폭 곡선 분석 · 베타'),'Beta display');
 const webManifest=JSON.parse(await readFile(resolve(appBase,'manifest.webmanifest'),'utf8'));
 assert.equal(webManifest.name,'Amplification Analysis');assert.equal(webManifest.scope,'.');assert.equal(webManifest.start_url,'.');
 for(const icon of webManifest.icons)await readFile(resolve(appBase,icon.src));
-console.log('PASS: frozen142-file portal1.5.4 artifact; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');
+console.log('PASS: reviewed153-file portal1.6.0 artifact; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');
