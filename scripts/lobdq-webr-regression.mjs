@@ -25,7 +25,7 @@ const massArchiveURL='https://repo.r-wasm.org/bin/emscripten/contrib/4.6/MASS_7.
 const massResponse=await fetch(massArchiveURL,{signal:AbortSignal.timeout(60000)});assert(massResponse.ok,'Official pinned MASS download');
 const massBytes=Buffer.from(await massResponse.arrayBuffer());assert.equal(createHash('sha256').update(massBytes).digest('hex'),massSHA256,'Pinned MASS binary SHA256');
 const massArchive=path.join(temp,'MASS.tgz'),massLibrary=path.join(temp,'fixed-library');await fs.writeFile(massArchive,massBytes);await fs.mkdir(massLibrary);
-const massList=spawnSync('tar',['-tf',massArchive],{encoding:'utf8'});assert.equal(massList.status,0);assert(massList.stdout.trim().split(/\r?\n/).every(p=>p.startsWith('MASS/')&&!p.split('/').includes('..')),'MASS archive path boundary');
+const massList=spawnSync('tar',['-tf',massArchive],{encoding:'utf8'});assert.equal(massList.status,0);assert(massList.stdout.trim().split(/\r?\n/).every(p=>(p.startsWith('MASS/')||p==='.vfs-index.json')&&!p.split('/').includes('..')),'MASS archive path boundary');
 assert.equal(spawnSync('tar',['-xf',massArchive,'-C',massLibrary]).status,0);
 const massDescription=await fs.readFile(path.join(massLibrary,'MASS/DESCRIPTION'),'utf8');assert.match(massDescription,/^Version: 7\.3-65$/m);assert.match(massDescription,/^Built: R 4\.6\.0; wasm32-unknown-emscripten;/m);
 const base=path.join(temp,'package/dist/'),mod=await import(pathToFileURL(path.join(base,'webr.mjs')).href),instances=[];
