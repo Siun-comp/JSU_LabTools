@@ -16,11 +16,11 @@ const outcome=adjusted(r,['1.13'],'48.87');assert.equal(outcome.total,50);assert
 assert.equal(checkPipette('1.13',{step:'.01',min:'1.2',max:'10'}).valid,false);
 assert.equal(checkPipette('1.13',{step:'.01',min:'',max:''}).valid,true);assert.throws(()=>checkPipette('1',{step:'.1',min:'1',max:''}));
 assert.equal(checkPipette(remainingTE(r,['.3']),{step:'.3',min:'',max:''}).valid,false);
-const many=calculate({...input,rows:Array.from({length:100},(_,i)=>({name:'Row '+i,target:'.001',stock:'100'}))});assert.equal(many.rows.length,100);const clip=excelClipboard(many);assert.equal(clip.rows.length,104);assert.equal(clip.rows.at(-1)[0],'Total');assert(!clip.html.includes('#ccd5df'));
+const many=calculate({...input,rows:Array.from({length:100},(_,i)=>({name:'Row '+i,target:'.001',stock:'100'}))});assert.equal(many.rows.length,100);const clip=excelClipboard(many);assert.equal(clip.rows.length,104);assert.equal(clip.rows.at(-1)[0],'Total');assert(clip.rows.every(row=>row.length===11));
 const excluded=calculate({...input,rows:[{name:'Out',target:'',stock:'0',enabled:false},...input.rows]});assert.equal(excluded.rows[0].sourceIndex,2);assert.equal(excelClipboard(excluded).rows[3][0],'2');
 const pasted=parseOligoPaste('A\t.2\t100\nB\t.1\t\n\n');assert.equal(pasted.rows.length,2);assert.equal(pasted.defaults,1);assert.equal(pasted.rows[1].stock,'100');
 assert.equal(parseOligoPaste('이름\t최종 농도\tStock\nA\t.2\t10',{header:true,type:'R'}).rows[0].type,'R');
 assert.deepEqual(parseOligoPaste('A\t.1\t100\nA\t.2\t100').duplicates,['A']);
 for(const text of ['A\t.1','A\t.1\t100\textra','A\t=1+1\t100','A\t.1\t0','\t.1\t100','A\t.1\t100\nB\tinvalid\t100'])assert.throws(()=>parseOligoPaste(text));
 assert.throws(()=>parseOligoPaste('A\t.1\t100',{type:'Plasmid'}));assert.throws(()=>parseOligoPaste('x'.repeat(2*1024*1024+1)));
-console.log('PASS: exact total-volume nearest/half-up proposals, TE balance, manual edits, impossible rounding/zero component, range checks, 100 rows/dynamic borderless copy/source numbers, 3-column parsing/defaults/atomic errors.');
+console.log('PASS: exact total-volume nearest/half-up proposals, TE balance, manual edits, impossible rounding/zero component, range checks, 100 rows/dynamic formatted copy/source numbers, 3-column parsing/defaults/atomic errors.');

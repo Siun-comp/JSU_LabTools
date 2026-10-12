@@ -19,7 +19,7 @@ close(run({...row,stock:'1e9',target:'10',targetUnit:'pg/rxn',mwMethod:'direct',
 close(run({...row,stock:'1',stockUnit:'nM',target:'100'}).rows[0].perReaction,1.6605390671738466638e-7);
 assert.equal(run({...row,stock:'6.02214076e11',target:'.1',targetUnit:'µM'}).rows[0].perReaction,2.5);
 const a=adjusted(r,['.2'],'49.8');assert.equal(a.rows[0].achieved,20);assert.equal(a.rows[0].targetUnit,'copies/rxn');assert.equal(a.rows[0].deviationPercent,100);
-const clip=excelClipboard(length);assert.equal(clip.rows[3][5],'copies/rxn');assert.equal(clip.rows[3][7],'ng/µL');assert(clip.rows[0][4].includes('1000 bp × 650')&&clip.html.includes('근사'));
+const clip=excelClipboard(length);assert.equal(clip.rows[3][6],'copies/rxn');assert.equal(clip.rows[3][8],'ng/µL');assert(clip.rows[0][5].includes('1000 bp × 650')&&clip.html.includes('근사'));
 for(const invalid of [{...direct,mwMethod:''},{...direct,molecularWeight:'0'},{...direct,molecularWeight:'NaN'},{...direct,mwMethod:'dsdna650',lengthBp:'0'},{...direct,mwMethod:'dsdna650',lengthBp:'10.5'},{...direct,mwMethod:'dsdna650',lengthBp:'9007199254740992'},{...row,stockUnit:'copies/rxn'},{...row,target:'0'},{...row,type:'F'}])assert.throws(()=>run(invalid));
 assert.throws(()=>run({...row,stockUnit:'ng/µL',targetUnit:'µM',mwMethod:'direct',molecularWeight:'650000'}));
 console.log('PASS: copies concentrations/amounts, fractional expectations, reaction-volume distinction, direct-MW/explicit dsDNA650 estimate, mass↔copies/mol↔copies, adjusted copies, clipboard basis/units and missing/invalid basis rejection.');

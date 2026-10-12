@@ -16,7 +16,7 @@ const a=adjusted(r,['.2'],'49.8');close(a.rows[0].achieved,20);assert.equal(a.ro
 const b=adjusted(r,['.1'],'50.9');close(b.rows[0].achieved,500/51);close(b.rows[0].deviationPercent,-100/51);
 const concentration=run({...row,targetUnit:'pg/µL',target:'.4'});close(adjusted(concentration,['.2'],'49.8').rows[0].achieved,.8);
 const mixed=run(row,{rows:[{name:'F1',stock:'10',target:'.2'},row]});close(mixed.te,4.49);assert.equal(mixed.rows[0].mixUnit,'µM');assert.equal(mixed.rows[1].mixUnit,'ng/µL');
-const clip=excelClipboard(mixed);assert.equal(clip.rows[4][4],'10');assert.equal(clip.rows[4][5],'pg/rxn');assert.equal(clip.rows[4][6],'1');assert.equal(clip.rows[4][7],'ng/µL');assert.equal(clip.rows[4][8],'0.01');assert(clip.html.includes('font-size:9pt'));
+const clip=excelClipboard(mixed);assert.equal(clip.rows[4][5],'10');assert.equal(clip.rows[4][6],'pg/rxn');assert.equal(clip.rows[4][7],'1');assert.equal(clip.rows[4][8],'ng/µL');assert.equal(clip.rows[4][9],'0.01');assert(clip.html.includes('font-size:9pt'));
 close(run({...row,stock:'10',stockUnit:'nM',target:'.2',targetUnit:'nM'}).rows[0].perReaction,.5);
 for(const bad of [{...row,stockUnit:'µM'},{...row,targetUnit:'µM'},{...row,stockUnit:'pg/rxn'},{...row,targetUnit:'copies/rxn'},{...row,type:'F'},{...row,stock:'0'}])assert.throws(()=>run(bad));
 assert.throws(()=>run({...row,target:'6000'}),/Stock 합계/);

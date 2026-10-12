@@ -7,3 +7,27 @@ select{font:inherit;font-size:12px;color:var(--ink);border:1px solid #bdc9d5;bor
 textarea{font:inherit;width:100%;border:1px solid #bdc9d5;border-radius:4px;padding:10px;color:var(--ink)}.paste-panel{margin-bottom:20px}.paste-options{display:flex;gap:20px;flex-wrap:wrap;margin:10px 0}.paste-options label{font-size:12px}.paste-options input[type=checkbox]{vertical-align:middle}.paste-options select{min-width:160px}#paste-status{font-size:12px;color:var(--accent);margin:12px 0}#paste-preview:empty{display:none}#paste-preview{margin:12px 0}#paste-preview td{padding:10px;overflow-wrap:anywhere}input[readonly]{background:#f3f6f8}.adjust-table{min-width:820px}.input-table td:first-child{font-size:12px;color:var(--muted)}
 
 .heading-tools{display:flex;flex-direction:column;align-items:flex-end;gap:8px}.heading-tools p{margin:0}#custom-pipette[hidden]{display:none}#custom-pipette{margin:12px 0}.adjust-table{min-width:880px}.adjust-table td[data-profile]{font-size:12px;color:var(--muted)}dialog{color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:8px;padding:26px;width:min(520px,calc(100vw - 48px));max-height:90vh;overflow:auto;box-shadow:0 16px 60px #14263830}dialog::backdrop{background:#1c304c55}.dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:15px}.dialog-heading h2{font-size:20px;margin:0}#reverse-form label{display:block;font-size:13px;margin:12px 0}#reverse-form input,#reverse-form select{display:block;margin-top:6px}#reverse-status{color:#7c3632;font-size:13px}#reverse-output{margin-top:18px;border-top:1px solid var(--line)}#reverse-output:empty{display:none}.quick-value{font-size:24px;font-weight:600;color:var(--accent);margin:16px 0 6px}
+
+/* Compact input rows; result and adjustment tables retain their own spacing. */
+.row-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.row-toolbar button{padding:6px 11px;min-height:34px}
+.row-toolbar .note{margin:0 4px}
+.input-help{margin-bottom:10px}
+#row-action-status{font-size:12px;color:var(--accent);margin:6px 0 10px}
+#row-action-status:empty{display:none}
+.table-wrap .input-table{min-width:960px}
+#input-region{overflow-x:auto}
+.input-table thead th{white-space:nowrap}
+.input-table tbody td{padding:7px 10px;vertical-align:top}
+.input-table tbody td:nth-child(-n+3){vertical-align:middle}
+.input-table input:not([type=checkbox]){height:34px;padding:5px 8px;font-size:13px}
+.value-unit{display:flex;align-items:center;gap:8px;min-width:0}
+.value-unit input{flex:1 1 120px;width:120px;max-width:160px;min-width:80px}
+.value-unit .unit-label{display:inline-block;flex:none;margin:0;white-space:nowrap}
+.value-unit select{flex:0 0 128px;width:128px;height:34px;margin:0;padding:5px 6px}
+.input-table .copy-basis{margin-top:5px;padding-top:5px}
+.input-table .copy-basis input{max-width:none}
+.select-all-label{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.select-all-label input{width:15px;height:15px;margin:0}
+.input-table .row-selected{background:#eef5fb;box-shadow:inset 3px 0 var(--accent)}
+.input-table .row-selected.excluded{opacity:.8}

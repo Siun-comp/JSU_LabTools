@@ -2,7 +2,7 @@ import {calculate,adjusted,checkPipette,proposePipettePreparation,balancePrepara
 import {excelClipboard,nextComponentName} from './clipboard.mjs';
 import {parseOligoPaste} from './paste.mjs';
 const $=id=>document.getElementById(id),f=displayFormat;
-let result=null,rowCount=0,copying=false,revision=0,pasteData=null;const counters={};
+let result=null,copying=false,revision=0,pasteData=null,deletedRows=null;const counters={};
 function cell(tr,value,tag='td'){const e=document.createElement(tag);e.textContent=value;tr.append(e);return e;}
 function unitSelect(i,field){
  const select=document.createElement('select');select.dataset.field=field;select.setAttribute('aria-label',`${i}행 ${field==='targetUnit'?'목표':'Stock'} 단위`);
@@ -11,17 +11,40 @@ function unitSelect(i,field){
  select.value=field==='targetUnit'?'pg/rxn':'ng/µL';return select;
 }
 function copyBasis(i){
- const details=document.createElement('details');details.className='copy-basis';const summary=document.createElement('summary');summary.textContent='질량 ↔ copies 환산 정보';details.append(summary);
+ const details=document.createElement('details');details.className='copy-basis';const summary=document.createElement('summary');summary.textContent='질량 ↔ copies 환산 정보';summary.setAttribute('aria-label',`${i}행 질량 ↔ copies 환산 정보`);details.append(summary);
  const method=document.createElement('select');method.dataset.field='mwMethod';method.setAttribute('aria-label',`${i}행 copies 환산 방법`);
  for(const [value,text] of [['','방법 선택 (질량↔copies일 때 필수)'],['direct','분자량 직접 입력 (g/mol)'],['dsdna650','dsDNA 전체 길이 × 650 (근사)']]){const option=document.createElement('option');option.value=value;option.textContent=text;method.append(option);}details.append(method);
  for(const [field,label] of [['molecularWeight','전체 Plasmid 분자량 (g/mol)'],['lengthBp','전체 Plasmid 길이 (bp)']]){const wrap=document.createElement('label');wrap.textContent=label;const input=document.createElement('input');input.dataset.field=field;input.inputMode=field==='lengthBp'?'numeric':'decimal';input.autocomplete='off';input.setAttribute('aria-label',`${i}행 ${label}`);wrap.append(input);details.append(wrap);}
  const note=document.createElement('p');note.textContent='copies끼리는 입력 불필요. 길이는 insert/amplicon이 아닌 전체 Plasmid이며, 650은 dsDNA 근사값입니다.';details.append(note);return details;
 }
 
-function updateCount(){const rows=[...$('inputs').rows];$('row-count').textContent=`목록 ${rows.length}개 / 계산 포함 ${rows.filter(tr=>tr.querySelector('[data-field=enabled]').checked).length}개`;}
+function inputRows(){return [...$('inputs').rows];}
+function isSelected(tr){return tr.querySelector('[data-row-select]').checked;}
+function updateSelection(){
+ const rows=inputRows(),selected=rows.filter(isSelected);
+ for(const tr of rows)tr.classList.toggle('row-selected',isSelected(tr));
+ $('select-all-rows').checked=rows.length>0&&selected.length===rows.length;
+ $('select-all-rows').indeterminate=selected.length>0&&selected.length<rows.length;
+ $('select-all-rows').disabled=rows.length===0;
+ $('selection-count').textContent=`선택 ${selected.length}개`;
+ $('delete-rows').disabled=selected.length===0;
+ $('move-rows-up').disabled=!rows.some((tr,i)=>i>0&&isSelected(tr)&&!isSelected(rows[i-1]));
+ $('move-rows-down').disabled=!rows.some((tr,i)=>i<rows.length-1&&isSelected(tr)&&!isSelected(rows[i+1]));
+ $('undo-delete-rows').disabled=!deletedRows;
+}
+function updateCount(){const rows=inputRows();$('row-count').textContent=`목록 ${rows.length}개 / 계산 포함 ${rows.filter(tr=>tr.querySelector('[data-field=enabled]').checked).length}개`;updateSelection();}
+function renumberRows(){
+ for(const [index,tr] of inputRows().entries()){
+  const i=index+1;tr.cells[0].textContent=String(i);
+  for(const el of tr.querySelectorAll('[aria-label]'))el.setAttribute('aria-label',el.getAttribute('aria-label').replace(/^\d+행 /,`${i}행 `));
+ }
+ updateCount();
+}
+function clearDeletedRows(){deletedRows=null;$('row-action-status').textContent='';}
 function addRow(type,seed={}){
  const generated=nextComponentName(type,counters,[...document.querySelectorAll('[data-field=name]')].map(el=>el.value));counters[type]=generated.count;
- const i=++rowCount,tr=document.createElement('tr');tr.dataset.type=type;cell(tr,String(i));
+ const i=inputRows().length+1,tr=document.createElement('tr');tr.dataset.type=type;cell(tr,String(i));
+ const selectionCell=document.createElement('td'),selection=document.createElement('input');selection.type='checkbox';selection.dataset.rowSelect='';selection.setAttribute('aria-label',`${i}행 선택`);selectionCell.append(selection);tr.append(selectionCell);
  for(const field of ['enabled','name','target','stock']){
   const td=document.createElement('td'),el=document.createElement('input');el.type=field==='enabled'?'checkbox':'text';el.dataset.field=field;
   el.setAttribute('aria-label',`${i}행 ${{enabled:'계산에 포함',name:'Oligo 이름',target:'목표 최종 반응 농도 µM',stock:'Stock 농도 µM'}[field]}`);
@@ -29,16 +52,62 @@ function addRow(type,seed={}){
   el.autocomplete='off';if(field==='enabled')el.checked=seed.enabled!==false;
   else if(field==='name'){el.maxLength=100;el.value=seed.name??generated.name;}
   else{el.inputMode='decimal';el.value=seed[field]??(field==='stock'&&type!=='Plasmid'?'100':'');}
-  td.append(el);if(type==='Plasmid'&&field==='name')td.append(copyBasis(i));
-  if(field==='target'||field==='stock'){if(type==='Plasmid')td.append(unitSelect(i,field+'Unit'));else{const unit=document.createElement('span');unit.className='unit-label';unit.textContent='µM';td.append(unit);}}
+  if(field==='target'||field==='stock'){
+   const group=document.createElement('div');group.className='value-unit';group.append(el);
+   if(type==='Plasmid')group.append(unitSelect(i,field+'Unit'));else{const unit=document.createElement('span');unit.className='unit-label';unit.textContent='µM';group.append(unit);}td.append(group);
+  }else td.append(el);
+  if(type==='Plasmid'&&field==='name')td.append(copyBasis(i));
   tr.append(td);
  }
- $('inputs').append(tr);updateCount();
+ $('inputs').append(tr);updateCount();return tr;
 }
-function read(){return {reaction:$('reaction').value,mix:$('mix').value,count:$('count').value,rows:[...$('inputs').rows].map(tr=>({type:tr.dataset.type,...Object.fromEntries([...tr.querySelectorAll('input,select')].map(el=>[el.dataset.field,el.type==='checkbox'?el.checked:el.value]))}))};}
+function read(){return {reaction:$('reaction').value,mix:$('mix').value,count:$('count').value,rows:inputRows().map(tr=>({type:tr.dataset.type,...Object.fromEntries([...tr.querySelectorAll('[data-field]')].map(el=>[el.dataset.field,el.type==='checkbox'?el.checked:el.value]))}))};}
 function invalidate(){revision++;$('copy-status').textContent='';if(result){result=null;$('results').hidden=true;$('message').textContent='입력이 변경되었습니다. 이론 부피를 다시 계산하세요.';}for(const tr of $('inputs').rows)tr.classList.toggle('excluded',!tr.querySelector('[data-field=enabled]').checked);updateCount();}
-for(const button of document.querySelectorAll('[data-add-type]'))button.addEventListener('click',()=>{invalidate();addRow(button.dataset.addType);});
-$('mix-form').addEventListener('input',invalidate);
+for(const button of document.querySelectorAll('[data-add-type]'))button.addEventListener('click',()=>{clearDeletedRows();const tr=addRow(button.dataset.addType);invalidate();tr.querySelector('[data-field=name]').focus();});
+$('mix-form').addEventListener('input',event=>{if(!event.target.matches('[data-row-select],#select-all-rows'))invalidate();});
+$('inputs').addEventListener('change',event=>{if(event.target.matches('[data-row-select]'))updateSelection();});
+$('select-all-rows').addEventListener('change',()=>{for(const tr of inputRows())tr.querySelector('[data-row-select]').checked=$('select-all-rows').checked;updateSelection();});
+function moveSelected(direction){
+ const rows=inputRows(),button=$(direction<0?'move-rows-up':'move-rows-down');if(button.disabled)return;
+ clearDeletedRows();
+ if(direction<0){for(let i=1;i<rows.length;i++)if(isSelected(rows[i])&&!isSelected(rows[i-1]))[rows[i-1],rows[i]]=[rows[i],rows[i-1]];}
+ else{for(let i=rows.length-2;i>=0;i--)if(isSelected(rows[i])&&!isSelected(rows[i+1]))[rows[i],rows[i+1]]=[rows[i+1],rows[i]];}
+ $('inputs').replaceChildren(...rows);renumberRows();invalidate();
+ $('row-action-status').textContent=`선택 ${rows.filter(isSelected).length}개 행을 ${direction<0?'위':'아래'}로 이동했습니다.`;
+ if(button.disabled)rows.find(isSelected).querySelector('[data-field=name]').focus();
+}
+$('move-rows-up').addEventListener('click',()=>moveSelected(-1));
+$('move-rows-down').addEventListener('click',()=>moveSelected(1));
+$('delete-rows').addEventListener('click',()=>{
+ const rows=inputRows(),selected=rows.filter(isSelected);if(!selected.length)return;
+ const index=rows.indexOf(selected[0]);deletedRows=rows;
+ for(const tr of selected)tr.remove();renumberRows();invalidate();
+ $('row-action-status').textContent=`${selected.length}개 행을 삭제했습니다. 삭제 취소로 복구할 수 있습니다.`;
+ const next=inputRows()[Math.min(index,inputRows().length-1)];(next?.querySelector('[data-field=name]')??document.querySelector('[data-add-type=F]')).focus();
+});
+$('undo-delete-rows').addEventListener('click',()=>{
+ if(!deletedRows)return;const restored=deletedRows.filter(tr=>!tr.isConnected);$('inputs').replaceChildren(...deletedRows);deletedRows=null;renumberRows();invalidate();
+ $('row-action-status').textContent=`${restored.length}개 행을 복구했습니다.`;restored[0]?.querySelector('[data-field=name]').focus();
+});
+// Keep the three editable columns vertical, then visit every auxiliary control.
+// Rebuild this path on each Tab so row edits and opened Plasmid details stay current.
+function inputFocusOrder(){
+ const rows=inputRows(),primary=['name','target','stock'].flatMap(field=>rows.map(tr=>tr.querySelector(`[data-field=${field}]`)));
+ const auxiliary=[...$('inputs').querySelectorAll('input,select,summary')].filter(el=>!primary.includes(el)&&!el.disabled&&(!el.closest('.copy-basis')||el.tagName==='SUMMARY'||el.closest('.copy-basis').open));
+ return [...primary,...($('select-all-rows').disabled?[]:[$('select-all-rows')]),...auxiliary];
+}
+$('input-region').addEventListener('keydown',event=>{
+ if(event.key!=='Tab'||event.isComposing||event.ctrlKey||event.altKey||event.metaKey)return;
+ const order=inputFocusOrder(),index=order.indexOf(event.target);if(index<0)return;
+ const next=order[index+(event.shiftKey?-1:1)]??$(event.shiftKey?'input-region':'paste-entry');event.preventDefault();next.focus();
+});
+$('input-region').addEventListener('keydown',event=>{
+ if(event.target!==event.currentTarget||event.key!=='Tab'||event.shiftKey||event.ctrlKey||event.altKey||event.metaKey)return;
+ event.preventDefault();(inputFocusOrder()[0]??$('paste-entry')).focus();
+});
+$('paste-entry').addEventListener('keydown',event=>{
+ if(event.key==='Tab'&&event.shiftKey&&!event.ctrlKey&&!event.altKey&&!event.metaKey){event.preventDefault();(inputFocusOrder().at(-1)??$('input-region')).focus();}
+});
 $('mix-form').addEventListener('submit',event=>{event.preventDefault();result=null;$('results').hidden=true;$('message').textContent='';try{result=calculate(read());render();}catch(error){$('message').textContent=error.message;}});
 function render(){
  const body=$('theory-body');body.replaceChildren();for(const r of result.rows){const tr=document.createElement('tr');[`${r.sourceIndex}. ${r.name}`,f(r.perReaction),f(r.batch),f(r.target)+' '+r.targetUnit,f(r.mixConcentration)+' '+r.mixUnit].forEach(v=>cell(tr,v));body.append(tr);}
@@ -118,9 +187,9 @@ $('preview-paste').addEventListener('click',()=>{
  }catch(error){$('paste-status').textContent=error.message;}
 });
 $('apply-paste').addEventListener('click',()=>{
- if(!pasteData)return;const rows=pasteData.rows;invalidate();
- if($('paste-mode').value==='replace'){$('inputs').replaceChildren();rowCount=0;for(const key of Object.keys(counters))delete counters[key];}
- for(const r of rows)addRow(r.type,r);clearPaste();$('paste-status').textContent=`${rows.length}개를 반영했습니다. 이론 부피를 계산하세요.`;
+ if(!pasteData)return;const rows=pasteData.rows;clearDeletedRows();invalidate();
+ if($('paste-mode').value==='replace'){$('inputs').replaceChildren();for(const key of Object.keys(counters))delete counters[key];}
+ for(const r of rows)addRow(r.type,r);renumberRows();clearPaste();$('paste-status').textContent=`${rows.length}개를 반영했습니다. 이론 부피를 계산하세요.`;
 });
 $('copy-excel').addEventListener('click',async()=>{
  if(!result||copying)return;
