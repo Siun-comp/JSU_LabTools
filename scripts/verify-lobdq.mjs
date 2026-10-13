@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),dist=resolve(root,'dist');
 const manifest=JSON.parse(await readFile(resolve(root,'public-manifest.json'),'utf8'));
 const local=JSON.parse(await readFile(resolve(dist,'tools/detection-capability/build-manifest.json'),'utf8'));
-assert.equal(manifest.files.length,159);
+assert.equal(manifest.files.length,160);
 assert.equal(local.version,'0.9.1-beta.5');
 assert.equal(local.files.length,53);
 assert.equal(local.baselineProgramVersion,'0.9.0-beta.6');

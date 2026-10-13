@@ -1,4 +1,4 @@
-import {numericIntro,olsSummary,methodHelp,fmt,esc,ci,table,details} from './result-contract.mjs';
+import {numericIntro,olsSummary,methodHelp,demingCaution,fmt,esc,ci,table,details} from './result-contract.mjs';
 import {plot} from './comparison-view.mjs';
 import {helpButton as help} from './help-content.mjs';
 export function numericScreen(r,chart){
@@ -13,11 +13,12 @@ export function numericScreen(r,chart){
   html+='<p><a href="#deming-settings">Deming 적용 조건 설정</a> · 설정을 바꾸면 다시 분석하세요.</p>';
   if(!d)html+=`<p class="warning">Deming 미설정: ${esc(c.demingReasons.join(' '))}</p>`;
   else{
-   const lines=d.slope===null?[]:[{a:d.intercept,b:d.slope,name:'전체 Deming',color:'#c0643d'},...(r.overlay&&n.slope!==null?[{a:n.intercept,b:n.slope,name:'전체 OLS',color:'#668eb0',dash:true}]:[])];
-   html+='<div class="numeric-layout"><div class="deming-plot"><h3>산점도 · 전체 Deming과 선택 검체</h3>'+plot(r.selected.filter(p=>p.pair),lines,`Reference (${c.xUnit})`,`Product (${c.yUnit})`,'전체 Deming / 선택 검체',`전체 고정 Deming n=${n.n} / 선택 n=${r.selectedN} / λ=${c.lambda} (Product/Reference 오차분산) / ${c.basis} / ${level}% jackknife t CI`)+'</div><div class="deming-summary">';
+   const lines=d.slope===null?[]:[...(r.equality?[{a:0,b:1,name:'Y=X 기준선',color:'#8794a0',dash:true}]:[]),{a:d.intercept,b:d.slope,name:'전체 Deming',color:'#c0643d'},...(r.overlay&&n.slope!==null?[{a:n.intercept,b:n.slope,name:'전체 OLS',color:'#668eb0',dash:true}]:[])];
+   html+='<div class="numeric-layout"><div class="deming-plot"><h3>산점도 · 전체 Deming과 선택 검체</h3>'+plot(r.selected.filter(p=>p.pair),lines,`Reference (${c.xUnit})`,`Product (${c.yUnit})`,'전체 Deming / 선택 검체',`전체 고정 Deming n=${n.n} / 선택 n=${r.selectedN} / λ=${c.lambda} (Product/Reference 오차분산) / ${c.basis} / ${level}% jackknife t CI / Y=X 기준선 ${r.equality?'ON':'OFF'}`)+'</div><div class="deming-summary">';
    html+=`<h3>Deming 계수와 적용 조건 ${help('deming')}</h3><p>λ=${fmt(c.lambda)} · ${esc(c.basis)} ${help('lambda')}<br>Reference: ${esc(c.xUnit)} / Product: ${esc(c.yUnit)}</p>`+table(['Deming 계수','추정값',`${level}% jackknife t CI`],[['기울기',fmt(d.slope),ci(d.slopeCI)],['절편',fmt(d.intercept),ci(d.interceptCI)]]);
    html+=`<p>계수의 의미 ${help('slope')}${help('intercept')}</p>`;
    if(d.slope!==null)html+=`<p class="finding">전체 Deming: Product = ${fmt(d.intercept)} + ${fmt(d.slope)} × Reference</p>`;
+   html+=`<p class="hint">${demingCaution}</p>`+(r.equality?'<p>회색 점선 Y=X는 두 값이 같은 위치를 뜻하며 합격선이 아닙니다.</p>':'');
    html+='<p>관계 직선과 CI만으로 동등성을 입증하지 않습니다. 관측 범위 밖으로 외삽하지 마세요.</p>'+d.reasons.map(t=>`<p class="warning">${esc(t)}</p>`).join('');
    html+=details('Deming 상세 통계',`<p>계수 추정의 불확실성입니다. ${help('se')}</p>`+table(['기울기 jackknife SE','절편 jackknife SE'],[[fmt(d.slopeSE),fmt(d.interceptSE)]]))+'</div></div>';
   }

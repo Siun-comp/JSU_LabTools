@@ -1,5 +1,5 @@
 {
-  "version": "1.6.1",
+  "version": "1.6.2",
   "files": [
     {
       "source": "portal/index.html",
@@ -636,6 +636,10 @@
     {
       "source": "tools/detection-capability/licenses/GPL-3.txt",
       "target": "tools/detection-capability/licenses/GPL-3.txt"
+    },
+    {
+      "source": "tools/method-comparison/practical-data.mjs",
+      "target": "tools/method-comparison/practical-data.mjs"
     }
   ],
   "date": "2026-10-06"

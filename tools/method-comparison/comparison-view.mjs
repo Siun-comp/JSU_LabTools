@@ -1,3 +1,5 @@
+import {baBands,BA_BAND_HEADERS,BA_BAND_NOTE} from './practical-data.mjs';
+import {baPrecisionNote} from './result-contract.mjs';
 import {plotLegend} from './plot-legend.mjs';
 import {baObservations,BA_COLORS} from './ba-observation.mjs';
 import {helpButton} from './help-content.mjs';
@@ -36,15 +38,17 @@ export function comparisonHTML(snapshot,selected,summary){
   else{
     ba+=duplicateNote+`<p>현재 선택 범위 n=${b.n} · 공통 단위: ${esc(c.unit)} · LoA 범위는 항상 95%, 추정치 CI는 ${level}%입니다.</p>`+table(['핵심 결과','추정값',`${level}% CI`],[['평균 차이 (bias)',fmt(b.bias),ci(b.biasCI)],['95% LoA 하한',fmt(b.loa?.[0]),ci(b.loaCI?.[0])],['95% LoA 상한',fmt(b.loa?.[1]),ci(b.loaCI?.[1])]]);
     if(b.bias!==null)ba+=`<p class="finding">관측: Product가 Reference보다 평균 ${fmt(Math.abs(b.bias))} ${esc(c.unit)} ${b.bias<0?'낮습니다':b.bias>0?'높습니다':'차이납니다 (평균 차이 0)'}. ${b.loa?`개별 차이의 95% LoA는 ${ci(b.loa)} ${esc(c.unit)}입니다.`:''}</p>`;
+    if(baPrecisionNote(b))ba+=`<p class="${b.n===2?'warning':'hint'}">${esc(baPrecisionNote(b))}</p>`;
     ba+='<p>평균 차이는 평균 이동, LoA는 개별 차이의 퍼짐입니다. '+helpButton('loa')+'</p>';
     ba+=observations.available?`<p class="finding">95% LoA 밖 ${observations.outside} / ${observations.n}개 · 하한 미만 ${observations.below}개 / 상한 초과 ${observations.above}개. 색상은 확인할 위치를 표시하며 오류·불합격 판정이 아닙니다.</p><button type="button" data-review="ba" data-row-mode="ba-loa-outside" data-no-copy>95% LoA 밖 검체 확인 (${observations.outside})</button>`:'<p>LoA 계산 불가: 검체를 LoA 안/밖으로 구분하지 않습니다.</p>';
-    ba+=plot(observations.rows.map(p=>({...p,x:p.average,y:p.difference})),b.loa?[{a:b.bias,b:0,name:'평균 차이'},{a:b.loa[0],b:0,name:'95% LoA 하한',dash:true,color:'#668eb0'},{a:b.loa[1],b:0,name:'95% LoA 상한',dash:true,color:'#668eb0'},...(c.lower===null?[]:[{a:c.lower,b:0,name:'사용자 허용 하한',dash:true,color:'#80609b'},{a:c.upper,b:0,name:'사용자 허용 상한',dash:true,color:'#80609b'}])]:[],'(Reference + Product) / 2',`Product − Reference (${c.unit})`,'Bland–Altman 차이도','',observations.available?[{name:'95% LoA 안',dot:true,color:BA_COLORS.inside},{name:'95% LoA 밖',dot:true,hollow:true,color:BA_COLORS.outside}]:[{name:'LoA 계산 불가',dot:true,color:BA_COLORS.inside}]);
-    ba+='<p>실선: 평균 차이 · 청색 점선: 95% LoA · 자주 점선: 입력한 허용 차이. 점을 가리키면 검체 ID·원행·값을 확인할 수 있습니다.</p>';
+    ba+=plot(observations.rows.map(p=>({...p,x:p.average,y:p.difference})),b.loa?[{a:0,b:0,name:'차이 0 기준선',color:'#8794a0',dash:true},{a:b.bias,b:0,name:'평균 차이'},{a:b.loa[0],b:0,name:'95% LoA 하한',dash:true,color:'#668eb0'},{a:b.loa[1],b:0,name:'95% LoA 상한',dash:true,color:'#668eb0'},...(c.lower===null?[]:[{a:c.lower,b:0,name:'사용자 허용 하한',dash:true,color:'#80609b'},{a:c.upper,b:0,name:'사용자 허용 상한',dash:true,color:'#80609b'}])]:[],'(Reference + Product) / 2',`Product − Reference (${c.unit})`,'Bland–Altman 차이도','',observations.available?[{name:'95% LoA 안',dot:true,color:BA_COLORS.inside},{name:'95% LoA 밖',dot:true,hollow:true,color:BA_COLORS.outside}]:[{name:'LoA 계산 불가',dot:true,color:BA_COLORS.inside}]);
+    ba+='<p>회색 점선: 차이 0 기준선 · 실선: 평균 차이 · 청색 점선: 95% LoA · 자주 점선: 입력한 허용 차이. 점을 가리키면 검체 ID·원행·값을 확인할 수 있습니다.</p>';
     if(c.lower===null)ba+='<p class="warning">사전 허용 차이 미설정: 이 결과만으로 두 방법의 대체 가능성이나 합격 여부를 판단할 수 없습니다.</p>';
     else ba+=`<p>사용자 지정 허용 차이: ${c.lower} ~ ${c.upper} ${esc(c.unit)}. 관측 LoA ${b.loa?(b.loa[0]>=c.lower&&b.loa[1]<=c.upper?'양 끝은 입력 범위 안에 있습니다':'중 입력 범위를 벗어나는 끝이 있습니다'):'계산 불가'}. 이 비교는 통계적 관측이며 임상 적합성 판정이 아닙니다. LoA 끝의 CI도 함께 검토하세요.</p>`;
     ba+=b.reasons.map(v=>`<p class="warning">${esc(v)}</p>`).join('');
     ba+=details('BA 상세 통계','<p>차이의 SD·중앙값·LoA 밖 관측 수를 확인합니다. '+helpButton('sd')+helpButton('median')+helpButton('loa')+'</p>'+table(['차이 SD','차이 Median [Q1–Q3]','LoA 밖 / n'],[[fmt(b.sd),b.distribution?`${fmt(b.distribution.median)} [${fmt(b.distribution.q1)}–${fmt(b.distribution.q3)}]`:'—',observations.available?`${observations.outside} / ${observations.n}`:'LoA 계산 불가']]));
   }
+  if(b){const bands=baBands(snapshot,selected,c);ba+=details('Reference 구간별 차이 요약',`<p class="hint">${esc(BA_BAND_NOTE)} 공통 단위: ${esc(c.unit)}. SD는 수치쌍 2개 이상에서 계산합니다. ${helpButton('ba-bands')}</p>`+(bands.length?table(BA_BAND_HEADERS,bands.map(g=>[g.label,g.n,fmt(g.bias),fmt(g.sd)])):'<p>Reference 경계가 미설정입니다. 구간·신뢰구간 설정에서 경계를 입력하면 이 표를 볼 수 있습니다. 전체 BA 결과는 위에 표시됩니다. SD는 n≥2에서 계산합니다.</p>'));}
   ba+=transitions+'<p>값이 커질수록 차이가 커지거나 퍼짐이 넓어지는지 그림에서 확인하세요. Reference로 구간을 선택하면 선택 자체가 차이 분포에 영향을 줄 수 있습니다. Ct/Tt 단축만으로 LoD 개선을 추정하지 않습니다.</p>';
   const method=details('BA 방법·적용 조건·출처',table(['분석 정보','값'],comparisonFacts(r).filter(([key])=>!key.startsWith('Deming')))+    '<p><a href="'+SOURCES.ba+'">Bland–Altman 원 논문</a> · <a href="'+SOURCES.interpretation+'">LoA 해석</a></p>');
   ba=ba.replace('data-context=""',`data-context="${esc(`BA 현재 선택 n=${b?.n??r.selectedN} / Product − Reference / ${c.unit||'단위 미확인'} / ${observations.available?`95% LoA ${ci(b.loa)} / 밖 ${observations.outside}개 (하한 미만 ${observations.below}, 상한 초과 ${observations.above})`:'LoA 계산 불가'} / ${level}% CI / ${c.lower===null?'사전 허용 차이 미사용':`사용자 허용 차이 ${c.lower} ~ ${c.upper} ${c.unit}`} / LoA 밖은 오류·불합격 판정 아님`)}"`);

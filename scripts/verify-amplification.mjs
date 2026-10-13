@@ -16,11 +16,16 @@ const oligo=contract.oligoDimerRelease;
 const methodPatch=contract.methodComparisonPatchRelease;
 assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,'1.5.1');assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
 const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+const practicalRelease=contract.methodComparisonPracticalRelease;
+assert.equal(practicalRelease.previousSHA,'0aa80f34206b66754ceb0321d0a3a15966b6b9a9');assert.equal(practicalRelease.portalVersion,manifest.version);assert.equal(practicalRelease.toolVersion,'0.4.1');assert.equal(practicalRelease.previousPublic.length,159);assert.deepEqual(practicalRelease.addedTargets,['tools/method-comparison/practical-data.mjs']);
+async function prePracticalBytes(target){const entry=practicalRelease.previousPublic.find(e=>e.target===target);assert(entry,'Previous practical release path retained');const bytes=await readFile(resolve(dist,target)),selected=practicalRelease.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected practical release bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected practical release bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',practicalRelease.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous practical release bytes from Git');return old;}
+for(const e of practicalRelease.previousPublic)await prePracticalBytes(e.target);
+assert.deepEqual(manifest.files.filter(e=>!practicalRelease.previousPublic.some(p=>p.target===e.target)).map(e=>e.target).sort(),practicalRelease.addedTargets.toSorted(),'Only reviewed practical addition');
 const packageRelease=contract.detectionCapabilityPackageRelease;
-assert.equal(packageRelease.previousSHA,'e87309dfedabdd6c79d462eb61cae64f25740f42');assert.equal(packageRelease.portalVersion,manifest.version);assert.equal(packageRelease.toolVersion,'0.9.1-beta.5');assert.equal(packageRelease.previousPublic.length,153);assert.equal(packageRelease.addedTargets.length,6);
-async function prePackageBytes(target){const entry=packageRelease.previousPublic.find(e=>e.target===target);assert(entry,'Previous package release path retained');const bytes=await readFile(resolve(dist,target)),selected=packageRelease.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected package release bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected package release bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',packageRelease.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous package release bytes from Git');return old;}
+assert.equal(packageRelease.previousSHA,'e87309dfedabdd6c79d462eb61cae64f25740f42');assert.equal(packageRelease.portalVersion,'1.6.1');assert.equal(packageRelease.toolVersion,'0.9.1-beta.5');assert.equal(packageRelease.previousPublic.length,153);assert.equal(packageRelease.addedTargets.length,6);
+async function prePackageBytes(target){const entry=packageRelease.previousPublic.find(e=>e.target===target);assert(entry,'Previous package release path retained');const bytes=await prePracticalBytes(target),selected=packageRelease.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected package release bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected package release bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',packageRelease.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous package release bytes from Git');return old;}
 for(const e of packageRelease.previousPublic)await prePackageBytes(e.target);
-assert.deepEqual(manifest.files.filter(e=>!packageRelease.previousPublic.some(p=>p.target===e.target)).map(e=>e.target).sort(),packageRelease.addedTargets.toSorted(),'Only reviewed package additions');
+assert.deepEqual(practicalRelease.previousPublic.filter(e=>!packageRelease.previousPublic.some(p=>p.target===e.target)).map(e=>e.target).sort(),packageRelease.addedTargets.toSorted(),'Only reviewed package additions');
 const redesign=contract.methodComparisonRedesignRelease;
 assert.equal(redesign.previousSHA,'b70688cb2a8564f10b7fbe67a9d7874670c0b303');assert.equal(redesign.portalVersion,'1.6.0');assert.equal(redesign.toolVersion,'0.4.0');assert.equal(redesign.previousPublic.length,142);assert.equal(redesign.addedTargets.length,11);
 async function preRedesignBytes(target){const entry=redesign.previousPublic.find(e=>e.target===target);assert(entry,'Previous method-comparison path retained');const bytes=await prePackageBytes(target),selected=redesign.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected redesign bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected redesign bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',redesign.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous release bytes from Git');return old;}
@@ -50,7 +55,7 @@ const previousHome=html=>preOligoHome(html).replace(method.portalRow,'').replace
 async function historicBytes(target){const bytes=await preOligoBytes(target);return target==='index.html'?Buffer.from(previousHome(bytes.toString())):/^info\/.*\.html$/.test(target)?Buffer.from(bytes.toString().replaceAll('포털 v1.4.0','포털 v1.3.0')):bytes;}
 for(const entry of method.previousPublic)assert.equal(hash(await historicBytes(entry.target)),entry.sha256,'Previous public content retained: '+entry.target);
 
-assert.equal(manifest.version,'1.6.1');assert.equal(manifest.candidate,undefined);
+assert.equal(manifest.version,'1.6.2');assert.equal(manifest.candidate,undefined);
 assert.equal(update.portalVersion,'1.2.1');assert.equal(buffer.portalVersion,'1.3.0');
 assert.equal(buffer.previousPortalVersion,'1.2.1');assert.equal(buffer.previousSHA,'d5b8ca0778a1e536867415156f081c9f2ebadacc');
 assert.equal(buffer.toolVersion,'1.1.0');assert.equal(buffer.algorithmVersion,'0.2.0');assert.equal(buffer.releasedOn,'2026-10-07');
@@ -61,7 +66,7 @@ assert.equal(update.previousSHA,'4cabcd75918f58464de6398d268182ca753eba7b');
 assert.equal(update.toolVersion,'1.1.0');assert.equal(update.algorithmVersion,'0.3.0');assert.equal(update.releasedOn,'2026-10-06');
 assert.deepEqual(update.selectedTargets,['info/nucleic-acid.html',...['index.html','core.mjs','app.mjs','clipboard.mjs'].map(p=>'tools/nucleic-acid-calculator/'+p)]);
 assert.equal(update.previousPublic.length,107);assert.equal(new Set(update.previousPublic.map(e=>e.target)).size,107);
-assert.equal(manifest.files.length,159);assert.equal(new Set(manifest.files.map(e=>e.target)).size,159);
+assert.equal(manifest.files.length,160);assert.equal(new Set(manifest.files.map(e=>e.target)).size,160);
 assert.deepEqual((await files(dist)).sort(),manifest.files.map(e=>e.target).sort(),'Exact public allowlist');
 for(const e of manifest.files){
  const source=resolve(root,e.source),target=resolve(dist,e.target);
@@ -132,4 +137,4 @@ assert(mainText.includes('증폭 곡선 분석 · 베타'),'Beta display');
 const webManifest=JSON.parse(await readFile(resolve(appBase,'manifest.webmanifest'),'utf8'));
 assert.equal(webManifest.name,'Amplification Analysis');assert.equal(webManifest.scope,'.');assert.equal(webManifest.start_url,'.');
 for(const icon of webManifest.icons)await readFile(resolve(appBase,icon.src));
-console.log('PASS: reviewed159-file portal1.6.1 artifact; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');
+console.log('PASS: reviewed160-file portal1.6.2 artifact; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');

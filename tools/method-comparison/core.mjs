@@ -1,7 +1,7 @@
 import {extractInput} from './headers.mjs';
 import {dateLabels} from './date-boundaries.mjs';
 import {proportion,regression,tQuantile} from './math.mjs';
-export const VERSION='0.4.0';
+export const VERSION='0.4.1';
 export const HEADERS=['검체 ID','채취일','Reference 결과','Reference 검출값','Product 결과','Product 검출값'];
 export function readDelimited(text){text=text.replace(/^\uFEFF/,'');const delimiter=text.includes('\t')?'\t':',';const rows=[];let row=[],field='',quote=false;for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){if(quote&&text[i+1]==='"'){field+='"';i++;}else if(quote||field==='')quote=!quote;else field+=c;}else if(c===delimiter&&!quote){row.push(field);field='';}else if((c==='\n'||c==='\r')&&!quote){if(c==='\r'&&text[i+1]==='\n')i++;row.push(field);rows.push(row);row=[];field='';}else field+=c;}if(quote)throw Error('닫히지 않은 따옴표가 있습니다.');if(field!==''||row.length){row.push(field);rows.push(row);}if(rows.some(r=>r.length>6&&r.slice(6).some(v=>v.trim()!=='')))throw Error('입력은 기존 양식의 A–F, 6개 열만 붙여넣으세요.');return extractInput(rows.map((cells,i)=>({cells:Array.from({length:6},(_,j)=>cells[j]??''),sourceRow:i+1})));}
 export const parseDelimited=text=>readDelimited(text).records;

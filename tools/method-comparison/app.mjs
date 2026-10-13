@@ -1,23 +1,25 @@
+import {SPECIMEN_MODES,selectSpecimens,DEMING_SPECIMEN_NOTE} from './practical-data.mjs';
 import {installHelp} from './help-ui.mjs';
 import {helpButton} from './help-content.mjs';
 import {plotLegend} from './plot-legend.mjs';
 import {baObservation,baObservations} from './ba-observation.mjs';
-import {resultContract,specimenData,rawData,outputSelection,ANALYSIS_NAMES} from './result-contract.mjs';
+import {resultContract,specimenData,rawData,outputSelection,ANALYSIS_NAMES,equalityAvailable} from './result-contract.mjs';
 import {numericScreen} from './numeric-screen.mjs';
 import {comparisonHTML} from './comparison-view.mjs';
-import {analyses,comparisonFacts,olsDiagnostics} from './comparison.mjs';
+import {analyses,comparisonFacts,olsDiagnostics,configuration} from './comparison.mjs';
 import {initDateBoundaries,dateLabels,dateMode} from './date-boundaries.mjs';
 import {HEADERS,VERSION,parseDelimited,readDelimited,normalize,bounds,labels,subset,summarize,groups,buildModel,prediction,evaluateRow,medianSummary,medianGroups,medianDateGroups,inputAudit,inputAuditEntries,numericCaution} from './core.mjs';
 import {formatNumber,formatPercent} from './format.mjs';
 import {barChart,detectionBars,agreementBars,medianBars} from './bar-chart.mjs';
 import {NOTES} from './notes.mjs';
-import {exportReport} from './report-export.mjs';
+import {exportReport,reportData} from './report-export.mjs';
+import {unifiedReportData} from './unified-report.mjs';
 import {exampleData,EXAMPLE_DESCRIPTION} from './example.mjs';
 import {installGraphCopy} from './graph-copy.mjs';
 import {readXlsx} from './import.mjs';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=formatNumber,pct=formatPercent,ci=v=>v?.map(fmt).join(' ~ ')||'—',pci=p=>p.ci?p.ci.map(pct).join(' ~ '):'—';
-const table=(headers,rows)=>`<div class="table-wrap"><table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+const table=(headers,rows,actions=null)=>`<div class="table-wrap"><table><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}${actions?'<th data-no-copy>검체 확인</th>':''}</tr></thead><tbody>${rows.map((row,i)=>`<tr>${row.map(c=>`<td>${esc(c)}</td>`).join('')}${actions?`<td data-no-copy>${actions[i]||''}</td>`:''}</tr>`).join('')}</tbody></table></div>`;
 const helpUI=installHelp();
 let snapshot=null,sourceRecords=null,revision=0,tab='qual',page=0,rowMode='all',selected=[],summary=null;
 function dirty(message='입력이 변경되었습니다. 분석을 다시 누르세요.'){revision++;snapshot=null;$('results').hidden=true;$('copy').disabled=true;$('copy-status').textContent='';$('export').disabled=true;$('export-status').textContent='';$('status').textContent=message;}
@@ -65,21 +67,39 @@ $('analyze').onclick=()=>{
   }catch(e){dirty(e.message);}
 };
 for(const id of ['ct-filter','date-filter'])$(id).onchange=()=>{page=0;render();};
-const view=()=>({method:$('regression-method').value,overlay:$('ols-overlay').checked});
+const view=()=>({method:$('regression-method').value,overlay:$('ols-overlay').checked,equality:$('equality-line').checked});
 const currentResult=()=>resultContract(snapshot,selected,view());
 let rowPurpose='qual',outputRevision=0;
 function showTab(next){tab=next;document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===tab)));for(const id of ['qual','numeric','groups','median','ba','rows'])$(id).hidden=id!==tab;$('numeric-controls').hidden=tab!=='numeric';$('copy-status').textContent='';updateOutputDescription();}
 document.querySelectorAll('[data-tab]').forEach(button=>button.onclick=()=>showTab(button.dataset.tab));
-for(const id of ['regression-method','ols-overlay'])$(id).onchange=()=>{outputRevision++;$('overlay-control').hidden=$('regression-method').value!=='deming';if(snapshot)render();};
-const outputOptions=()=>outputSelection(tab,[...document.querySelectorAll('[data-output]:checked')].map(e=>e.dataset.output),{...view(),custom:$('output-custom').checked,details:$('output-details').checked,specimens:$('output-specimens').checked,raw:$('output-raw').checked,purpose:tab==='numeric'?view().method:tab==='ba'?'ba':rowPurpose,rowMode,listedRows:tab==='rows'?listed():undefined});
-function updateOutputDescription(){const o=outputOptions();$('output-description').textContent='Excel: 분석요약 + '+(o.analyses.map(k=>ANALYSIS_NAMES[k]).join(' / ')||'선택 없음')+' · '+(o.details?'상세 통계 포함':'핵심 결과')+(o.specimens?' · 검체별 계산 추가':'')+(o.raw?' · 전체 입력 원문 추가':'');}
+for(const id of ['regression-method','ols-overlay','equality-line'])$(id).onchange=()=>{outputRevision++;$('overlay-control').hidden=$('regression-method').value!=='deming';if(snapshot)render();};
+const outputOptions=()=>outputSelection(tab,[...document.querySelectorAll('[data-output]:checked')].map(e=>e.dataset.output),{...view(),custom:$('output-custom').checked,details:$('output-details').checked,specimens:$('output-specimens').checked,raw:$('output-raw').checked,purpose:tab==='numeric'?view().method:tab==='ba'?'ba':tab==='rows'?rowPurpose:'qual',rowMode,listedRows:tab==='rows'?listed():undefined});
+function updateOutputDescription(){
+  const o=outputOptions();
+  if(snapshot){
+    try{
+      // Reuse the export data contract so names and listed-row counts cannot drift.
+      const scope=$('scope').textContent;
+      const sheets=unifiedReportData(reportData(snapshot,selected,scope),snapshot,selected,scope,o);
+      const specimens=sheets.find(s=>s.name==='검체목록');
+      const parts=[`Excel ${sheets.length}개 시트: ${sheets.map(s=>s.name).join(' / ')}`,`현재 범위 ${selected.length}행 / 수치쌍 ${summary.numeric.n}개`];
+      if(o.analyses.includes('numeric'))parts.push(`회귀선은 전체 ${snapshot.model.n}개 기준`);
+      if(o.analyses.includes('ba'))parts.push(`BA는 현재 수치쌍 ${summary.numeric.n}개 기준`);
+      if(specimens)parts.push(`검체목록 ${specimens.rows.length}행`);
+      parts.push(o.details?'상세 통계 포함':'핵심 결과',o.raw?`원본입력은 전체 ${snapshot.rows.length}행`:'전체 입력 원문 미포함');
+      $('output-preview').className='hint';$('output-preview').textContent=parts.join(' · ');
+    }catch(e){$('output-preview').className='warning';$('output-preview').textContent='Excel 출력 조건 확인: '+e.message;}
+  }
+  $('output-description').textContent='Excel: 분석요약 + '+(o.analyses.map(k=>ANALYSIS_NAMES[k]).join(' / ')||'선택 없음')+' · '+(o.details?'상세 통계 포함':'핵심 결과')+(o.specimens?' · 검체별 계산 추가':'')+(o.raw?' · 전체 입력 원문 추가':'');
+}
 for(const el of [...document.querySelectorAll('[data-output]'),...['output-custom','output-details','output-specimens','output-raw'].map($)])el.onchange=()=>{outputRevision++;$('output-analyses').hidden=!$('output-custom').checked;updateOutputDescription();$('copy-status').textContent='';};
 $('output-bundle').onclick=()=>{document.querySelectorAll('[data-output]').forEach(e=>e.checked=e.dataset.output!=='ba');outputRevision++;updateOutputDescription();};
-$('results').addEventListener('click',e=>{const button=e.target.closest('[data-review]');if(!button)return;rowPurpose=button.dataset.review;rowMode=button.dataset.rowMode||'all';page=0;renderRows();showTab('rows');});
+$('results').addEventListener('click',e=>{const group=e.target.closest('[data-group-kind]');if(group){if(!snapshot||group.disabled)return;const filter=$(group.dataset.groupKind==='ct'?'ct-filter':'date-filter');if(![...filter.options].some(o=>o.value===group.dataset.groupValue))return;filter.value=group.dataset.groupValue;rowPurpose='qual';rowMode='all';page=0;outputRevision++;render();showTab('rows');const heading=$('rows').querySelector('h2');heading.tabIndex=-1;heading.focus();return;}const button=e.target.closest('[data-review]');if(!button)return;rowPurpose=button.dataset.review;rowMode=button.dataset.rowMode||'all';page=0;renderRows();showTab('rows');});
 function render(){
   if(!snapshot)return;
   selected=subset(snapshot.rows,{ct:$('ct-filter').value,date:$('date-filter').value},snapshot.ct,snapshot.dates);
   summary=summarize(selected,snapshot.confidence,snapshot.method,snapshot.model);
+  const available=equalityAvailable(configuration(snapshot.comparison));$('equality-control').hidden=view().method!=='deming';$('equality-line').disabled=!available;$('equality-guidance').innerHTML=available?'같은 값의 위치를 표시합니다. 합격선이 아닙니다.':'<a href="#ba-settings">BA 설정의 같은 항목·단위·결과 정의 확인</a>과 두 축의 같은 단위/척도 입력이 필요합니다. 설정 후 다시 분석하세요.';
   const s=summary,allIds=snapshot.rows.filter(r=>!r.id).length;
   $('scope').textContent=`Reference: ${$('ct-filter').selectedOptions[0].textContent} / ${dateMode(snapshot.dates)}: ${$('date-filter').selectedOptions[0].textContent} · CI ${snapshot.confidence*100}% ${snapshot.method==='exact'?'Exact':'Wilson'} · PI ${snapshot.piLevel*100}% · 전체 입력 ID 누락 제외 ${allIds}개 · 형식 오류 제외 ${snapshot.rows.filter(r=>r.id&&r.inputErrors.length).length}개 · 전체 기준 모델 n=${snapshot.model.n}`;
   $('overview').innerHTML=[['표시 원행',s.total],['분석 적격 검체',s.eligible],['유효 정성 쌍',s.valid],['양성 수치 쌍',s.numeric.n],['정성 제외',s.excluded],['수치 제외',s.total-s.numeric.n]].map(([name,n])=>`<div class="card">${name}<strong>${n}</strong></div>`).join('');
@@ -128,8 +148,9 @@ function renderGroups(){
   const view=(kind,title,cuts)=>{
     const gs=kind==='date'&&!selected.some(r=>r.eligible&&r.date)?[]:groups(selected,kind,cuts,snapshot.confidence,snapshot.method,snapshot.model);
     if(!gs.length)return `<h3>${title}</h3><p class="hint">채취일이 없어 날짜별 분석을 할 수 없습니다. 다른 분석은 유지됩니다.</p>`;
+    const actions=gs.map((g,i)=>`<button type="button" class="compact-action" data-group-kind="${kind}" data-group-value="${esc(kind==='date'&&!cuts.length?g.label:String(i))}" aria-label="${esc(g.label+' 구간 검체 보기')}" ${g.rows.length?'':'disabled'}>검체 보기</button>`);
     return `<h3>${title}</h3>${kind==='date'?barChart(agreementBars(gs),['PPA','NPA'],title+' PPA / NPA'):barChart(detectionBars(gs),['Product'],title+' 유효 결과 중 검출률')}`+
-      (kind==='date'?table(['구간','PPA 양성 / 분모','PPA',`${snapshot.confidence*100}% PPA CI`,'NPA 음성 / 분모','NPA',`${snapshot.confidence*100}% NPA CI`,'유효 정성 n','정성 제외'],gs.map(g=>{const s=g.summary;return [g.label,`${s.ppa.k} / ${s.ppa.n}`,pct(s.ppa.p),pci(s.ppa),`${s.npa.k} / ${s.npa.n}`,pct(s.npa.p),pci(s.npa),s.valid,s.excluded];})):table(['구간','분석 적격 Reference 양성 n','Product 검출 / 유효 n','미검출 n','유효 결과 중 검출률',`${snapshot.confidence*100}% CI`,'Product Invalid','미입력','평가 가능률'],gs.map(g=>{const s=g.summary;return [g.label,s.refPositive,`${s.detection.k} / ${s.detection.n}`,s.FN,pct(s.detection.p),pci(s.detection),s.productInvalid,s.productMissing,`${s.evaluability.k} / ${s.evaluability.n} · ${pct(s.evaluability.p)}`];})))+
+      (kind==='date'?table(['구간','PPA 양성 / 분모','PPA',`${snapshot.confidence*100}% PPA CI`,'NPA 음성 / 분모','NPA',`${snapshot.confidence*100}% NPA CI`,'유효 정성 n','정성 제외'],gs.map(g=>{const s=g.summary;return [g.label,`${s.ppa.k} / ${s.ppa.n}`,pct(s.ppa.p),pci(s.ppa),`${s.npa.k} / ${s.npa.n}`,pct(s.npa.p),pci(s.npa),s.valid,s.excluded];}),actions):table(['구간','분석 적격 Reference 양성 n','Product 검출 / 유효 n','미검출 n','유효 결과 중 검출률',`${snapshot.confidence*100}% CI`,'Product Invalid','미입력','평가 가능률'],gs.map(g=>{const s=g.summary;return [g.label,s.refPositive,`${s.detection.k} / ${s.detection.n}`,s.FN,pct(s.detection.p),pci(s.detection),s.productInvalid,s.productMissing,`${s.evaluability.k} / ${s.evaluability.n} · ${pct(s.evaluability.p)}`];}),actions))+
       '<details class="group-details"><summary>구간별 정성 일치도·수치 관계·잔차·PI</summary>'+
       table(['구간','유효 정성 n','NPA',`${snapshot.confidence*100}% NPA CI`,'양성 수치쌍 n','그룹 Pearson r','그룹 OLS 기울기','수치쌍 Ref 평균','수치쌍 Product 평균','전체 기준 잔차 평균','PI 계산 가능','이탈 / 계산 가능','이탈률','평균 초과량','PI 상태','수치 해석 참고'],gs.map(g=>{const s=g.summary;return [g.label,s.valid,pct(s.npa.p),pci(s.npa),s.numeric.n,fmt(s.numeric.r),fmt(s.numeric.slope),fmt(s.numeric.xMean),fmt(s.numeric.yMean),fmt(s.pi.residualMean),s.pi.n,`${s.pi.outliers} / ${s.pi.n}`,pct(s.pi.rate),fmt(s.pi.meanExcess),piDescription(s.pi),numericCaution(s.numeric.n)];}))+'</details>';
   };
@@ -145,33 +166,30 @@ function renderMedian(){
   const grid=(data,title)=>`<h3>${title}</h3><p class="hint">각 막대는 해당 시험법의 검출값 중앙값입니다. Ct/Tt 등 척도가 다르면 두 막대의 높이 차이를 시험법 오차로 해석하지 마세요.</p>`+barChart(medianBars(data),['Reference','Product'],title,false,{paired:true})+table(['구간','전체 Reference n','전체 Reference Median [Q1–Q3]','양성 수치쌍 n','Paired Reference Median [Q1–Q3]','Paired Product Median [Q1–Q3]','참고'],data.map(g=>[g.label,g.all.n,dist(g.all),g.reference.n,dist(g.reference),dist(g.product),g.reference.n===0?'양성 수치쌍 없음':g.reference.n<10?'수치쌍 10개 미만 — 해석 주의':'']));
   $('median').innerHTML='<h2>중앙값 · 사분위수 비교</h2><p class="hint">막대는 동일 검체쌍 Reference·Product의 중앙값입니다. 전체 Reference 분포와 Q1–Q3는 표에서 함께 확인합니다.</p>'+grid([{label:'현재 표시 범위 전체',...all},...gs],'Reference 구간별 중앙값')+(dates.length?grid(dates,snapshot.dates.length?'채취일 구간별 중앙값':'채취일별 중앙값 — 구간 경계 미설정'):'<p class="hint">채취일이 없어 날짜별 중앙값을 분석할 수 없습니다. 다른 분석은 유지됩니다.</p>')+'<p>중앙값·Q1–Q3 읽는 방법 '+helpButton('median')+'</p>'+notesHTML('median');
 }
-function listed(){
-  if(rowMode==='ba-loa-outside'){const r=currentResult();return selected.filter(row=>baObservation(row,r).outside);}
-  if(rowMode==='id-excluded')return snapshot.rows.filter(r=>!r.id);
-  if(rowMode==='format-excluded')return snapshot.rows.filter(r=>r.inputErrors.length);
-  return selected.filter(r=>rowMode==='all'||rowMode==='discordant'&&['FP','FN'].includes(r.cls)||rowMode==='issues'&&r.issues.length||rowMode==='numeric-excluded'&&!r.pair||rowMode==='pi-outliers'&&['상한 이탈','하한 이탈'].includes(evaluateRow(r,snapshot.model).state)||rowMode==='pi-unavailable'&&r.pair&&evaluateRow(r,snapshot.model).state==='계산 불가');
-}
+function listed(){return selectSpecimens(snapshot,selected,rowMode,rowMode==='ba-loa-outside'?currentResult():null);}
 function rowData(r){
   const e=evaluateRow(r,snapshot.model);
   return [r.sourceRow,...r.raw.map((v,i)=>i===3&&r.x!==null?fmt(r.x):i===5&&r.y!==null?fmt(r.y):v),r.eligible?'포함':!r.id?'ID 누락 제외':'형식 오류 제외',r.qual?(r.cls==='TP'||r.cls==='TN'?'일치':'불일치'):'정성 제외',r.pair?'포함':'제외',fmt(e.fit),fmt(e.residual),fmt(e.lo),fmt(e.hi),e.state,fmt(e.excess),r.issues.join('; ')||''];
 }
 function renderRows(){
   const rows=listed(),max=Math.max(0,Math.ceil(rows.length/100)-1);page=Math.min(page,max);
-  const pageRows=rows.slice(page*100,page*100+100),baContext=rowPurpose==='ba'?currentResult():null,data=specimenData(pageRows,snapshot.model,rowPurpose,false,baContext),full=specimenData(pageRows,snapshot.model,rowPurpose,true,baContext);
+  const pageRows=rows.slice(page*100,page*100+100),baContext=['ba','deming'].includes(rowPurpose)?currentResult():null,data=specimenData(pageRows,snapshot.model,rowPurpose,false,baContext),full=specimenData(pageRows,snapshot.model,rowPurpose,true,baContext);
   const showRows=d=>table(d.headers,d.rows.map(r=>r.map(v=>typeof v==='number'?fmt(v):v??'—')));
-  $('rows').innerHTML='<h2>목적별 검체 확인</h2><div class="toolbar"><label>검토 목적<select id="row-purpose">'+[['qual','정성'],['ols','OLS PI·잔차'],['deming','Deming 관계'],['ba','BA 직접 차이']].map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></label><label>표시할 검체<select id="row-mode">'+[['all','현재 표시 범위 전체'],['discordant','정성 불일치'],['issues','누락·확인 사항'],['numeric-excluded','수치쌍 제외'],['ba-loa-outside','BA 95% LoA 밖'],['pi-outliers','OLS PI 이탈'],['pi-unavailable','OLS PI 계산 불가'],['id-excluded','전체 입력 ID 누락 제외'],['format-excluded','전체 입력 형식 오류 제외']].map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></label></div><p>'+(['id-excluded','format-excluded'].includes(rowMode)?'전체 입력 기준의 제외 목록':'현재 선택 범위 목록')+' · 복사 대상 '+rows.length+'개. 같은 ID도 원행으로 구별합니다.</p>'+showRows(data)+'<details class="interpretation"><summary>현재 페이지 개별 계산 상세</summary>'+showRows(full)+'</details><details class="interpretation"><summary>현재 페이지 입력 원문</summary>'+showRows(rawData(pageRows))+'</details><div class="pager"><button id="previous" '+(page===0?'disabled':'')+'>이전</button><span>'+rows.length+'개 · '+(rows.length?page*100+1:0)+'–'+Math.min(rows.length,(page+1)*100)+' 표시</span><button id="next" '+(page===max?'disabled':'')+'>다음</button></div>';
+  $('rows').innerHTML='<h2>목적별 검체 확인</h2><div class="toolbar"><label>검토 목적<select id="row-purpose">'+[['qual','정성'],['ols','OLS PI·잔차'],['deming','Deming 관계'],['ba','BA 직접 차이']].map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></label><label>표시할 검체<select id="row-mode">'+SPECIMEN_MODES.map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></label></div><p>'+(['id-excluded','format-excluded'].includes(rowMode)?'전체 입력 기준의 제외 목록':'현재 선택 범위 목록')+' · 복사 대상 '+rows.length+'개. 같은 ID도 원행으로 구별합니다.</p>'+showRows(data)+'<details class="interpretation"><summary>현재 페이지 개별 계산 상세</summary>'+showRows(full)+'</details><details class="interpretation"><summary>현재 페이지 입력 원문</summary>'+showRows(rawData(pageRows))+'</details><div class="pager"><button id="previous" '+(page===0?'disabled':'')+'>이전</button><span>'+rows.length+'개 · '+(rows.length?page*100+1:0)+'–'+Math.min(rows.length,(page+1)*100)+' 표시</span><button id="next" '+(page===max?'disabled':'')+'>다음</button></div>';
   if(rowPurpose==='ba'){const b=baObservations(baContext);$('rows').insertAdjacentHTML('afterbegin','<p class="hint">BA LoA는 현재 선택 범위 전체 수치쌍 '+b.n+'개에서 계산한 한계입니다. 밖 검체 목록만으로 다시 계산하지 않습니다. 사전 허용 차이 위치와 별개이며 오류·불합격 판정이 아닙니다.</p>');}
+  if(rowPurpose==='deming')$('rows').insertAdjacentHTML('afterbegin',`<p class="hint">${esc(DEMING_SPECIMEN_NOTE)} ${helpButton('deming-specimen')} ${baContext.deming?.slope!=null?'개별 계산 상세에서 확인하세요.':'Deming 계산 불가: '+esc(baContext.config.demingReasons.join(' ')||baContext.deming?.reasons?.join(' ')||'적합 조건을 확인하세요.')}</p>`);
   $('row-purpose').value=rowPurpose;$('row-mode').value=rowMode;
   $('row-purpose').onchange=()=>{rowPurpose=$('row-purpose').value;outputRevision++;page=0;renderRows();updateOutputDescription();};
-  $('row-mode').onchange=()=>{rowMode=$('row-mode').value;outputRevision++;page=0;renderRows();$('copy-status').textContent='';};
+  $('row-mode').onchange=()=>{rowMode=$('row-mode').value;outputRevision++;page=0;renderRows();updateOutputDescription();$('copy-status').textContent='';};
   $('previous').onclick=()=>{page--;renderRows();};$('next').onclick=()=>{page++;renderRows();};
 }
 $('copy').onclick=async()=>{
   if(!snapshot)return;
   const current=snapshot,rev=revision,copyTab=tab,scope=$('scope').textContent,ov=outputRevision,r=currentResult(),o=outputOptions();
   const audit=inputAudit(snapshot.rows),meta=[['검사법 비교 분석',VERSION],['입력',snapshot.source],['표시 범위',scope],['분석',ANALYSIS_NAMES[tab]],['전체 입력 ID 누락 제외',audit.idExcluded],['전체 입력 형식 오류 제외',audit.formatExcluded],['현재 분석 적격 n',summary.eligible],['현재 유효 정성 n',summary.valid],['현재 양성 수치쌍 n',summary.numeric.n]];
-  if(tab==='numeric')meta.push(['회귀 보기',r.method==='deming'?'Deming':'OLS'],['전체 고정 모델 n',r.model.n],...(r.method==='deming'?r.facts('deming'):[]));if(tab==='ba')meta.push(...r.facts('ba'));
+  if(tab==='numeric')meta.push(['회귀 보기',r.method==='deming'?'Deming':'OLS'],['전체 고정 모델 n',r.model.n],...(r.method==='deming'?[...r.facts('deming'),['OLS 회귀선 중첩',r.overlay?'ON':'OFF'],['Y=X 기준선',r.equality?'ON — 동일 항목·단위·결과 정의 확인':'OFF']]:[]));if(tab==='ba')meta.push(...r.facts('ba'));
   if(tab==='rows'&&rowPurpose==='ba')meta.push(...r.facts('ba'),['BA 위치 기준 수치쌍 n',r.ba?.n??r.selectedN],['95% LoA 하한',fmt(r.ba?.loa?.[0]??null)],['95% LoA 상한',fmt(r.ba?.loa?.[1]??null)],['위치 해석','현재 선택 범위 전체에서 계산한 LoA. 목록만으로 다시 계산하지 않음. LoA 밖은 오류·불합격 판정 아님']);
+  if(tab==='rows'&&rowPurpose==='deming')meta.push(...r.facts('deming'),['전체 고정 Deming n',r.deming?.n??r.model.n],['Reference 단위/척도',r.config.xUnit],['Product 단위/척도',r.config.yUnit],['전체 Deming 기울기',r.deming?.slope??'계산 불가'],['전체 Deming 절편',r.deming?.intercept??'계산 불가'],['상세 해석',DEMING_SPECIMEN_NOTE]);
   let html=table(['분석 정보','값'],meta);
   if(tab==='rows'){const d=specimenData(listed(),snapshot.model,rowPurpose,o.details,r);html+=table(d.headers,d.rows.map(v=>v.map(x=>typeof x==='number'?fmt(x):x??'—')));}
   else html+=[...$(tab).querySelectorAll('h2,h3,p,summary,table')].filter(el=>!el.closest('svg')&&(o.details||!el.closest('details'))).map(el=>el.tagName==='SUMMARY'?'<h3>'+esc(el.textContent)+'</h3>':el.outerHTML).join('');
