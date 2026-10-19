@@ -1,4 +1,4 @@
-export const VERSION='0.2.2';
+export const VERSION='0.2.3';
 export const MAX_INPUT=1_000_000;
 export const MAX_RECORDS=1000;
 const maps={DNA:{A:'T',C:'G',G:'C',T:'A',R:'Y',Y:'R',S:'S',W:'W',K:'M',M:'K',B:'V',D:'H',H:'D',V:'B',N:'N'},RNA:{A:'U',C:'G',G:'C',U:'A',R:'Y',Y:'R',S:'S',W:'W',K:'M',M:'K',B:'V',D:'H',H:'D',V:'B',N:'N'}};
@@ -13,12 +13,16 @@ export function transform(sequence,{outputMode='DNA',reverse=false,complement=fa
 export function analyze(raw,options={}){
  if(typeof raw!=='string')throw Error('문자열 입력이 필요합니다.');
  const outputMode=options.outputMode??'DNA';if(!maps[outputMode])throw Error('출력 종류를 DNA 또는 RNA로 선택하세요.');
- const result={version:VERSION,raw,records:[],segments:[],errors:[],errorCount:0,warnings:[],counts:{mods:0,spaces:0,hyphens:0,lowercase:0,converted:0},valid:false};
+ const result={version:VERSION,raw,records:[],segments:[],errors:[],errorCount:0,warnings:[],counts:{mods:0,spaces:0,hyphens:0,lowercase:0,converted:0,lineNumbers:0},valid:false};
  const error=(message,start,end=start+1)=>{result.errorCount++;if(result.errors.length<20)result.errors.push({message,start,end});};
  const segment=(kind,start,end)=>{if(end<=start)return;const prev=result.segments.at(-1);if(prev&&prev.kind===kind&&prev.end===start&&kind!=='mod')prev.end=end;else result.segments.push({kind,start,end});};
  if(raw.length>MAX_INPUT){error('입력은 최대 1,000,000자입니다. 잘라내지 않았습니다.',0,raw.length);return result;}
  const inputLines=lines(raw),first=inputLines.find(l=>l.text.trim().length>0);
  if(!first){error('서열을 입력하세요.',0,raw.length);return result;}
+ // Only a positive integer at a line start, separated from a base by ASCII
+ // spaces/tabs, is a removable coordinate label. Inline/trailing digits stay errors.
+ const lineNumbers=new Map();
+ for(const line of inputLines){const match=/^([ \t]*)([1-9][0-9]*)[ \t]+(?=[ACGTURYSWKMBDHVN])/i.exec(line.text);if(match)lineNumbers.set(line.start+match[1].length,match[2].length);}
  const fasta=first.text.startsWith('>');result.inputFormat=fasta?'FASTA':'일반 서열';
  let records=[];
  if(fasta){let current;for(const line of inputLines){if(line.text.startsWith('>')){if(current)current.end=line.start;current={header:line.text.slice(1),start:line.next,end:raw.length,headerStart:line.start,headerEnd:line.next,index:records.length+1};records.push(current);segment('header',line.start,line.next);if(!current.header.trim()||/^\s/.test(current.header))error('FASTA 이름은 > 바로 뒤에 입력하세요.',line.start,line.end);if(/[\u0000-\u001f\u007f]/.test(current.header))error('이름에 제어 문자를 사용할 수 없습니다.',line.start,line.end);}else if(!current&&line.text.trim())error('첫 FASTA 이름 앞의 내용을 확인하세요.',line.start,line.end);}
@@ -27,6 +31,7 @@ export function analyze(raw,options={}){
  const ids=new Set();
  for(const record of records){let sequence='';if(record.header!==null){const id=record.header.split(/\s/)[0];if(ids.has(id))result.warnings.push('중복 이름: '+id+' (기록 '+record.index+')');ids.add(id);}
   for(let i=record.start;i<record.end;){const ch=raw[i];
+   const numberLength=lineNumbers.get(i);if(numberLength){segment('line-number',i,i+numberLength);result.counts.lineNumbers++;i+=numberLength;continue;}
    if(ch==='/'){const end=raw.indexOf('/',i+1);if(end<0||end>=record.end){error('닫히지 않은 / 수정 표기입니다.',i);segment('error',i,i+1);i++;continue;}segment('mod',i,end+1);result.counts.mods++;i=end+1;continue;}
    if(/[ \t\r\n]/.test(ch)){segment('space',i,i+1);result.counts.spaces++;i++;continue;}
    if(ch==='-'){segment('hyphen',i,i+1);result.counts.hyphens++;i++;continue;}

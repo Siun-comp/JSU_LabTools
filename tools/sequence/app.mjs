@@ -1,11 +1,11 @@
 import {analyze,outputText,position,lengthSummary,VERSION} from './core.mjs';
-export const TOOL_VERSION='1.0.1';
+export const TOOL_VERSION='1.0.2';
 const $=id=>document.getElementById(id),dialog=$('sequence-dialog');
 let upper=false,current;
 function options(){return {outputMode:$('sequence-output-mode').value,reverse:$('sequence-reverse').checked,complement:$('sequence-complement').checked,uppercase:upper};}
 function preview(result){const fragment=document.createDocumentFragment(),limit=12000;let shown=0;
  for(const part of result.segments){if(shown>=limit)break;const text=result.raw.slice(part.start,Math.min(part.end,part.start+limit-shown));shown+=text.length;const node=document.createElement('span');node.textContent=part.kind==='space'?text.replace(/ /g,'␠').replace(/\t/g,'⇥').replace(/\r\n|\r|\n/g,'↵\n'):text;
-  if(['mod','space','hyphen'].includes(part.kind)){node.className='sequence-mark';node.title='삭제';}else if(part.kind==='convert'){node.className='sequence-convert-mark';node.title=result.outputMode==='DNA'?'표기 변경: U→T':'표기 변경: T→U';}else if(part.kind==='error'){node.className='sequence-error-mark';node.title='오류';}else if(part.kind==='header'){node.className='sequence-header';node.title='FASTA 이름: 유지';}fragment.append(node);
+  if(['mod','space','hyphen','line-number'].includes(part.kind)){node.className='sequence-mark';node.title=part.kind==='line-number'?'삭제: 행 앞 위치 번호':'삭제';}else if(part.kind==='convert'){node.className='sequence-convert-mark';node.title=result.outputMode==='DNA'?'표기 변경: U→T':'표기 변경: T→U';}else if(part.kind==='error'){node.className='sequence-error-mark';node.title='오류';}else if(part.kind==='header'){node.className='sequence-header';node.title='FASTA 이름: 유지';}fragment.append(node);
  }
  if(result.raw.length>limit){const note=document.createElement('span');note.textContent='\n… 미리보기는 처음 12,000자까지 표시합니다. 출력·복사는 전체 기록을 사용합니다.';fragment.append(note);}
  $('sequence-review').replaceChildren(fragment);
@@ -17,7 +17,7 @@ function refresh(){
  const raw=$('sequence-input').value;
  if(!raw){current=undefined;$('sequence-review').replaceChildren();$('sequence-summary').textContent='입력 원문은 그대로 두고 출력만 정리합니다.';return;}
  current=analyze(raw,opt);preview(current);$('sequence-warnings').textContent=current.warnings.join('\n');
- const c=current.counts;$('sequence-summary').textContent=`삭제: 수정 표기 ${c.mods}구간 · 공백/탭/줄바꿈 ${c.spaces}문자 · - ${c.hyphens}개 · ${opt.outputMode==='DNA'?'U→T':'T→U'} ${c.converted}문자${upper?' · 대문자 출력 적용':''}`;
+ const c=current.counts;$('sequence-summary').textContent=`삭제: 수정 표기 ${c.mods}구간 · 행 앞 위치 번호 ${c.lineNumbers}개 · 공백/탭/줄바꿈 ${c.spaces}문자 · - ${c.hyphens}개 · ${opt.outputMode==='DNA'?'U→T':'T→U'} ${c.converted}문자${upper?' · 대문자 출력 적용':''}`;
  if(current.errorCount){$('sequence-errors').textContent=current.errors.map(e=>{const p=position(raw,e.start);return `[오류] ${p.line}행 ${p.column}열: ${e.message}`;}).join('\n')+(current.errorCount>20?`\n그 밖의 오류 ${current.errorCount-20}개`:'' );return;}
  try{const isFasta=current.inputFormat==='FASTA'||$('sequence-fasta-on').checked||current.records.length>1;if(isFasta&&!/^\d+$/.test($('sequence-width').value))throw Error('FASTA 줄 길이를 0~200의 정수로 입력하세요.');const text=outputText(current,{fasta:isFasta,name:$('sequence-name').value,width:Number($('sequence-width').value)});$('sequence-output').value=text;$('sequence-copy').disabled=false;$('sequence-copy').textContent=isFasta?'FASTA 복사':'출력 복사';
   $('sequence-length').textContent=lengthSummary(current);

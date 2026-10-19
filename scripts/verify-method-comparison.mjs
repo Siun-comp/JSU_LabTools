@@ -7,7 +7,7 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),base=resolve(ro
 const manifest=JSON.parse(await readFile(resolve(root,'public-manifest.json'),'utf8'));
 const contract=JSON.parse(await readFile(resolve(root,'amplification-release-contract.json'),'utf8')).methodComparisonPracticalRelease;
 const entries=manifest.files.filter(e=>e.target.startsWith('tools/method-comparison/'));
-assert.equal(entries.length,35);assert.equal(manifest.version,'1.6.2');assert.equal(contract.toolVersion,'0.4.1');
+assert.equal(entries.length,35);assert.equal(manifest.version,'1.6.3');assert.equal(contract.toolVersion,'0.4.1');
 const read=name=>readFile(resolve(base,name),'utf8');
 const html=await read('index.html'),app=await read('app.mjs'),core=await read('core.mjs');
 assert(html.includes('도구 v0.4.1')&&!/로컬 v|dev\./.test(html));assert(core.includes("VERSION='0.4.1'"));
@@ -32,7 +32,7 @@ const template=await readFile(resolve(root,'dist',contract.reportTemplateTarget)
 const home=await readFile(resolve(root,'dist/index.html'),'utf8');assert(home.includes(contract.portalRow));
 assert.equal((home.match(/<h2>검사법 비교 분석<\/h2>/g)||[]).length,1);
 const info=await readFile(resolve(root,'dist/info/method-comparison.html'),'utf8');
-for(const text of ['v0.4.1','2026-10-13','포털 v1.6.2','OLS가 기본','Deming','LoA','전체 입력 원문은 기본 미포함','help.html'])assert(info.includes(text));
+for(const text of ['v0.4.1','2026-10-13','포털 v1.6.3','OLS가 기본','Deming','LoA','전체 입력 원문은 기본 미포함','help.html'])assert(info.includes(text));
 assert(!/<(?:script|input|textarea|form|iframe)\b/.test(info));
 assert(html.includes('data-help="start"')&&html.includes('help.html'));
 const observations=await read('ba-observation.mjs');assert(observations.includes('difference<limits[0]')&&observations.includes('difference>limits[1]'));
@@ -42,4 +42,4 @@ assert(app.includes('data-group-kind')&&app.includes('output-preview'));
 assert(report.includes('dispBlanksAs')&&report.includes('gap')&&report.includes('tickLblPos')&&report.includes('low'));
 const old=contract.previousPublic;
 for(const name of ['comparison.mjs','math.mjs','headers.mjs','import.mjs','ba-observation.mjs','report-template.xlsx','vendor/jszip.min.js'])assert.equal(createHash('sha256').update(await readFile(resolve(base,name))).digest('hex'),old.find(e=>e.target==='tools/method-comparison/'+name).sha256,'Preserved numerical/input/template bytes: '+name);
-console.log('PASS: method-comparison0.4.1 source35, six purpose tabs, BA/Deming/help/classification, native report template and local processing, portal1.6.2.');
+console.log('PASS: method-comparison0.4.1 source35, six purpose tabs, BA/Deming/help/classification, native report template and local processing, portal1.6.3.');

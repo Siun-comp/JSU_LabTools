@@ -11,7 +11,7 @@ for(const [mode,input,comp,rc] of [['DNA','ATGCRYN','TACGYRN','NRYGCAT'],['RNA',
  for(const opts of [{reverse:true},{complement:true},{reverse:true,complement:true}])assert.equal(transform(transform(input,{...opts,outputMode:mode}),{...opts,outputMode:mode}),input);
 }
 const raw='/Any-9/<ignored>/FAM/atGC- n/어떤 표기든/';assert.equal(analyze(raw).valid,false,'Outside token markup is not silently removed');
-const source='/FAM/atGC- n/BHQ/';const normal=analyze(source);assert.equal(outputText(normal),'atGCn');assert.equal(normal.raw,source);assert.deepEqual(normal.counts,{mods:2,spaces:1,hyphens:1,lowercase:3,converted:0});
+const source='/FAM/atGC- n/BHQ/';const normal=analyze(source);assert.equal(outputText(normal),'atGCn');assert.equal(normal.raw,source);assert.deepEqual(normal.counts,{mods:2,spaces:1,hyphens:1,lowercase:3,converted:0,lineNumbers:0});
 assert.equal(outputText(analyze(source,{uppercase:true})),'ATGCN');assert.equal(outputText(analyze(source,{reverse:true,complement:true,outputMode:'RNA',uppercase:true})),'NGCAU');
 assert.equal(outputText(analyze('AT/ACGT123&<>/GC//')),'ATGC');assert.equal(analyze('AT/FAM//BHQ/GC').counts.mods,2);assert.equal(outputText(analyze('AT/multi\nline/GC')),'ATGC');
 for(const invalid of ['', '   ', '/FAM/', 'AT?GC','AT1GC','AT/left','AT.GC','AT*GC','AT\u00a0GC','AT\u200bGC','\ufeffATGC','X'])assert.equal(analyze(invalid).valid,false,JSON.stringify(invalid));
@@ -66,3 +66,27 @@ assert.equal(analyze('>name-with-hyphen\nATGC').warnings.length,0,'Header hyphen
 assert.equal(analyze('AT--GC').warnings.length,0,'Ordinary cleanup retains the existing notice policy');
 assert.equal(analyze('>mod\nAT/F-AM/GC').warnings.length,0,'Hyphens in a removed token are not sequence gaps');
 console.log('PASS: single FASTA default/name/case/wrapping/direction preservation and scoped gap notice.');
+
+// Synthetic sequence only: the same 20-row shape as a numbered database paste.
+const blocks=Array.from({length:20},(_,i)=>('acGtNrySwk'.repeat(6)).slice(0,i===19?18:60));
+const plainNumbered=blocks.join('');
+for(const newline of ['\n','\r\n','\r']){
+ const numbered=blocks.map((s,i)=>String(i*60+1).padStart(9)+' '+s.match(/.{1,10}/g).join(' ')).join(newline);
+ const parsed=analyze(numbered);assert(parsed.valid);assert.equal(parsed.raw,numbered);assert.equal(outputText(parsed),plainNumbered);assert.equal(parsed.records[0].length,1158);assert.equal(parsed.counts.lineNumbers,20);
+ assert.deepEqual(parsed.segments.filter(p=>p.kind==='line-number').map(p=>numbered.slice(p.start,p.end)),blocks.map((_,i)=>String(i*60+1)));
+ assert.equal(parsed.segments.map(p=>numbered.slice(p.start,p.end)).join(''),numbered,'Preview covers the unchanged raw input exactly');
+ for(const outputMode of ['DNA','RNA'])for(const reverse of [false,true])for(const complement of [false,true])for(const uppercase of [false,true]){
+  const opts={outputMode,reverse,complement,uppercase};assert.equal(outputText(analyze(numbered,opts)),outputText(analyze(plainNumbered,opts)));
+ }
+}
+const numberedFasta='>record_123 keep 61\n\t1\tatGc\n 61 NN\n>record_456\n 121 aU';
+assert.equal(outputText(analyze(numberedFasta)),'>record_123 keep 61\natGcNN\n>record_456\naT\n');
+assert.equal(analyze(numberedFasta).counts.lineNumbers,3);
+assert.equal(outputText(analyze(' 501 ACGT\n 900 NN')),'ACGTNN','Labels are removed without claiming coordinate validation');
+assert.equal(outputText(analyze('/label\n 61 ATGC/\n 1 aCg')),'aCg');assert.equal(analyze('/label\n 61 ATGC/\n 1 aCg').counts.lineNumbers,1,'Numbers inside removed slash tokens are not counted');
+assert.equal(outputText(analyze(' 1 ATGC\n//')),'ATGC','Existing empty slash-token cleanup is preserved');
+for(const invalid of ['AT1GC','AT 61 GC','ATGC 4','1ATGC','1',' 61 ','0 ATGC','-1 ATGC','1.0 ATGC','1,001 ATGC','1\u00a0ATGC','1 AT?GC','1 AT2GC','ORIGIN\n 1 ATGC']){
+ const parsed=analyze(invalid);assert.equal(parsed.valid,false,JSON.stringify(invalid));assert.throws(()=>outputText(parsed));
+}
+const badNumbered=analyze(' 1 ATGC\r\n 61 AT?GC');assert.equal(badNumbered.errorCount,1);assert.deepEqual(position(badNumbered.raw,badNumbered.errors[0].start),{line:2,column:7});
+console.log('PASS: numbered 20-row synthetic paste, three newline styles, exact preview offsets, 16 transform combinations, FASTA/slash boundaries and retained digit/metadata errors.');

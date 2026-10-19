@@ -15,3 +15,12 @@ get('sequence-width').value='2.5';get('sequence-width').events.input();assert.eq
 get('sequence-complement').checked=false;change('sequence-output-mode','DNA');input('>a\nAT--GC');assert(get('sequence-warnings').textContent.includes('gap'));assert.equal(get('sequence-output').value,'>a\nATGC\n');input('>a\nATGC\n>b\nCGTA');assert.equal(get('sequence-output').value,'>a\nATGC\n>b\nCGTA\n');input('ATGC');assert.equal(get('sequence-output').value,'ATGC');get('sequence-fasta-on').checked=true;get('sequence-fasta-on').events.change();assert.equal(get('sequence-output').value,'>sequence_1\nATGC\n');
 input('AT?GC');assert.equal(get('sequence-output').value,'');assert.equal(get('sequence-copy').disabled,true);click('sequence-upper');click('sequence-clear');assert.equal(get('sequence-input').value,'');assert.equal(get('sequence-output').value,'');assert.equal(get('sequence-upper').attrs['aria-pressed'],'false');
 console.log('PASS: actual app single/multi FASTA and copy, case toggle/raw retention, RNA/direction, gap, width/error/clear contract. Synthetic DOM, no native clipboard/browser layout claim.');
+
+get('sequence-fasta-on').checked=false;get('sequence-fasta-on').events.change();
+const numbered='        1 atGc NN\n       61 tTa';input(numbered);
+assert.equal(get('sequence-input').value,numbered);assert.equal(get('sequence-output').value,'atGcNNtTa');assert.equal(get('sequence-copy').disabled,false);assert.equal(get('sequence-errors').textContent,'');assert(get('sequence-summary').textContent.includes('행 앞 위치 번호 2개'));assert(get('sequence-length').textContent.includes('9 nt'));
+const review=get('sequence-review').children[0].children;const labels=review.filter(p=>p.title==='삭제: 행 앞 위치 번호');assert.deepEqual(labels.map(p=>p.textContent),['1','61']);assert(labels.every(p=>p.className==='sequence-mark'));
+await click('sequence-copy');assert.equal(copied,'atGcNNtTa');
+input(' 1 AT1GC');assert.equal(get('sequence-output').value,'');assert.equal(get('sequence-copy').disabled,true);assert(get('sequence-errors').textContent.includes('1행 6열'));
+click('sequence-clear');assert.equal(get('sequence-summary').textContent,'입력 원문은 그대로 두고 출력만 정리합니다.');assert.equal(get('sequence-review').children.length,0);
+console.log('PASS: numbered paste actual app output, raw retention, label highlights/count, length/copy, inline digit blocking and Clear.');
