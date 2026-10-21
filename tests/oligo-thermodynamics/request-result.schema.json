@@ -1,0 +1,500 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:jsu:oligo-thermodynamics:request-result:0.4",
+  "title": "분리된 Mg0 참고값을 포함한 계약0.4",
+  "$defs": {
+    "conditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "temperature",
+        "na",
+        "k",
+        "nh4",
+        "mg",
+        "dntp",
+        "a",
+        "b"
+      ],
+      "properties": {
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "na": {
+          "type": "number",
+          "minimum": 0
+        },
+        "k": {
+          "type": "number",
+          "minimum": 0
+        },
+        "nh4": {
+          "type": "number",
+          "minimum": 0
+        },
+        "mg": {
+          "type": "number",
+          "minimum": 0
+        },
+        "dntp": {
+          "type": "number",
+          "minimum": 0
+        },
+        "a": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "b": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "requestId",
+        "revision",
+        "parent",
+        "selection",
+        "strandA",
+        "strandB",
+        "conditions",
+        "contract",
+        "role",
+        "memo"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "0.4"
+        },
+        "requestId": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "parent": {
+          "type": "object",
+          "required": [
+            "name",
+            "normalizedLength"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "maxLength": 100000
+            },
+            "normalizedLength": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            }
+          }
+        },
+        "selection": {
+          "type": "object",
+          "required": [
+            "start",
+            "end",
+            "length"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "length": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 60
+            }
+          }
+        },
+        "strandA": {
+          "type": "string",
+          "pattern": "^[ACGT]{2,60}$"
+        },
+        "strandB": {
+          "type": "string",
+          "pattern": "^[ACGT]{2,60}$"
+        },
+        "conditions": {
+          "$ref": "#/$defs/conditions"
+        },
+        "contract": {
+          "$ref": "#/$defs/contract"
+        },
+        "role": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "memo": {
+          "type": "string",
+          "maxLength": 2000
+        }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "ok",
+            "unsupported",
+            "no-structure",
+            "error",
+            "tm-only"
+          ]
+        },
+        "tm": {
+          "type": "number"
+        },
+        "dg": {
+          "type": "number"
+        },
+        "dh": {
+          "type": "number"
+        },
+        "ds": {
+          "type": "number"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "structure": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "ok"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "tm",
+              "dg",
+              "dh",
+              "ds"
+            ]
+          },
+          "else": {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "tm-only"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "tm",
+                "model",
+                "tmCorrection"
+              ],
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "dg"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "dh"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "ds"
+                    ]
+                  }
+                ]
+              }
+            },
+            "else": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "tm"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "dg"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "dh"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "ds"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "result": {
+      "type": "object",
+      "required": [
+        "request",
+        "duplex",
+        "hairpinA",
+        "hairpinB",
+        "engine",
+        "applied",
+        "limitations"
+      ],
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/request"
+        },
+        "duplex": {
+          "$ref": "#/$defs/analysis"
+        },
+        "hairpinA": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/analysis"
+            },
+            {
+              "not": {
+                "properties": {
+                  "status": {
+                    "const": "tm-only"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "hairpinB": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/analysis"
+            },
+            {
+              "not": {
+                "properties": {
+                  "status": {
+                    "const": "tm-only"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "engine": {
+          "$ref": "#/$defs/contract"
+        },
+        "applied": {
+          "type": "object"
+        },
+        "parentRaw": {
+          "type": "string",
+          "maxLength": 100000
+        },
+        "calculatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string"
+        },
+        "duplexMgZeroReference": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/mgZeroReference"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "request": {
+                "properties": {
+                  "conditions": {
+                    "properties": {
+                      "mg": {
+                        "exclusiveMinimum": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "duplexMgZeroReference"
+            ],
+            "properties": {
+              "duplexMgZeroReference": {
+                "$ref": "#/$defs/mgZeroReference"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "duplexMgZeroReference": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "pins": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/result"
+      }
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "engineVersion",
+        "hairpin",
+        "duplex",
+        "manifest",
+        "wasm",
+        "duplexSHA",
+        "sequenceSHA",
+        "duplexMgTm",
+        "duplexReference"
+      ],
+      "properties": {
+        "engineVersion": {
+          "const": "0.1.0-dev.1"
+        },
+        "hairpin": {
+          "const": "primer3-py 2.3.1 THAL / THL_GENERAL / maxLoop30"
+        },
+        "duplex": {
+          "const": "DNA_NN4 / SantaLucia entropy salt / ΔCp=0"
+        },
+        "manifest": {
+          "const": "44c1f17023bdc3c2cd86b2ebcfd474d376a887b188122c0c0b16c57ba4cad7cd"
+        },
+        "wasm": {
+          "const": "41ff0809bde1179cf5810efc31200a766ec410a8b2e5be5ad510580e773a02d8"
+        },
+        "duplexSHA": {
+          "const": "bad83bc851462a98a42da7c50207bf8899fb7121992389cf046db24b7255e884"
+        },
+        "sequenceSHA": {
+          "const": "ee219c8cfcb51aec92b1665dbb80e5fae36bfb78ad46190350decedff5cb9b98"
+        },
+        "duplexMgTm": {
+          "const": "DNA_NN4 / Owczarzy2008 inverse-Tm / Mg-dNTP Ka=3e4 M^-1"
+        },
+        "duplexReference": {
+          "const": "Mg=0 reference / same remaining inputs / excluded input Mg effect"
+        }
+      }
+    },
+    "mgZeroReference": {
+      "type": "object",
+      "required": [
+        "basis",
+        "conditions",
+        "result",
+        "note"
+      ],
+      "properties": {
+        "basis": {
+          "const": "Mg=0 reference"
+        },
+        "conditions": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/conditions"
+            },
+            {
+              "properties": {
+                "mg": {
+                  "const": 0
+                }
+              }
+            }
+          ]
+        },
+        "result": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/analysis"
+            },
+            {
+              "not": {
+                "properties": {
+                  "status": {
+                    "enum": [
+                      "tm-only",
+                      "no-structure"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/request"
+    },
+    {
+      "$ref": "#/$defs/result"
+    },
+    {
+      "$ref": "#/$defs/pins"
+    }
+  ],
+  "$comment": "런타임은 Mg>0일 때만 참고값 필수·Mg0 및 나머지 입력 동일·참고 에너지/온도 관계·유한수/모델/단위·입력 Mg 에너지 키 금지를 추가 검사한다."
+}

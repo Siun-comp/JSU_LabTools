@@ -1,5 +1,20 @@
 # JSU LabTools
 
+## 현재 게시 — 2026-10-22
+
+Portal **1.7.0** / 독립 **Oligo Thermodynamics 0.1.0-beta.1** 초기 베타를 추가했습니다. 공개 도구는10개이며 기존 도구의 계산 코드와 공개 경로를 유지합니다. 열역학 도구는 전체 DNA 서열에서 독립 영역을 선택해 실제 입력 Mg의 보정 Tm, 별도 Mg=0 참고 ΔG/H/S/Tm, A/B Primer3 THAL hairpin을 제공합니다. 자동160ms·집중 보기·수치 설명·최대3개 보관·TXT/CSV를 포함합니다. 실제 Mg 에너지·mismatch·속도/형광 예측은 지원하지 않습니다.
+
+현재 실행/지원 범위와 제한된 실측 차이는 [계산 근거](tools/oligo-thermodynamics/validation.html)에 있습니다. 구현 대조 통과를 실험 정확도 인증으로 해석하지 않습니다. 사용자 기본 조건60°C/Na50mM/Mg3mM/dNTP0.8mM/A·B200nM은 편집 가능한 시작값입니다.
+
+직접 결합한 신규 도구 코드는 GPL-2.0-or-later입니다. [NOTICE](tools/oligo-thermodynamics/NOTICE.md), LICENSE.txt와 engine/source의 C/파라미터/wrapper/build.py 대응 소스를 WASM과 함께 제공합니다. 기존 다른 도구의 라이선스는 바꾸지 않습니다. [고정 합성 회귀](tests/oligo-thermodynamics/README.md)와 [요청/응답 계약](tests/oligo-thermodynamics/request-result.schema.json)은 외부 모델 검토에도 사용할 수 있습니다. 논문 원문·실측 데이터·내부 검증자료·사용자 입력은 배포하지 않습니다.
+
+Node24에서 `node scripts/build.mjs`, `node scripts/regression.mjs`(36모듈), `node scripts/verify.mjs`, `node scripts/verify-amplification.mjs`를 실행합니다. CI는 기존 Linux 실제 webR 수치 회귀도 필수로 실행합니다. public-manifest.json이187공개 자산을 명시하며 dist는 CI에서 생성합니다.
+
+공개 대응 소스 재빌드는 빌드 경로가 든 디버그 메타데이터 때문에 전체 파일 SHA가 달라질 수 있습니다. 이번 재빌드의 실행 코드·데이터 섹션은 고정 배포 WASM과 동일하며 같은456회 hairpin 회귀를 통과했습니다. 전체 파일의 비트 동일 재현을 주장하지 않습니다.
+
+아래 설명·버전표는 이전 릴리스 당시 기록입니다. 현재 공개 파일과 버전은 manifest 및 각 도구 정보 페이지를 기준으로 확인하세요.
+
+
 분자진단 개발 업무용 개인 분석 도구 포털입니다. 포털 v1.5.0.
 
 | 도구 | 도구 버전 / 계산 식별 |

@@ -1,5 +1,5 @@
 {
-  "version": "1.6.3",
+  "version": "1.7.0",
   "files": [
     {
       "source": "portal/index.html",
@@ -640,6 +640,114 @@
     {
       "source": "tools/method-comparison/practical-data.mjs",
       "target": "tools/method-comparison/practical-data.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/analysis-core.mjs",
+      "target": "tools/oligo-thermodynamics/analysis-core.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/analysis-ui.mjs",
+      "target": "tools/oligo-thermodynamics/analysis-ui.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/app.mjs",
+      "target": "tools/oligo-thermodynamics/app.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/brand.svg",
+      "target": "tools/oligo-thermodynamics/brand.svg"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/conditions.mjs",
+      "target": "tools/oligo-thermodynamics/conditions.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/duplex-nn.mjs",
+      "target": "tools/oligo-thermodynamics/duplex-nn.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/hairpin.wasm",
+      "target": "tools/oligo-thermodynamics/engine/hairpin.wasm"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/manifest.json",
+      "target": "tools/oligo-thermodynamics/engine/manifest.json"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/source/build.py",
+      "target": "tools/oligo-thermodynamics/engine/source/build.py"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/source/gpl-2.0.txt",
+      "target": "tools/oligo-thermodynamics/engine/source/gpl-2.0.txt"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/source/thal.c",
+      "target": "tools/oligo-thermodynamics/engine/source/thal.c"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/source/thal.h",
+      "target": "tools/oligo-thermodynamics/engine/source/thal.h"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/source/thal_parameters.c",
+      "target": "tools/oligo-thermodynamics/engine/source/thal_parameters.c"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/source/thal_parameters.h",
+      "target": "tools/oligo-thermodynamics/engine/source/thal_parameters.h"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/source/wasi_compat/setjmp.h",
+      "target": "tools/oligo-thermodynamics/engine/source/wasi_compat/setjmp.h"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/source/wrapper.c",
+      "target": "tools/oligo-thermodynamics/engine/source/wrapper.c"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine-loader.mjs",
+      "target": "tools/oligo-thermodynamics/engine-loader.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/icon.svg",
+      "target": "tools/oligo-thermodynamics/icon.svg"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/index.html",
+      "target": "tools/oligo-thermodynamics/index.html"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/LICENSE.txt",
+      "target": "tools/oligo-thermodynamics/LICENSE.txt"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/NOTICE.md",
+      "target": "tools/oligo-thermodynamics/NOTICE.md"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/report.mjs",
+      "target": "tools/oligo-thermodynamics/report.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/sequence.mjs",
+      "target": "tools/oligo-thermodynamics/sequence.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/tool.css",
+      "target": "tools/oligo-thermodynamics/tool.css"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/validation.html",
+      "target": "tools/oligo-thermodynamics/validation.html"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/worker.mjs",
+      "target": "tools/oligo-thermodynamics/worker.mjs"
+    },
+    {
+      "source": "portal/info/oligo-thermodynamics.html",
+      "target": "info/oligo-thermodynamics.html"
     }
   ],
   "date": "2026-10-06"

@@ -1,0 +1,64 @@
+{
+  "version": "0.1.0-dev.1",
+  "upstream": "primer3-py 2.3.1 PyPI sdist",
+  "compiler": "Zig 0.14.1",
+  "license": "GPL-2.0-or-later",
+  "files": [
+    {
+      "path": "engine/hairpin.wasm",
+      "sha256": "41ff0809bde1179cf5810efc31200a766ec410a8b2e5be5ad510580e773a02d8",
+      "bytes": 1057561
+    },
+    {
+      "path": "engine/source/build.py",
+      "sha256": "9e5ec8cff59dc8764b604f88b48f641a4d97a53169d4afbfc7b197bdfff7e376",
+      "bytes": 1046
+    },
+    {
+      "path": "engine/source/gpl-2.0.txt",
+      "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6",
+      "bytes": 17987
+    },
+    {
+      "path": "engine/source/thal.c",
+      "sha256": "03e7fe5b39abcf5d78b59e69858154a87876eff584b58db08e2ad500c6c27842",
+      "bytes": 107516
+    },
+    {
+      "path": "engine/source/thal.h",
+      "sha256": "c0f336509bf4215c6e4d061dcb5f274995d00cc9ee59f3d73d682614386b8065",
+      "bytes": 7658
+    },
+    {
+      "path": "engine/source/thal_parameters.c",
+      "sha256": "288c776f1db5f0298e31e9ef0dd871f72177cc1a3296586390c87c36eea2e303",
+      "bytes": 22247
+    },
+    {
+      "path": "engine/source/thal_parameters.h",
+      "sha256": "9354380ecc3286d32689dbc874829a5cf586a82c3b2468687d13d8b3b438f86a",
+      "bytes": 2079
+    },
+    {
+      "path": "engine/source/wasi_compat/setjmp.h",
+      "sha256": "c7d0de19fdd3bfa48aa7b772f7cb0427ecfab6744237d39cad1b5415a2e0c5ec",
+      "bytes": 456
+    },
+    {
+      "path": "engine/source/wrapper.c",
+      "sha256": "aeddfe301d48f02da8d6db2febfeb0de14e76c3e8e954deea39700eff5ab6465",
+      "bytes": 2660
+    }
+  ],
+  "commands": [
+    [
+      "python",
+      "engine/source/build.py",
+      "--zig",
+      "zig",
+      "--output",
+      "engine"
+    ]
+  ],
+  "buildInstructions": "Run from the tool directory with Python 3 and Zig 0.14.1 available. The unchanged build.py contains the complete native/WASI compiler flags. Published source hashes and WASM bytes remain those of engine 0.1.0-dev.1."
+}
