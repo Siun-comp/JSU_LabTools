@@ -57,6 +57,12 @@ GitHub Actions가 main의 변경 또는 수동 실행 시 이전 게시 목록 �
 
 입력 보완 베타 v0.9.1-beta.3 / 화면 v0.2.0. 행 간격·번호/오류 안내와 LoQ 검체 관리를 보완했습니다.
 
+## 404 오류 페이지 — 2026-10-22
+
+우선 포털 주소는 https://jsu-labtools.pages.dev/ 입니다. Cloudflare Pages의 없는 경로는 루트 `404.html`로 안내하며 HTTP 404를 반환합니다. 오류 안내 v1.0.0은 외부 자산이나 스크립트 없이 표시되고 도구 목록으로 돌아가는 링크를 제공합니다.
+
+이번 추가는 기존 공개187파일의 bytes와 Portal1.7.0/모든 도구 버전을 보존합니다. 공개 빌드는188파일이며 `notFoundRelease`가 이전187개 SHA와 새404경로를 검증합니다. `node scripts/verify-amplification.mjs`는 기존 전체 보존 검사와404계약을 함께 실행합니다. GitHub main의 기존 Cloudflare Git 연동(`node scripts/build.mjs`, 출력 `dist`)으로 게시합니다.
+
 핵산 MW 기준 안내·Thermo 메뉴·FASTA 입력 보완판입니다. GitHub Actions는 게시 전에 Oligo·Sequence·핵산의 24개 합성 회귀 시험 모듈을 실행합니다. tests는 저장소 소스에만 포함하며 Pages 산출물에 포함하지 않습니다.
 
 ## LoBDQ 진단 보완 beta.3

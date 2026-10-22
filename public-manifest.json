@@ -748,6 +748,10 @@
     {
       "source": "portal/info/oligo-thermodynamics.html",
       "target": "info/oligo-thermodynamics.html"
+    },
+    {
+      "source": "portal/404.html",
+      "target": "404.html"
     }
   ],
   "date": "2026-10-06"

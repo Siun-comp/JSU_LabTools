@@ -16,11 +16,21 @@ const oligo=contract.oligoDimerRelease;
 const methodPatch=contract.methodComparisonPatchRelease;
 assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,'1.5.1');assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
 const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+const notFound=contract.notFoundRelease;
+assert.equal(notFound.previousSHA,'3b3b144d8012ae49a3dd5624cfe0c6027e2f933f');assert.equal(notFound.portalVersion,manifest.version);assert.equal(notFound.pageVersion,'1.0.0');assert.equal(notFound.previousPublic.length,187);
+assert.deepEqual(notFound.addedTargets,['404.html']);
+assert.deepEqual(manifest.files.filter(e=>!notFound.previousPublic.some(p=>p.target===e.target)),[{source:'portal/404.html',target:'404.html'}],'Only the reviewed 404 page is added');
+for(const e of notFound.previousPublic){assert(manifest.files.some(p=>p.source===e.source&&p.target===e.target),'Prior entry retained: '+e.target);const bytes=await readFile(resolve(dist,e.target));assert.equal(bytes.length,e.bytes);assert.equal(hash(bytes),e.sha256,'All 187 existing assets preserved: '+e.target);}
+const notFoundHtml=await readFile(resolve(dist,'404.html'),'utf8');
+assert(notFoundHtml.includes('페이지를 찾을 수 없습니다')&&notFoundHtml.includes('404 · NOT FOUND'));
+assert(notFoundHtml.includes('name="robots" content="noindex"')&&notFoundHtml.includes('name="viewport"'));
+assert(!/<(?:script|form|input|iframe|link|img)\b/i.test(notFoundHtml),'404 stays self-contained at every missing URL depth');
+assert.deepEqual([...notFoundHtml.matchAll(/href="([^"]+)"/g)].map(m=>m[1]),['https://jsu-labtools.pages.dev/'],'404 always returns to the new portal');
 const thermodynamics=contract.oligoThermodynamicsRelease;
 assert.equal(thermodynamics.previousSHA,'67ffba9199fa8aad2ed1aa31149e85813deb7b23');assert.equal(thermodynamics.portalVersion,manifest.version);assert.equal(thermodynamics.toolVersion,'0.1.0-beta.1');assert.equal(thermodynamics.previousPublic.length,160);assert.equal(thermodynamics.addedTargets.length,27);
 async function preThermodynamicsBytes(target){const entry=thermodynamics.previousPublic.find(e=>e.target===target);assert(entry,'Previous thermodynamics release path retained');const bytes=await readFile(resolve(dist,target)),selected=thermodynamics.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected thermodynamics release bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected thermodynamics release bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',thermodynamics.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous thermodynamics release bytes from Git');return old;}
 for(const e of thermodynamics.previousPublic)await preThermodynamicsBytes(e.target);
-assert.deepEqual(manifest.files.filter(e=>!thermodynamics.previousPublic.some(p=>p.target===e.target)).map(e=>e.target).sort(),thermodynamics.addedTargets.toSorted(),'Only new independent thermodynamics public entries');
+assert.deepEqual(notFound.previousPublic.filter(e=>!thermodynamics.previousPublic.some(p=>p.target===e.target)).map(e=>e.target).sort(),thermodynamics.addedTargets.toSorted(),'Only new independent thermodynamics public entries');
 const sequenceRelease=contract.sequenceNumberingRelease;
 assert.equal(sequenceRelease.previousSHA,'756fbf0a291310fb00ee0b530c5f270dde903760');assert.equal(sequenceRelease.portalVersion,thermodynamics.previousPortalVersion);assert.equal(sequenceRelease.toolVersion,'1.0.2');assert.equal(sequenceRelease.algorithmVersion,'0.2.3');assert.equal(sequenceRelease.previousPublic.length,160);assert.deepEqual(sequenceRelease.addedTargets,[]);
 assert.deepEqual(sequenceRelease.selected.map(e=>e.target).sort(),['index.html',...thermodynamics.previousPublic.filter(e=>e.target.startsWith('info/')).map(e=>e.target),'tools/sequence/app.mjs','tools/sequence/core.mjs'].sort());
@@ -77,7 +87,7 @@ assert.equal(update.previousSHA,'4cabcd75918f58464de6398d268182ca753eba7b');
 assert.equal(update.toolVersion,'1.1.0');assert.equal(update.algorithmVersion,'0.3.0');assert.equal(update.releasedOn,'2026-10-06');
 assert.deepEqual(update.selectedTargets,['info/nucleic-acid.html',...['index.html','core.mjs','app.mjs','clipboard.mjs'].map(p=>'tools/nucleic-acid-calculator/'+p)]);
 assert.equal(update.previousPublic.length,107);assert.equal(new Set(update.previousPublic.map(e=>e.target)).size,107);
-assert.equal(manifest.files.length,187);assert.equal(new Set(manifest.files.map(e=>e.target)).size,187);
+assert.equal(manifest.files.length,188);assert.equal(new Set(manifest.files.map(e=>e.target)).size,188);
 assert.deepEqual((await files(dist)).sort(),manifest.files.map(e=>e.target).sort(),'Exact public allowlist');
 for(const e of manifest.files){
  const source=resolve(root,e.source),target=resolve(dist,e.target);
@@ -148,4 +158,4 @@ assert(mainText.includes('증폭 곡선 분석 · 베타'),'Beta display');
 const webManifest=JSON.parse(await readFile(resolve(appBase,'manifest.webmanifest'),'utf8'));
 assert.equal(webManifest.name,'Amplification Analysis');assert.equal(webManifest.scope,'.');assert.equal(webManifest.start_url,'.');
 for(const icon of webManifest.icons)await readFile(resolve(appBase,icon.src));
-console.log('PASS: reviewed187-file portal1.7.0 artifact; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');
+console.log('PASS: reviewed188-file portal1.7.0 artifact; 404 page added with all187 previous assets byte-preserved; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');
