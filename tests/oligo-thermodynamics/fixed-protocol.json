@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "phase5r-prevalidation/1",
+  "frozenBeforeCalculations": true,
+  "contexts": 192,
+  "lengths": [
+    10,
+    25,
+    60
+  ],
+  "positions": [
+    "3",
+    "floor((N+1)/2)",
+    "N-2"
+  ],
+  "temperaturesC": [
+    37,
+    60
+  ],
+  "NaMm": [
+    50,
+    1000
+  ],
+  "referenceEachNm": [
+    200,
+    600
+  ],
+  "pairedCases": 13824,
+  "maximumEvaluations": 27648,
+  "generation": "ACGT cycle backbone; both A endpoints A; overwrite internal trimer; actual B reverse-complement of A with one mismatched B base at N-position. All 192 directed contexts retained, even unsupported AC/CA.",
+  "expectedPolicy": "AC/CA unsupported-pH-provenance; remaining complete single mismatch keys adopted as library/published-model reference; no new experimental accuracy",
+  "absoluteTolerance": 1e-06,
+  "GHSResidualTolerance": 1e-08,
+  "paramsSHA256": "2c2b287fc31d4e7f454989b7c7de5ad2c2d213095fb7d6144cfd9f0d2e964098",
+  "nativeReference": "Biopython1.88 Tm_NN explicit NN3/IMM1, check=False, strict=True, shift=0, saltcorr5, Na only, equal reference concentrations; return-frame delta_h/delta_s instrumentation without source mutation",
+  "relationMatrix": {
+    "sequences": [
+      "AT",
+      "GCGCTTTAAGCGC",
+      "ATGCGCGATCTAGCTAGCGA",
+      "ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTACGT"
+    ],
+    "conditions": [
+      {
+        "temperature": 60,
+        "na": 50,
+        "k": 0,
+        "nh4": 0,
+        "mg": 3,
+        "dntp": 0.8,
+        "a": 200,
+        "b": 200
+      },
+      {
+        "temperature": 37,
+        "na": 50,
+        "k": 0,
+        "nh4": 0,
+        "mg": 0,
+        "dntp": 0,
+        "a": 200,
+        "b": 600
+      },
+      {
+        "temperature": 65,
+        "na": 0,
+        "k": 0,
+        "nh4": 0,
+        "mg": 3,
+        "dntp": 0.8,
+        "a": 600,
+        "b": 200
+      }
+    ],
+    "partnerCases": [
+      "reverse-complement",
+      "identical",
+      "single-mutant"
+    ],
+    "apiNm": [
+      200,
+      400
+    ],
+    "analyses": [
+      "A-hairpin",
+      "B-hairpin",
+      "AB-any"
+    ],
+    "nominalAnalyses": 216
+  },
+  "performance": {
+    "autoMs": 160,
+    "singleLimitMs": 12000,
+    "allLimitMs": 30000,
+    "editSamples": 20,
+    "eventToDOMp95TargetMs": 500
+  },
+  "CSVRelationColumns": [
+    "relationship_export_schema",
+    "relationship_set_id",
+    "relationship_id",
+    "relationship_role",
+    "relationship_source_A_json",
+    "relationship_source_B_json",
+    "relationship_analyses_json",
+    "relationship_requested_conditions_json",
+    "relationship_applied_conditions_json",
+    "relationship_api_nM",
+    "relationship_derived_alignment_json",
+    "relationship_validation_scope"
+  ],
+  "CSVFixedColumns": [
+    "fixed_export_schema",
+    "fixed_alignment_json",
+    "fixed_mismatch_positions_json",
+    "fixed_reference_B_5to3",
+    "fixed_model_id",
+    "fixed_NN_SHA256",
+    "fixed_IMM_SHA256",
+    "fixed_requested_conditions_json",
+    "fixed_applied_reference_json",
+    "fixed_ref_each_nM",
+    "fixed_term_trace_json",
+    "fixed_comparison_json",
+    "fixed_field_status_json"
+  ],
+  "CSVRawColumns": [
+    "relationship_A_raw_optin",
+    "relationship_B_raw_optin"
+  ],
+  "notComputed": [
+    "actual Mg fixed mismatch energies",
+    "ensemble fractions",
+    "rates/fluorescence",
+    "cross-reaction totals",
+    "terminal/multiple mismatch penalties"
+  ]
+}

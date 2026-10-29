@@ -1,5 +1,5 @@
 {
-  "version": "1.7.0",
+  "version": "1.8.0",
   "files": [
     {
       "source": "portal/index.html",
@@ -752,6 +752,178 @@
     {
       "source": "portal/404.html",
       "target": "404.html"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/beacon-core.mjs",
+      "target": "tools/oligo-thermodynamics/beacon-core.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/beacon-input.mjs",
+      "target": "tools/oligo-thermodynamics/beacon-input.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/beacon-report.mjs",
+      "target": "tools/oligo-thermodynamics/beacon-report.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/beacon-structure.mjs",
+      "target": "tools/oligo-thermodynamics/beacon-structure.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/beacon-view.mjs",
+      "target": "tools/oligo-thermodynamics/beacon-view.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/beacon-worker.mjs",
+      "target": "tools/oligo-thermodynamics/beacon-worker.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/clipboard.mjs",
+      "target": "tools/oligo-thermodynamics/clipboard.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/pair/build.py",
+      "target": "tools/oligo-thermodynamics/engine/pair/build.py"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/pair/manifest.json",
+      "target": "tools/oligo-thermodynamics/engine/pair/manifest.json"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/pair/NOTICE.md",
+      "target": "tools/oligo-thermodynamics/engine/pair/NOTICE.md"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/pair/release.mjs",
+      "target": "tools/oligo-thermodynamics/engine/pair/release.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/pair/thal-pair.wasm",
+      "target": "tools/oligo-thermodynamics/engine/pair/thal-pair.wasm"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/engine/pair/wrapper.c",
+      "target": "tools/oligo-thermodynamics/engine/pair/wrapper.c"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/fixed-nn-params.json",
+      "target": "tools/oligo-thermodynamics/fixed-nn-params.json"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/fixed-nn-release.mjs",
+      "target": "tools/oligo-thermodynamics/fixed-nn-release.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/fixed-nn.mjs",
+      "target": "tools/oligo-thermodynamics/fixed-nn.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/fixed-source/BIOPYTHON_LICENSE.rst",
+      "target": "tools/oligo-thermodynamics/fixed-source/BIOPYTHON_LICENSE.rst"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/fixed-source/MeltingTemp.py",
+      "target": "tools/oligo-thermodynamics/fixed-source/MeltingTemp.py"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/fixed-source/PARAMETERS_NOTICE.md",
+      "target": "tools/oligo-thermodynamics/fixed-source/PARAMETERS_NOTICE.md"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/pair-concentration.mjs",
+      "target": "tools/oligo-thermodynamics/pair-concentration.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/pair-core.mjs",
+      "target": "tools/oligo-thermodynamics/pair-core.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/pair-loader.mjs",
+      "target": "tools/oligo-thermodynamics/pair-loader.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/pair-report.mjs",
+      "target": "tools/oligo-thermodynamics/pair-report.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/pair-structure.mjs",
+      "target": "tools/oligo-thermodynamics/pair-structure.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/pair-workbench-core.mjs",
+      "target": "tools/oligo-thermodynamics/pair-workbench-core.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/pair-workbench-view.mjs",
+      "target": "tools/oligo-thermodynamics/pair-workbench-view.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/pair-workbench-worker.mjs",
+      "target": "tools/oligo-thermodynamics/pair-workbench-worker.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/pair-worker.mjs",
+      "target": "tools/oligo-thermodynamics/pair-worker.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/pcr-reference.mjs",
+      "target": "tools/oligo-thermodynamics/pcr-reference.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/relationship-core.mjs",
+      "target": "tools/oligo-thermodynamics/relationship-core.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/relationship-report.mjs",
+      "target": "tools/oligo-thermodynamics/relationship-report.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/relationship-ui.mjs",
+      "target": "tools/oligo-thermodynamics/relationship-ui.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/relationship-view.mjs",
+      "target": "tools/oligo-thermodynamics/relationship-view.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/relationship-worker.mjs",
+      "target": "tools/oligo-thermodynamics/relationship-worker.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/review-guide.html",
+      "target": "tools/oligo-thermodynamics/review-guide.html"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/strand-source.mjs",
+      "target": "tools/oligo-thermodynamics/strand-source.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/structure.mjs",
+      "target": "tools/oligo-thermodynamics/structure.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/suite-core.mjs",
+      "target": "tools/oligo-thermodynamics/suite-core.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/suite-engine.mjs",
+      "target": "tools/oligo-thermodynamics/suite-engine.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/suite-report.mjs",
+      "target": "tools/oligo-thermodynamics/suite-report.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/suite-view.mjs",
+      "target": "tools/oligo-thermodynamics/suite-view.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/suite-worker.mjs",
+      "target": "tools/oligo-thermodynamics/suite-worker.mjs"
+    },
+    {
+      "source": "tools/oligo-thermodynamics/workbench-report.mjs",
+      "target": "tools/oligo-thermodynamics/workbench-report.mjs"
     }
   ],
   "date": "2026-10-06"

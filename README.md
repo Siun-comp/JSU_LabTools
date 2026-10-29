@@ -1,5 +1,16 @@
 # JSU LabTools
 
+## 현재 공개 — 2026-10-30
+
+Portal **1.8.0**, Oligo Thermodynamics **0.2.0-beta.1** 통합 베타입니다. [포털](https://jsu-labtools.pages.dev/) · [열역학 도구](https://jsu-labtools.pages.dev/tools/oligo-thermodynamics/index.html) · [검토 항목·합성 예시](https://jsu-labtools.pages.dev/tools/oligo-thermodynamics/review-guide.html).
+
+기본·말단·온도·두 가닥·Beacon·관계 및 고정 mismatch의 여섯 작업을 제공합니다. 독립 A/B 구간·최대4관계·선택160ms 자동/전체 수동·원본좌표·공유3보관·plain/HTML/TXT/CSV를 포함합니다. 고정 PM/MM은 같은 NN3/IMM 모델의 Na-only/Mg0 참고이며 실제 Mg THAL과 구분합니다. A.C/C.A·말단/다중 mismatch·실제 Mg fixed·closed/Kd·속도/형광은 미지원입니다. 원본 재현을 실험 정확도 인증으로 해석하지 않습니다. 대응 C/파라미터/wrapper/build 소스·GPL 고지 및 새 고정 파라미터의 원본/BSD 고지를 함께 제공합니다.
+
+IsoAmplar Plot Analysis T 외부 링크는 유지하고 공개 v2.0.0 확인일/기능 안내를 최신화했습니다. 해당 도구의 구현 소스·데이터·설정은 이 저장소에 복사하지 않습니다. 다른 LabTools 계산 코드와 기존 공개 경로는 유지합니다.
+
+Node24: `node scripts/build.mjs`, `node scripts/regression.mjs`(41모듈), `node scripts/verify.mjs`, `node scripts/verify-amplification.mjs`. CI의 Linux 실제 webR 회귀도 필수입니다. 현재 공개 manifest는231자산이며 사용자·실측·내부검증 자료는 포함하지 않습니다. 아래 문서/상태는 이전 릴리스 이력입니다.
+
+
 ## 현재 게시 — 2026-10-22
 
 Portal **1.7.0** / 독립 **Oligo Thermodynamics 0.1.0-beta.1** 초기 베타를 추가했습니다. 공개 도구는10개이며 기존 도구의 계산 코드와 공개 경로를 유지합니다. 열역학 도구는 전체 DNA 서열에서 독립 영역을 선택해 실제 입력 Mg의 보정 Tm, 별도 Mg=0 참고 ΔG/H/S/Tm, A/B Primer3 THAL hairpin을 제공합니다. 자동160ms·집중 보기·수치 설명·최대3개 보관·TXT/CSV를 포함합니다. 실제 Mg 에너지·mismatch·속도/형광 예측은 지원하지 않습니다.

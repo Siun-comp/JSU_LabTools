@@ -2,12 +2,17 @@
 import {normalize,selection,moveRange,strands} from './sequence.mjs';
 import {conditionsFromStrings,FIELDS} from './conditions.mjs';
 import {initAnalysis} from './analysis-ui.mjs';
+import {UI_VERSION} from './analysis-core.mjs';
 let analysis;
 const $=id=>document.getElementById(id);
 const measureCanvas=document.createElement('canvas'),measureContext=measureCanvas.getContext('2d');
 const DEFAULT_CONDITIONS=Object.freeze({temperature:'60',na:'50',k:'0',nh4:'0',mg:'3',dntp:'0.8',a:'200',b:'200'});
 function restoreDefaultConditions(){for(const k of FIELDS)$(k).value=DEFAULT_CONDITIONS[k];}
 let parsed=normalize(''),range=null,coordinateDraft=false,lastWidth=0,selectionNotice='';
+function activeEdge(edge){
+ $('selection-track').classList.toggle('active-start',edge==='start');
+ for(const name of ['start','end'])$('active-'+name).setAttribute('aria-pressed',String(edge===name));
+}
 const labels={temperature:'반응 온도',na:'Na⁺',k:'K⁺',nh4:'NH₄⁺',mg:'Mg total',dntp:'dNTP total',a:'A 농도',b:'B 농도'};
 function valid(){return parsed.ok&&parsed.seq.length>0&&range&&!coordinateDraft;}
 function conditionsText(){return FIELDS.map(k=>`${labels[k]}: ${$(k).value.trim()||'미입력'} ${k==='temperature'?'°C':['a','b'].includes(k)?'nM':'mM'}`).join(' / ');}
@@ -16,10 +21,12 @@ function showConditions(){
  const any=FIELDS.some(k=>$(k).value.trim());
  if(any){try{conditionsFromStrings(Object.fromEntries(FIELDS.map(k=>[k,$(k).value])));$('conditions-error').textContent='';}catch(e){$('conditions-error').textContent=e.message;}}
  else $('conditions-error').textContent='';
+ for(const k of FIELDS){const input=$(k),n=Number(input.value);input.setAttribute('aria-invalid',String(!input.value.trim()||!Number.isFinite(n)||n<0||(k==='temperature'&&n>100)||(['a','b'].includes(k)&&n===0)));input.setAttribute('aria-describedby','conditions-error');}
  analysis?.syncInput();
 }
 function renderSequence(){
  const view=$('sequence-view'),scroll=view.scrollTop;
+ $('terminal-legend').textContent=`A5′/B3′ (앞 ${$('window-size').value||'?'} nt) · A3′/B5′ (뒤 ${$('window-size').value||'?'} nt)`;
  view.replaceChildren();
  const hasSequence=parsed.ok&&Boolean(parsed.seq);
  view.classList.toggle('is-empty',!hasSequence);
@@ -35,17 +42,25 @@ function renderSequence(){
   for(let block=offset;block<Math.min(offset+n,parsed.seq.length);block+=10){
    const end=Math.min(block+10,offset+n,parsed.seq.length),lo=Math.max(block,range.start-1),hi=Math.min(end,range.end);
    if(block>offset)text.append(' ');
-   if(lo<hi){text.append(parsed.seq.slice(block,lo));const mark=document.createElement('mark');mark.textContent=parsed.seq.slice(lo,hi);text.append(mark,parsed.seq.slice(hi,end));}else text.append(parsed.seq.slice(block,end));
+   if(lo<hi){
+    text.append(parsed.seq.slice(block,lo));const n=Number($('window-size').value),show=['terminal','temperature'].includes(analysis?.mode())&&analysis&&Number.isInteger(n)&&n>=3&&n<=10&&n<=range.length;
+    const cuts=[...new Set([lo,hi,...(show?[range.start-1+n,range.end-n].filter(v=>v>lo&&v<hi):[])])].sort((a,b)=>a-b);
+    for(let k=0;k<cuts.length-1;k++){const a=cuts[k],z=cuts[k+1],mark=document.createElement('mark');mark.textContent=parsed.seq.slice(a,z);if(show){const five=a<range.start-1+n,three=z>range.end-n;mark.className=five&&three?'end-overlap':five?'end-five':three?'end-three':'';}text.append(mark);}text.append(parsed.seq.slice(hi,end));
+   }else text.append(parsed.seq.slice(block,end));
   }
   row.append(coord,text);frag.append(row);
  }
  view.append(frag);view.scrollTop=scroll;
 }
+function renderPartner(){const pairMode=analysis?.mode()==='pair',b=pairMode?analysis.partner():range?strands(parsed.seq,range).b:'';$('strand-b').textContent=b||'—';$('strand-b-title').textContent=pairMode?'B · 두 가닥 입력 5′→3′':'B · 완전 상보 5′→3′';$('copy-b').disabled=!valid()||!b;}
 function render(){
  const ok=parsed.ok&&Boolean(parsed.seq),locked=$('lock').checked;
  $('input-error').textContent=parsed.ok?'':parsed.error;
  $('input-status').textContent=parsed.ok?(parsed.seq?`정규화 ${parsed.seq.length.toLocaleString()} nt · 공백 ${parsed.white}자 제거 · 소문자 ${parsed.lower}자 대문자화 · 행 앞 번호 ${parsed.numbered}개 제거${selectionNotice}`:'입력한 서열은 자동 저장하거나 외부로 전송하지 않습니다.'):'';
  $('total').textContent=`총 ${ok?parsed.seq.length.toLocaleString():0} nt`;
+ $('raw').setAttribute('aria-invalid',String(!parsed.ok));
+ $('selection-summary').textContent=ok?`독립 oligo ${range.start}–${range.end} · ${range.length} nt${range.length<2||range.length>60?' · 계산하려면 2–60 nt로 조절하세요.':''}`:'전체 서열을 입력한 뒤 분석할 2–60 nt를 선택하세요.';
+ for(const edge of ['start','end']){$(edge+'-handle').setAttribute('aria-valuetext',ok?`${edge==='start'?'시작':'끝'} ${range[edge]}, 선택 길이 ${range.length} nt`:'서열 입력 필요');$('active-'+edge).disabled=!ok;$(edge).setAttribute('aria-invalid',String(coordinateDraft));}
  for(const id of ['start-handle','end-handle','start','end','lock','left','right'])$(id).disabled=!ok;
  for(const id of ['start','end'])$(id).max=String(ok?parsed.seq.length:1);
  $('end').readOnly=locked;
@@ -58,21 +73,21 @@ function render(){
  $('strand-a').textContent=pair?.a||'—';$('strand-b').textContent=pair?.b||'—';
  $('relationship').textContent=ok?`원본 ${$('source-name').value.trim()||parsed.name||'이름 없음'} · 총 ${parsed.seq.length} nt 중 ${range.start}–${range.end} (양끝 포함) → 독립 oligo 1–${range.length}. 선택 밖 서열의 folding은 계산하지 않습니다.`:'서열 입력 후 원본 좌표를 표시합니다.';
  for(const id of ['copy-a','copy-b','copy-selection','save-selection'])$(id).disabled=!valid();
- renderSequence();
+ renderSequence();renderPartner();
  analysis?.syncInput();
 }
 function commit(edge,value){
  if(!parsed.ok||!parsed.seq)return;
  const n=parsed.seq.length,desired=Number(value);
- if(!String(value).trim()||!Number.isInteger(desired)||desired<1||desired>n){coordinateDraft=true;$('selection-error').textContent='좌표에 전체 서열 범위 안의 정수를 입력하세요.';for(const id of ['copy-a','copy-b','copy-selection','save-selection'])$(id).disabled=true;analysis?.syncInput();return;}
+ if(!String(value).trim()||!Number.isInteger(desired)||desired<1||desired>n){coordinateDraft=true;$(edge).setAttribute('aria-invalid','true');$('selection-error').textContent='좌표에 전체 서열 범위 안의 정수를 입력하세요.';for(const id of ['copy-a','copy-b','copy-selection','save-selection'])$(id).disabled=true;analysis?.syncInput();return;}
  try{
   range=$('lock').checked?moveRange(n,range,desired-range[edge]):selection(n,edge==='start'?desired:range.start,edge==='end'?desired:range.end);
   coordinateDraft=false;$('selection-error').textContent='';$('copy-status').textContent='';render();
- }catch(e){coordinateDraft=true;$('selection-error').textContent=e.message;for(const id of ['copy-a','copy-b','copy-selection','save-selection'])$(id).disabled=true;analysis?.syncInput();}
+ }catch(e){coordinateDraft=true;$(edge).setAttribute('aria-invalid','true');$('selection-error').textContent=e.message;for(const id of ['copy-a','copy-b','copy-selection','save-selection'])$(id).disabled=true;analysis?.syncInput();}
 }
 function snapshotText(){
  if(!valid())throw new Error('유효한 서열과 선택 좌표가 필요합니다.');
- const pair=strands(parsed.seq,range),lines=['JSU LabTools · Oligo 선택 정보','도구: 0.1.0-beta.1','상태: 선택 정보 기록 (계산 결과와 별도)',`원본 이름: ${$('source-name').value.trim()||parsed.name||'이름 없음'}`,`원본 정규화 길이: ${parsed.seq.length} nt`,`선택 좌표: ${range.start}–${range.end} (1-based inclusive)`,`독립 oligo 길이: ${range.length} nt`,`선택 이름/역할: ${$('role').value.trim()||'미지정'}`,`A (5′→3′): ${pair.a}`,`B 완전 상보 (5′→3′): ${pair.b}`,'현재 입력 조건 (계산 결과는 별도 결과 출력 사용):'];
+ const pair=strands(parsed.seq,range),lines=['JSU LabTools · Oligo 선택 정보',`도구: ${UI_VERSION}`,'상태: 선택 정보 기록 (계산 결과와 별도)',`원본 이름: ${$('source-name').value.trim()||parsed.name||'이름 없음'}`,`원본 정규화 길이: ${parsed.seq.length} nt`,`선택 좌표: ${range.start}–${range.end} (1-based inclusive)`,`독립 oligo 길이: ${range.length} nt`,`선택 이름/역할: ${$('role').value.trim()||'미지정'}`,`A (5′→3′): ${pair.a}`,`B ${analysis?.mode()==='pair'?'두 가닥 입력':'완전 상보'} (5′→3′): ${analysis?.mode()==='pair'?analysis.partner():pair.b}`,'현재 입력 조건 (계산 결과는 별도 결과 출력 사용):'];
  const units={temperature:'°C',na:'mM',k:'mM',nh4:'mM',mg:'mM total',dntp:'mM total',a:'nM',b:'nM'};
  for(const k of FIELDS)lines.push(`${labels[k]}: ${$(k).value.trim()||'미입력'} ${units[k]}`);
  try{const c=conditionsFromStrings(Object.fromEntries(FIELDS.map(k=>[k,$(k).value])));lines.push(`절대온도: ${c.temperatureK} K`);}catch(e){lines.push(`조건 미확정: ${e.message}`);}
@@ -86,6 +101,9 @@ $('raw').addEventListener('input',()=>{
  render();
 });
 for(const edge of ['start','end']){
+ $('active-'+edge).addEventListener('click',()=>{activeEdge(edge);$(edge+'-handle').focus();});
+ $(edge+'-handle').addEventListener('focus',()=>activeEdge(edge));
+ $(edge).addEventListener('focus',()=>activeEdge(edge));
  $(edge+'-handle').addEventListener('input',()=>{let value=Number($(edge+'-handle').value);if(!$('lock').checked)value=edge==='start'?Math.min(value,range.end):Math.max(value,range.start);commit(edge,value);});
  $(edge).addEventListener('input',()=>commit(edge,$(edge).value));
  $(edge).addEventListener('change',()=>commit(edge,$(edge).value));
@@ -96,11 +114,11 @@ for(const [id,delta] of [['left',-1],['right',1]])$(id).addEventListener('click'
 $('lock').addEventListener('change',()=>{coordinateDraft=false;$('selection-error').textContent='';render();});
 $('source-name').addEventListener('input',render);
 for(const k of FIELDS)$(k).addEventListener('input',showConditions);
-$('copy-a').addEventListener('click',()=>{if(valid())copy(strands(parsed.seq,range).a);});$('copy-b').addEventListener('click',()=>{if(valid())copy(strands(parsed.seq,range).b);});
+$('copy-a').addEventListener('click',()=>{if(valid())copy(strands(parsed.seq,range).a);});$('copy-b').addEventListener('click',()=>{if(valid())copy(analysis?.mode()==='pair'?analysis.partner():strands(parsed.seq,range).b);});
 $('copy-selection').addEventListener('click',()=>{if(valid())copy(snapshotText());});
 $('save-selection').addEventListener('click',()=>{if(!valid())return;const blob=new Blob([snapshotText()],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='oligo-selection.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('copy-status').textContent='선택 정보 TXT를 저장했습니다.';});
 $('clear').addEventListener('click',()=>{analysis?.reset();for(const id of ['raw','source-name','role','memo'])$(id).value='';restoreDefaultConditions();$('lock').checked=false;parsed=normalize('');range=null;coordinateDraft=false;selectionNotice='';$('selection-error').textContent='';$('copy-status').textContent='';showConditions();render();$('raw').focus();});
 new ResizeObserver(entries=>{const width=Math.floor(entries[0].contentRect.width);if(Math.abs(width-lastWidth)>5){lastWidth=width;renderSequence();}}).observe($('sequence-view'));
 restoreDefaultConditions();showConditions();render();
 
-analysis=initAnalysis({readInput:()=>({raw:$('raw').value,parentName:$('source-name').value,role:$('role').value,memo:$('memo').value,parsed,range,coordinateDraft,conditions:Object.fromEntries(FIELDS.map(k=>[k,$(k).value]))})});
+analysis=initAnalysis({refreshSelection:()=>{renderSequence();renderPartner();},readInput:()=>({raw:$('raw').value,parentName:$('source-name').value,role:$('role').value,memo:$('memo').value,parsed,range,coordinateDraft,conditions:Object.fromEntries(FIELDS.map(k=>[k,$(k).value]))})});

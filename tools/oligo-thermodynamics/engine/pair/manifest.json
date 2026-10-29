@@ -1,0 +1,34 @@
+{
+  "format": "primer3-pair-adapter/1",
+  "version": "0.1.0-dev.1",
+  "abi": 1,
+  "upstream": "primer3-py 2.3.1 THAL",
+  "compiler": "Zig 0.14.1",
+  "license": "GPL-2.0-or-later",
+  "maxLoop": 30,
+  "mode": "THL_GENERAL",
+  "basis": "primer3-api-reference",
+  "nativeComparisonTolerance": 1e-06,
+  "inputLength": [
+    2,
+    60
+  ],
+  "sourceFiles": {
+    "thal.c": "03e7fe5b39abcf5d78b59e69858154a87876eff584b58db08e2ad500c6c27842",
+    "thal.h": "c0f336509bf4215c6e4d061dcb5f274995d00cc9ee59f3d73d682614386b8065",
+    "thal_parameters.c": "288c776f1db5f0298e31e9ef0dd871f72177cc1a3296586390c87c36eea2e303",
+    "thal_parameters.h": "9354380ecc3286d32689dbc874829a5cf586a82c3b2468687d13d8b3b438f86a",
+    "gpl-2.0.txt": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6"
+  },
+  "wrapperSha256": "18a1d439bf9089128d8b0588e8b0e31bd01f5ada842b4c985afa9acdc9827852",
+  "buildSourceSha256": "ae6773331df48dd57b97f28699ce274519938480b7ce002a0dc680090651aaee",
+  "asset": {
+    "path": "thal-pair.wasm",
+    "sha256": "11b97cf94040c6f3a40515c1eb3d6f02b30d4263c3f8b824a124063b99cd6aec",
+    "bytes": 1059452
+  },
+  "limitations": [
+    "Engine dna_conc is explicit; actual A/B concentration mapping is not silently assumed.",
+    "Native/WASM parity is implementation evidence, not experimental prediction accuracy."
+  ]
+}

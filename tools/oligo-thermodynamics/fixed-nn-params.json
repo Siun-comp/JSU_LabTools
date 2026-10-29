@@ -1,0 +1,501 @@
+{
+  "schemaVersion": "fixed-nn-parameters/1",
+  "model": "DNA_NN3 + single-internal DNA_IMM1 subset / Na-only entropy / dCp=0",
+  "sourceSHA256": "65e91b2bcc4d11a6fd04ee34dd942aae42d6c8e969e94afcd378a12306832332",
+  "license": "BSD-3-Clause (per-file choice)",
+  "nn": {
+    "init": [
+      0,
+      0
+    ],
+    "init_A/T": [
+      2.3,
+      4.1
+    ],
+    "init_G/C": [
+      0.1,
+      -2.8
+    ],
+    "init_oneG/C": [
+      0,
+      0
+    ],
+    "init_allA/T": [
+      0,
+      0
+    ],
+    "init_5T/A": [
+      0,
+      0
+    ],
+    "sym": [
+      0,
+      -1.4
+    ],
+    "AA/TT": [
+      -7.9,
+      -22.2
+    ],
+    "AT/TA": [
+      -7.2,
+      -20.4
+    ],
+    "TA/AT": [
+      -7.2,
+      -21.3
+    ],
+    "CA/GT": [
+      -8.5,
+      -22.7
+    ],
+    "GT/CA": [
+      -8.4,
+      -22.4
+    ],
+    "CT/GA": [
+      -7.8,
+      -21.0
+    ],
+    "GA/CT": [
+      -8.2,
+      -22.2
+    ],
+    "CG/GC": [
+      -10.6,
+      -27.2
+    ],
+    "GC/CG": [
+      -9.8,
+      -24.4
+    ],
+    "GG/CC": [
+      -8.0,
+      -19.9
+    ]
+  },
+  "imm": {
+    "AG/TT": [
+      1.0,
+      0.9
+    ],
+    "AT/TG": [
+      -2.5,
+      -8.3
+    ],
+    "CG/GT": [
+      -4.1,
+      -11.7
+    ],
+    "CT/GG": [
+      -2.8,
+      -8.0
+    ],
+    "GG/CT": [
+      3.3,
+      10.4
+    ],
+    "GT/CG": [
+      -4.4,
+      -12.3
+    ],
+    "TG/AT": [
+      -0.1,
+      -1.7
+    ],
+    "TT/AG": [
+      -1.3,
+      -5.3
+    ],
+    "AA/TG": [
+      -0.6,
+      -2.3
+    ],
+    "AG/TA": [
+      -0.7,
+      -2.3
+    ],
+    "CA/GG": [
+      -0.7,
+      -2.3
+    ],
+    "CG/GA": [
+      -4.0,
+      -13.2
+    ],
+    "GA/CG": [
+      -0.6,
+      -1.0
+    ],
+    "GG/CA": [
+      0.5,
+      3.2
+    ],
+    "TA/AG": [
+      0.7,
+      0.7
+    ],
+    "TG/AA": [
+      3.0,
+      7.4
+    ],
+    "AC/TT": [
+      0.7,
+      0.2
+    ],
+    "AT/TC": [
+      -1.2,
+      -6.2
+    ],
+    "CC/GT": [
+      -0.8,
+      -4.5
+    ],
+    "CT/GC": [
+      -1.5,
+      -6.1
+    ],
+    "GC/CT": [
+      2.3,
+      5.4
+    ],
+    "GT/CC": [
+      5.2,
+      13.5
+    ],
+    "TC/AT": [
+      1.2,
+      0.7
+    ],
+    "TT/AC": [
+      1.0,
+      0.7
+    ],
+    "AA/TA": [
+      1.2,
+      1.7
+    ],
+    "CA/GA": [
+      -0.9,
+      -4.2
+    ],
+    "GA/CA": [
+      -2.9,
+      -9.8
+    ],
+    "TA/AA": [
+      4.7,
+      12.9
+    ],
+    "AC/TC": [
+      0.0,
+      -4.4
+    ],
+    "CC/GC": [
+      -1.5,
+      -7.2
+    ],
+    "GC/CC": [
+      3.6,
+      8.9
+    ],
+    "TC/AC": [
+      6.1,
+      16.4
+    ],
+    "AG/TG": [
+      -3.1,
+      -9.5
+    ],
+    "CG/GG": [
+      -4.9,
+      -15.3
+    ],
+    "GG/CG": [
+      -6.0,
+      -15.8
+    ],
+    "TG/AG": [
+      1.6,
+      3.6
+    ],
+    "AT/TT": [
+      -2.7,
+      -10.8
+    ],
+    "CT/GT": [
+      -5.0,
+      -15.8
+    ],
+    "GT/CT": [
+      -2.2,
+      -8.4
+    ],
+    "TT/AT": [
+      0.2,
+      -1.5
+    ]
+  },
+  "provenance": {
+    "AG/TT": {
+      "mismatchPair": "GT",
+      "doi": "10.1021/bi962590c",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "AT/TG": {
+      "mismatchPair": "TG",
+      "doi": "10.1021/bi962590c",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "CG/GT": {
+      "mismatchPair": "GT",
+      "doi": "10.1021/bi962590c",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "CT/GG": {
+      "mismatchPair": "TG",
+      "doi": "10.1021/bi962590c",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "GG/CT": {
+      "mismatchPair": "GT",
+      "doi": "10.1021/bi962590c",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "GT/CG": {
+      "mismatchPair": "TG",
+      "doi": "10.1021/bi962590c",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "TG/AT": {
+      "mismatchPair": "GT",
+      "doi": "10.1021/bi962590c",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "TT/AG": {
+      "mismatchPair": "TG",
+      "doi": "10.1021/bi962590c",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "AA/TG": {
+      "mismatchPair": "AG",
+      "doi": "10.1021/bi9724873",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "AG/TA": {
+      "mismatchPair": "GA",
+      "doi": "10.1021/bi9724873",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "CA/GG": {
+      "mismatchPair": "AG",
+      "doi": "10.1021/bi9724873",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "CG/GA": {
+      "mismatchPair": "GA",
+      "doi": "10.1021/bi9724873",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "GA/CG": {
+      "mismatchPair": "AG",
+      "doi": "10.1021/bi9724873",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "GG/CA": {
+      "mismatchPair": "GA",
+      "doi": "10.1021/bi9724873",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "TA/AG": {
+      "mismatchPair": "AG",
+      "doi": "10.1021/bi9724873",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "TG/AA": {
+      "mismatchPair": "GA",
+      "doi": "10.1021/bi9724873",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "AC/TT": {
+      "mismatchPair": "CT",
+      "doi": "10.1093/nar/26.11.2694",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "AT/TC": {
+      "mismatchPair": "TC",
+      "doi": "10.1093/nar/26.11.2694",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "CC/GT": {
+      "mismatchPair": "CT",
+      "doi": "10.1093/nar/26.11.2694",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "CT/GC": {
+      "mismatchPair": "TC",
+      "doi": "10.1093/nar/26.11.2694",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "GC/CT": {
+      "mismatchPair": "CT",
+      "doi": "10.1093/nar/26.11.2694",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "GT/CC": {
+      "mismatchPair": "TC",
+      "doi": "10.1093/nar/26.11.2694",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "TC/AT": {
+      "mismatchPair": "CT",
+      "doi": "10.1093/nar/26.11.2694",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "TT/AC": {
+      "mismatchPair": "TC",
+      "doi": "10.1093/nar/26.11.2694",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "AA/TA": {
+      "mismatchPair": "AA",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "CA/GA": {
+      "mismatchPair": "AA",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "GA/CA": {
+      "mismatchPair": "AA",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "TA/AA": {
+      "mismatchPair": "AA",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "AC/TC": {
+      "mismatchPair": "CC",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "CC/GC": {
+      "mismatchPair": "CC",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "GC/CC": {
+      "mismatchPair": "CC",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "TC/AC": {
+      "mismatchPair": "CC",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "AG/TG": {
+      "mismatchPair": "GG",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "CG/GG": {
+      "mismatchPair": "GG",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "GG/CG": {
+      "mismatchPair": "GG",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "TG/AG": {
+      "mismatchPair": "GG",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "AT/TT": {
+      "mismatchPair": "TT",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "CT/GT": {
+      "mismatchPair": "TT",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "GT/CT": {
+      "mismatchPair": "TT",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    },
+    "TT/AT": {
+      "mismatchPair": "TT",
+      "doi": "10.1021/bi9825091",
+      "source": "Biopython1.88 DNA_IMM1",
+      "evidence": "published-parameter model reference; not new empirical validation"
+    }
+  },
+  "excluded": {
+    "AA/TC": "A.C/C.A numerical pH provenance not directly established; not adopted",
+    "AC/TA": "A.C/C.A numerical pH provenance not directly established; not adopted",
+    "CA/GC": "A.C/C.A numerical pH provenance not directly established; not adopted",
+    "CC/GA": "A.C/C.A numerical pH provenance not directly established; not adopted",
+    "GA/CC": "A.C/C.A numerical pH provenance not directly established; not adopted",
+    "GC/CA": "A.C/C.A numerical pH provenance not directly established; not adopted",
+    "TA/AC": "A.C/C.A numerical pH provenance not directly established; not adopted",
+    "TC/AA": "A.C/C.A numerical pH provenance not directly established; not adopted"
+  },
+  "policy": {
+    "acCA": "unsupported-pH-provenance",
+    "alphabet": "ACGT",
+    "maxMismatch": 1,
+    "minimumLength": 5,
+    "maximumLength": 60,
+    "minimumPosition": 3,
+    "endMargin": 2,
+    "salt": "Na-only/method5",
+    "R_cal_mol_K": 1.987
+  }
+}

@@ -1,3 +1,9 @@
+# Oligo Thermodynamics integrated beta regression
+
+2026-10-30 / UI0.2.0-beta.1. Run `node scripts/regression.mjs` for all41 modules. Added suite/structure/Beacon/relationship/export tests use synthetic inputs; they cover fixed geometry, explicit support limits, partial fields, reference vs actual conditions, same-model PM/MM, output provenance and old-format compatibility. No private source/experimental or user data is required. `short-reference.json` is a synthetic pinned-model implementation oracle. The two fixture snapshots preserve synthetic Pair/Beacon export inputs from the earlier candidate. Full public browser/clipboard acceptance is a separate publication check.
+
+The fixed NN3/IMM table and unchanged licensed source/rights ship under `tools/oligo-thermodynamics/fixed-source/`. These tests prove defined implementation behavior, not independent experimental accuracy.
+
 # Oligo Thermodynamics fixed regression
 
 GPL-2.0-or-later. Synthetic sequences only; no user or experimental data.

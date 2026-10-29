@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 import {conditionsFromStrings,FIELDS} from './conditions.mjs';
 import {reverseComplement} from './sequence.mjs';
-export const UI_VERSION='0.1.0-beta.1';
+export const UI_VERSION='0.2.0-beta.1';
 export const CONTRACT=Object.freeze({
  engineVersion:'0.1.0-dev.1',hairpin:'primer3-py 2.3.1 THAL / THL_GENERAL / maxLoop30',
  duplex:'DNA_NN4 / SantaLucia entropy salt / ΔCp=0',
