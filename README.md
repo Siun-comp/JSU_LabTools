@@ -1,5 +1,12 @@
 # JSU LabTools
 
+## 현재 공개 — 2026-11-01
+
+Portal **1.8.1**: IsoAmplar Plot Analysis T의 공개 **v2.2.0**과 확인일을 반영했습니다. [포털](https://jsu-labtools.pages.dev/) · [Plot 도구 정보](https://jsu-labtools.pages.dev/info/plot.html).
+
+장비 CSV 입력과 공통 Chamber 프리셋 JSON 저장·불러오기·미리보기·명시 적용을 안내합니다. 기존 외부 실행 URL을 유지하며 Plot 구현 소스·데이터는 포함하지 않습니다. 전체231공개 경로와 모든 계산 도구 실행 파일은 이전과 같습니다. 아래는 이전 릴리스 기록입니다.
+
+
 ## 현재 공개 — 2026-10-30
 
 Portal **1.8.0**, Oligo Thermodynamics **0.2.0-beta.1** 통합 베타입니다. [포털](https://jsu-labtools.pages.dev/) · [열역학 도구](https://jsu-labtools.pages.dev/tools/oligo-thermodynamics/index.html) · [검토 항목·합성 예시](https://jsu-labtools.pages.dev/tools/oligo-thermodynamics/review-guide.html).

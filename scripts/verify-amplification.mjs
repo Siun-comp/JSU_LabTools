@@ -16,10 +16,17 @@ const oligo=contract.oligoDimerRelease;
 const methodPatch=contract.methodComparisonPatchRelease;
 assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,'1.5.1');assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
 const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+const plotPatch=contract.plotMetadataRelease;
+assert.equal(plotPatch.previousSHA,'8d6f67a946940f875859d94d75130f783f2a20a3');assert.equal(plotPatch.portalVersion,manifest.version);assert.equal(plotPatch.plotVersion,'2.2.0');assert.equal(plotPatch.previousPublic.length,231);
+assert.deepEqual(manifest.files,plotPatch.previousPublic.map(({source,target})=>({source,target})),'Plot metadata update keeps all public paths');
+assert.deepEqual(plotPatch.selected.map(e=>e.target).sort(),manifest.files.filter(e=>e.target==='index.html'||/^info\/.*\.html$/.test(e.target)).map(e=>e.target).sort(),'Only portal metadata and version footers selected');
+const prePlotCache=new Map();
+async function prePlotBytes(target){if(prePlotCache.has(target))return prePlotCache.get(target);const entry=plotPatch.previousPublic.find(e=>e.target===target);assert(entry);const bytes=await readFile(resolve(dist,target)),selected=plotPatch.selected.find(e=>e.target===target);let old=bytes;if(selected){assert.equal(hash(bytes),selected.sha256,'Reviewed metadata bytes: '+target);old=execFileSync('git',['-C',gitRoot,'show',plotPatch.previousSHA+':'+entry.source]);}assert.equal(hash(old),entry.sha256,'Previous public bytes retained: '+target);prePlotCache.set(target,old);return old;}
+for(const e of plotPatch.previousPublic)await prePlotBytes(e.target);
 const upgrade=contract.thermodynamicsUpgradeRelease;
-assert.equal(upgrade.previousSHA,'fe493ffc7a5ba5a367fb5533c569b260274586c3');assert.equal(upgrade.portalVersion,manifest.version);assert.equal(upgrade.toolVersion,'0.2.0-beta.1');assert.equal(upgrade.previousPublic.length,188);
+assert.equal(upgrade.previousSHA,'fe493ffc7a5ba5a367fb5533c569b260274586c3');assert.equal(upgrade.portalVersion,plotPatch.previousPortalVersion);assert.equal(upgrade.toolVersion,'0.2.0-beta.1');assert.equal(upgrade.previousPublic.length,188);
 assert.deepEqual(manifest.files.filter(e=>!upgrade.previousPublic.some(p=>p.target===e.target)).map(e=>e.target).sort(),upgrade.addedTargets.toSorted(),'Only reviewed integrated-tool additions');
-async function preUpgradeBytes(target){const entry=upgrade.previousPublic.find(e=>e.target===target);assert(entry,'Previous upgrade path retained');const bytes=await readFile(resolve(dist,target)),selected=upgrade.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected upgrade bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected upgrade bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',upgrade.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous upgrade bytes from Git');return old;}
+async function preUpgradeBytes(target){const entry=upgrade.previousPublic.find(e=>e.target===target);assert(entry,'Previous upgrade path retained');const bytes=await prePlotBytes(target),selected=upgrade.selected.find(e=>e.target===target);if(!selected){assert.equal(hash(bytes),entry.sha256,'Unselected upgrade bytes: '+target);return bytes;}assert.equal(hash(bytes),selected.sha256,'Selected upgrade bytes: '+target);const old=execFileSync('git',['-C',gitRoot,'show',upgrade.previousSHA+':'+entry.source]);assert.equal(hash(old),entry.sha256,'Previous upgrade bytes from Git');return old;}
 for(const e of upgrade.previousPublic){assert(manifest.files.some(p=>p.source===e.source&&p.target===e.target));await preUpgradeBytes(e.target);}
 const notFound=contract.notFoundRelease;
 assert.equal(notFound.previousSHA,'3b3b144d8012ae49a3dd5624cfe0c6027e2f933f');assert.equal(notFound.portalVersion,upgrade.previousPortalVersion);assert.equal(notFound.pageVersion,'1.0.0');assert.equal(notFound.previousPublic.length,187);
@@ -81,7 +88,7 @@ const previousHome=html=>preOligoHome(html).replace(method.portalRow,'').replace
 async function historicBytes(target){const bytes=await preOligoBytes(target);return target==='index.html'?Buffer.from(previousHome(bytes.toString())):/^info\/.*\.html$/.test(target)?Buffer.from(bytes.toString().replaceAll('포털 v1.4.0','포털 v1.3.0')):bytes;}
 for(const entry of method.previousPublic)assert.equal(hash(await historicBytes(entry.target)),entry.sha256,'Previous public content retained: '+entry.target);
 
-assert.equal(manifest.version,'1.8.0');assert.equal(manifest.candidate,undefined);
+assert.equal(manifest.version,'1.8.1');assert.equal(manifest.candidate,undefined);
 assert.equal(update.portalVersion,'1.2.1');assert.equal(buffer.portalVersion,'1.3.0');
 assert.equal(buffer.previousPortalVersion,'1.2.1');assert.equal(buffer.previousSHA,'d5b8ca0778a1e536867415156f081c9f2ebadacc');
 assert.equal(buffer.toolVersion,'1.1.0');assert.equal(buffer.algorithmVersion,'0.2.0');assert.equal(buffer.releasedOn,'2026-10-07');
@@ -116,7 +123,10 @@ for(const e of patch.previousPublic){assert(targets.has(e.target),'AP158 path re
 for(const e of contract.baseline.files)assert(targets.has(e.target),'Previous public path retained');
 for(const e of update.previousPublic)assert(targets.has(e.target),'AP144 public path retained');
 const home=await readFile(resolve(dist,'index.html'),'utf8');
-assert(home.includes(upgrade.currentPlotRow)&&home.includes('화면 v2.0.0 · 문서 v2.0.0'),'Reviewed Plot2.0 row');
+assert((await prePlotBytes('index.html')).toString().includes(upgrade.currentPlotRow),'Historical Plot2.0 row preserved');
+assert(home.includes(plotPatch.currentPlotRow)&&home.includes('화면 v2.2.0 · 문서 v2.2.0'),'Reviewed Plot2.2 row');
+const plotInfo=await readFile(resolve(dist,'info/plot.html'),'utf8');
+for(const marker of ['v2.2.0','2026-11-01','디코딩된 장비 CSV','.chamber-preset.json','미리 본 뒤 명시적으로 적용','검체명·형광값·Threshold는 포함하지 않습니다','별도의 재적용 확인','다시 시험하지 않았습니다'])assert(plotInfo.includes(marker),'Plot metadata scope: '+marker);
 assert(home.includes('실행 가능 10개')&&home.includes('준비중 0개'));
 const aaRows=[...home.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].filter(m=>m[0].includes('<h2>Amplification Analysis</h2>'));
 assert.equal(aaRows.length,1);assert(aaRows[0][0].includes('도구 v0.1.0-beta.1')&&aaRows[0][0].includes('베타'));
@@ -163,4 +173,4 @@ assert(mainText.includes('증폭 곡선 분석 · 베타'),'Beta display');
 const webManifest=JSON.parse(await readFile(resolve(appBase,'manifest.webmanifest'),'utf8'));
 assert.equal(webManifest.name,'Amplification Analysis');assert.equal(webManifest.scope,'.');assert.equal(webManifest.start_url,'.');
 for(const icon of webManifest.icons)await readFile(resolve(appBase,icon.src));
-console.log('PASS: reviewed231-file portal1.8.0 artifact; integrated thermodynamics and Plot metadata; every earlier release reconstructed and unselected assets byte-preserved; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');
+console.log('PASS: reviewed231-file portal1.8.1 artifact; integrated thermodynamics and Plot metadata; every earlier release reconstructed and unselected assets byte-preserved; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');
