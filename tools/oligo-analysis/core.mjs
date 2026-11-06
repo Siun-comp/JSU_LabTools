@@ -1,5 +1,5 @@
 import * as d from './dimer.mjs';
-export const VERSION='0.2.1';
+export const VERSION='0.2.2';
 export const {energyMicros,formatDG,isWarning,idtDimer,thermoDimer,SOURCES,WARNING_MICROS}=d;
 export const IUPAC=Object.freeze({A:'A',C:'C',G:'G',T:'T',R:'AG',Y:'CT',S:'CG',W:'AT',K:'GT',M:'AC',B:'CGT',D:'AGT',H:'ACT',V:'ACG',N:'ACGT'});
 export const LIMITS=Object.freeze({oligos:20,length:200,characters:20000,variants:1024,pairWork:50000000,pairRows:250000,softWork:4000000,softRows:50000,polyWarningTriples:100,polyWarningWork:200000,polyLength:60,polyTimeMs:30000,polyMemoryBytes:134217728});
@@ -11,7 +11,7 @@ export function parseInput(raw){
  if(typeof raw!=='string'||raw.length>LIMITS.characters)throw Error(`입력은 ${LIMITS.characters.toLocaleString()}자까지 가능합니다.`);
  const lines=raw.replace(/^\uFEFF/,'').split(/\r?\n/),first=lines.find(x=>x.trim());if(!first)throw Error('이름과 DNA 서열을 입력하세요.');let records=[];
  if(first.trim().startsWith('>')){let rec;lines.forEach((line,i)=>{if(!line.trim())return;if(line.trim().startsWith('>')){rec={name:line.trim().slice(1).trim(),sequence:'',line:i+1};records.push(rec);}else{if(!rec)throw Error(`${i+1}행: FASTA 이름이 필요합니다.`);rec.sequence+=line;}});}
- else lines.forEach((line,i)=>{if(!line.trim())return;const m=line.trim().match(/^(\S+)\s+(.+)$/);if(!m)throw Error(`${i+1}행: 이름과 서열을 공백 또는 탭으로 나누세요.`);records.push({name:m[1],sequence:m[2],line:i+1});});
+ else lines.forEach((line,i)=>{if(!line.trim()&&!line.includes('\t'))return;if(line.includes('\t')){const cells=line.split('\t').map(x=>x.trim());if(cells.length!==2||cells.some(x=>!x))throw Error(`${i+1}행: Excel 붙여넣기는 비어 있지 않은 이름과 서열 두 열이 필요합니다.`);records.push({name:cells[0],sequence:cells[1],line:i+1});return;}const m=line.trim().match(/^(\S+)\s+(.+)$/);if(!m)throw Error(`${i+1}행: 이름과 서열을 공백 또는 탭으로 나누세요.`);records.push({name:m[1],sequence:m[2],line:i+1});});
  if(records.length>LIMITS.oligos)throw Error(`최대 ${LIMITS.oligos}개 oligo까지 입력할 수 있습니다.`);
  let normalized=0;const names=new Set();for(const r of records){if(!r.name||r.name.length>100)throw Error(`${r.line}행: 이름은 1–100자여야 합니다.`);if(names.has(r.name))throw Error(`${r.line}행: 이름 “${r.name}”이 중복되었습니다.`);names.add(r.name);if(/[rdm](?=[ACGTU])/.test(r.sequence))throw Error(`${r.line}행 ${r.name}: RNA·수정 재질 접두어는 지원하지 않습니다. DNA 혼합염기는 대문자로 입력하세요.`);const s=r.sequence.replace(/\s/g,'').toUpperCase();if(s!==r.sequence)normalized++;if(!/^[ACGTRYSWKMBDHVN]+$/.test(s))throw Error(`${r.line}행 ${r.name}: DNA A/C/G/T 및 IUPAC 혼합염기만 지원합니다. U·RNA·수정염기는 지원하지 않습니다.`);if(s.length<3||s.length>LIMITS.length)throw Error(`${r.line}행 ${r.name}: 서열 길이는 3–${LIMITS.length} nt여야 합니다.`);r.sequence=s;r.variants=variantCount(s);}
  return {records,normalized};
@@ -96,27 +96,44 @@ export function filteredPairs(pairs,filters){return pairs.flatMap(p=>{const stru
 export function polyLines(s){const labels=s.molecules.map((m,i)=>`${i+1}. ${m.name}: ${m.sequence} (5′→3′)`),c=s.central;for(let i=0;i<2;i++){const edge=s.edges[i],o=s.others[i];labels.push(`${c+1}번 ${edge.aStart+1}–${edge.aStart+edge.length} ↔ ${o+1}번 ${edge.bStart+1}–${edge.bStart+edge.length} (역평행) · ${edge.length} bp · 구간 점수 ${d.formatDG(edge.micros)}`);}return labels;}
 export function reportBlocks(records,pairs,mode,meta={}){
  const f=meta.filters||{},blocks=[],text=(...lines)=>blocks.push({kind:'text',lines}),sequence=(...lines)=>blocks.push({kind:'sequence',lines});
- text(`Oligo-dimer analysis v${VERSION}`,mode==='thermo'?'Thermo 검출 · optimal sensitivity 3 고정 · 원본 도식':'IDT 관측값 대조 모델 · 로컬 ΔG25',`분석 대상 ${records.length}종${meta.excluded?.length?' · 미선택: '+meta.excluded.join(', '):''}`);
- for(const kind of KINDS){const m=meta.modules?.[kind];if(m)text(`${LABELS[kind]}: ${m.state==='complete'?'완료':m.state==='skipped'?'미실행':'미완료'}${m.reason?' · '+m.reason:''}`);}
- if(mode==='idt')text(`현재 표시: ΔG ${f.cutoff==null?'전체':'≤ '+f.cutoff/1e6+' kcal/mol'}${f.cutoff!=null&&f.terminal?' 또는 3′ 말단 연속 ≥3 bp':''}`,`Polydimer 탐색 범주: ${polyCategoryLabel(f.polyCategory)} · 점수 합 검색: ${f.polyCutoff==null?'제한 없음':'≤ '+f.polyCutoff/1e6} · 조합/범주별 최저 점수 요약 · 실제 복합체 ΔG 아님`,'붉은 경고: IDT 권고 참고 · 로컬 dimer ΔG ≤ −9','3′ 말단 연속 ≥3 bp: 사용자 요청 로컬 보조 표시 조건 · IDT 공식 수치 기준 아님');
- text('입력:');for(const r of records)blocks.push({kind:'input',lines:[`${r.name}\t${r.sequence}\t실제 서열 ${variantCount(r.sequence)}개`],cells:[r.name,r.sequence,`실제 서열 ${variantCount(r.sequence)}개`]});
+ const selected=meta.selected===true,pair=selected?pairs[0]:null;
+ if(selected){const names=new Set(pair?.kind==='poly'?pair.structures[0]?.molecules.map(m=>m.name):[pair?.first,pair?.second]);records=records.filter(r=>names.has(r.name));}
+ const pairFilter=`현재 표시: ΔG ${f.cutoff==null?'전체':'≤ '+f.cutoff/1e6+' kcal/mol'}${f.cutoff!=null&&f.terminal?' 또는 3′ 말단 연속 ≥3 bp':''}`;
+ const polyFilter=`Polydimer 탐색 범주: ${polyCategoryLabel(f.polyCategory)} · 점수 합 검색: ${f.polyCutoff==null?'제한 없음':'≤ '+f.polyCutoff/1e6} · 조합/범주별 최저 점수 요약 · 실제 복합체 ΔG 아님`;
+ text(`Oligo-dimer analysis v${VERSION}`,mode==='thermo'?'Thermo 검출 · optimal sensitivity 3 고정 · 원본 도식':'IDT 관측값 대조 모델 · 로컬 ΔG25');
+ if(!selected)text(`분석 대상 ${records.length}종${meta.excluded?.length?' · 미선택: '+meta.excluded.join(', '):''}`);
+ if(!selected)for(const kind of KINDS){const m=meta.modules?.[kind];if(m)text(`${LABELS[kind]}: ${m.state==='complete'?'완료':m.state==='skipped'?'미실행':'미완료'}${m.reason?' · '+m.reason:''}`);}
+ if(mode==='idt'){
+  if(selected)text(pair?.kind==='poly'?polyFilter:pairFilter);
+  else text(pairFilter,polyFilter,'붉은 경고: IDT 권고 참고 · 로컬 dimer ΔG ≤ −9','3′ 말단 연속 ≥3 bp: 사용자 요청 로컬 보조 표시 조건 · IDT 공식 수치 기준 아님');
+ }
+ blocks.push({kind:'section',lines:[selected?'해당 조합 입력:':'입력:']});for(const r of records)blocks.push({kind:'input',lines:[`${r.name}\t${r.sequence}\t실제 서열 ${variantCount(r.sequence)}개`],cells:[r.name,r.sequence,`실제 서열 ${variantCount(r.sequence)}개`]});
  let count=0;
- for(const p of pairs){if(!p.structures.length)continue;count++;text('',`${LABELS[p.kind]}: ${p.first}${p.kind==='hetero'?' × '+p.second:''} · 표시 ${p.structures.length}/${p.allStructures??p.structures.length}개`);for(const [i,s] of p.structures.entries()){if(p.kind==='poly'){text(`#${i+1} ${s.category==='strong'?'각 구간 강함':'개별 약함/강약 혼합'} · 구간 점수 합 ${d.formatDG(s.scoreMicros)} (실제 복합체 ΔG 아님)`);const lines=polyLines(s);sequence(...lines.slice(0,3));text(...lines.slice(3));}else{if(mode==='thermo')text(`#${i+1} 전체 상보 ${s.totalPairs} bp`);else text(`#${i+1} ΔG ${d.formatDG(s.deltaGMicros)} kcal/mol${d.isWarning(s.deltaGMicros)?' · 경고':''}`);sequence(`실제 서열: ${s.variantFirst} / ${s.variantSecond}`);if(mode==='idt')text(`3′ 말단 연속: 상단 ${s.terminal.top} / 하단 ${s.terminal.bottom} bp`);blocks.push({kind:'diagram',lines:mode==='thermo'?s.thermoDiagram:s.diagram});}}}
+ const groups=meta.grouped?KINDS.filter(k=>meta.modules?.[k]?.state==='complete'||pairs.some(p=>p.kind===k)):[''];
+ for(const kind of groups){
+  const subset=kind?pairs.filter(p=>p.kind===kind&&p.structures.length):pairs;
+  if(kind){text('');blocks.push({kind:'section',lines:[LABELS[kind]]});if(!subset.length)text('현재 표시할 구조 없음');}
+  for(const p of subset){if(!p.structures.length)continue;count++;text('');blocks.push({kind:'pair',lines:[`${LABELS[p.kind]}: ${p.first}${p.kind==='hetero'?' × '+p.second:''} · 표시 ${p.structures.length}/${p.allStructures??p.structures.length}개`]});for(const [i,s] of p.structures.entries()){if(p.kind==='poly'){text(`#${i+1} ${s.category==='strong'?'각 구간 강함':'개별 약함/강약 혼합'} · 구간 점수 합 ${d.formatDG(s.scoreMicros)} (실제 복합체 ΔG 아님)`);const lines=polyLines(s);sequence(...lines.slice(0,3));text(...lines.slice(3));}else{if(mode==='thermo')text(`#${i+1} 전체 상보 ${s.totalPairs} bp`);else blocks.push({kind:d.isWarning(s.deltaGMicros)?'warning':'text',lines:[`#${i+1} ΔG ${d.formatDG(s.deltaGMicros)} kcal/mol${d.isWarning(s.deltaGMicros)?' · 경고':''}`]});sequence(`실제 서열: ${s.variantFirst} / ${s.variantSecond}`);if(mode==='idt')text(`3′ 말단 연속: 상단 ${s.terminal.top} / 하단 ${s.terminal.bottom} bp`);blocks.push({kind:'diagram',lines:mode==='thermo'?s.thermoDiagram:s.diagram});}}}
+ }
+ if(selected)return blocks;
  if(!count)text('현재 표시할 결합 구조 없음 · 분석 항목의 완료/미실행/미완료 상태와 표시 조건을 확인하세요.');
  text('','DNA IUPAC 전수 확장. 가능한 결합 후보이며 발생확률/실제 증폭 판정이 아닙니다.');if(mode==='idt'&&meta.modules?.poly?.state!=='skipped')text('Polydimer: 탐색적 3분자·두 비겹침 결합 구간 후보. 구간 점수 합과 각 구간 ≤−9는 실제 복합체 안정성·협동성·형성량의 판정 기준이 아닙니다. loop/접합부/가닥 결합 비용·3D·전체 복합체 에너지는 계산하지 않습니다.');
  text(`검출 참고: ${SOURCES[mode]}`);return blocks;
 }
 export function textReport(records,pairs,mode,meta={}){return reportBlocks(records,pairs,mode,meta).flatMap(b=>b.lines).join('\n');}
 const escapeHTML=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function excelReport(records,pairs,mode,meta={}){
+export function excelRows(records,pairs,mode,meta={}){
  // One physical Excel row per line, always in the same unmerged column.
  // Avoid imported in-cell breaks and spacerun spans: Excel can defer their layout
  // until cell editing. Literal NBSP preserves fixed-width diagram columns.
- const lines=reportBlocks(records,pairs,mode,meta).flatMap(b=>{
+ return reportBlocks(records,pairs,mode,meta).flatMap(b=>{
   if(b.kind==='input')return [{text:`${b.cells[0]} · ${b.cells[2]}`,mono:false},{text:b.cells[1],mono:true}];
-  return b.lines.flatMap(text=>{const strands=b.kind==='sequence'&&text.match(/^실제 서열: ([ACGT]+) \/ ([ACGT]+)$/);return (strands?[`실제 서열 1: ${strands[1]}`,`실제 서열 2: ${strands[2]}`]:[text]).map(text=>({text,mono:b.kind==='diagram'||b.kind==='sequence'}));});
+  return b.lines.flatMap(text=>{const strands=b.kind==='sequence'&&text.match(/^실제 서열: ([ACGT]+) \/ ([ACGT]+)$/);return (strands?[`실제 서열 1: ${strands[1]}`,`실제 서열 2: ${strands[2]}`]:[text]).map(text=>({text,mono:b.kind==='diagram'||b.kind==='sequence',kind:b.kind}));});
  });
- const width=Math.ceil(Math.max(720,...lines.map(line=>line.text.length*(line.mono?7.2:12)+16)));
+}
+export function excelReport(records,pairs,mode,meta={}){
+ const lines=excelRows(records,pairs,mode,meta);
+ const width=Math.ceil(lines.reduce((max,line)=>Math.max(max,line.text.length*(line.mono?7.2:12)+16),720));
  const rows=lines.map(({text,mono})=>`<tr height="21" style="height:16pt;mso-height-source:userset"><td height="21" style="height:16pt;font-family:'${mono?'Courier New':'Malgun Gothic'}';font-size:9pt;vertical-align:top;text-align:left;white-space:nowrap;mso-number-format:'\\@';padding:1pt 2pt">${(mono?escapeHTML(text).replace(/ /g,'&nbsp;'):escapeHTML(text))||'&nbsp;'}</td></tr>`);
  return '<!doctype html><html lang="ko" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body style="font-family:\'Malgun Gothic\';font-size:9pt"><!--StartFragment--><table width="'+width+'" style="border-collapse:collapse;font-family:\'Malgun Gothic\';font-size:9pt"><colgroup><col width="'+width+'"></colgroup>'+rows.join('')+'</table><!--EndFragment--></body></html>';
 }

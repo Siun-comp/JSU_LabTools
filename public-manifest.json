@@ -924,6 +924,10 @@
     {
       "source": "tools/oligo-thermodynamics/workbench-report.mjs",
       "target": "tools/oligo-thermodynamics/workbench-report.mjs"
+    },
+    {
+      "source": "tools/oligo-analysis/xlsx.mjs",
+      "target": "tools/oligo-analysis/xlsx.mjs"
     }
   ],
   "date": "2026-10-06"
