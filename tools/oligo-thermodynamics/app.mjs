@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 import {normalize,selection,moveRange,strands} from './sequence.mjs';
-import {conditionsFromStrings,FIELDS} from './conditions.mjs';
+import {conditionsFromStrings,conditionFieldIssue,FIELDS} from './conditions.mjs';
 import {initAnalysis} from './analysis-ui.mjs';
 import {UI_VERSION} from './analysis-core.mjs';
 let analysis;
@@ -21,7 +21,7 @@ function showConditions(){
  const any=FIELDS.some(k=>$(k).value.trim());
  if(any){try{conditionsFromStrings(Object.fromEntries(FIELDS.map(k=>[k,$(k).value])));$('conditions-error').textContent='';}catch(e){$('conditions-error').textContent=e.message;}}
  else $('conditions-error').textContent='';
- for(const k of FIELDS){const input=$(k),n=Number(input.value);input.setAttribute('aria-invalid',String(!input.value.trim()||!Number.isFinite(n)||n<0||(k==='temperature'&&n>100)||(['a','b'].includes(k)&&n===0)));input.setAttribute('aria-describedby','conditions-error');}
+ for(const k of FIELDS){const input=$(k);input.setAttribute('aria-invalid',String(Boolean(conditionFieldIssue(k,input.value))));input.setAttribute('aria-describedby','conditions-error');}
  analysis?.syncInput();
 }
 function renderSequence(){

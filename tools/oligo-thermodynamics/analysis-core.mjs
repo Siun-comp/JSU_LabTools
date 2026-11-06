@@ -32,7 +32,12 @@ export function makeRequest(input,requestId,revision){
  const a=input.parsed.seq.slice(start-1,end),c=conditionsFromStrings(input.conditions);
  return freeze(validateRequest({schemaVersion:'0.4',requestId,revision,parent:{name:input.parentName.trim()||input.parsed.name||'이름 없음',normalizedLength:input.parsed.seq.length},selection:{start,end,length},strandA:a,strandB:reverseComplement(a),role:input.role.trim(),memo:input.memo.trim(),conditions:Object.fromEntries(FIELDS.map(k=>[k,c[k]])),contract:{...CONTRACT}}));
 }
-export function inputKey(i){return JSON.stringify([i.raw,i.range?.start,i.range?.end,Boolean(i.coordinateDraft),FIELDS.map(k=>i.conditions[k])]);}
+export function inputKey(i){
+ let conditions;
+ try{const c=conditionsFromStrings(i.conditions);conditions=FIELDS.map(k=>c[k]);}
+ catch{conditions=FIELDS.map(k=>i.conditions[k]);}
+ return JSON.stringify([i.parsed.ok?i.parsed.seq:i.raw,i.range?.start,i.range?.end,Boolean(i.coordinateDraft),conditions]);
+}
 export function metadata(r,i){return {...r,parent:{...r.parent,name:i.parentName.trim()||i.parsed.name||'이름 없음'},role:i.role.trim(),memo:i.memo.trim()};}
 export function limitations(r){
  const c=r.conditions,notes=['표준 비변형 DNA의 모델 예측값입니다. 실제 반응 속도·효율·형광을 예측하지 않습니다.','Hairpin은 Primer3 THAL 선택 구조이며 ensemble 접근성/전체 분자 folding이 아닙니다. 구조 미검출은 모든 접힘이 없다는 뜻이 아닙니다.','Duplex는 별도 DNA_NN4 고정 정렬 모델이며 ΔG°(T)는 1 M 표준상태·ΔCp=0 근사입니다.','원본의 선택 밖 서열·수정/표지·첨가제·효소 효과는 계산에 포함하지 않습니다.'];
@@ -52,11 +57,11 @@ export function compare(candidate,base){
  const model=JSON.stringify(a.contract)===JSON.stringify(b.contract)&&candidate.duplex.model===base.duplex.model;
  const sameReaction=candidate.duplex.self===base.duplex.self;
  if(!ions||!model||!sameReaction){result.notes.push('이온·모델·자기상보 반응 정의가 달라 공통 조건의 변화량을 계산하지 않습니다.');return result;}
- result.tm=candidate.duplex.tm-base.duplex.tm;
+ if(ca.a===cb.a&&ca.b===cb.b)result.tm=candidate.duplex.tm-base.duplex.tm;
+ else result.notes.push('가닥 농도 다름 · ΔTm은 같은 농도에서만 비교합니다.'+(candidate.duplex.status==='ok'&&base.duplex.status==='ok'?' ΔG°는 표준상태 값입니다.':''));
  if(candidate.duplex.status!=='ok'||base.duplex.status!=='ok')result.notes.push('Tm 전용 결과에는 ΔG°가 없어 ΔΔG를 제공하지 않습니다.');
  else if(ca.temperature===cb.temperature)result.dg=candidate.duplex.dg-base.duplex.dg;
  else result.notes.push('반응 온도가 달라 결합 우열용 ΔΔG를 계산하지 않습니다.');
- if(ca.a!==cb.a||ca.b!==cb.b)result.notes.push('가닥 농도 다름: ΔTm에는 농도 차이가 반영됩니다.'+(candidate.duplex.status==='ok'&&base.duplex.status==='ok'?' ΔG°는 표준상태 값입니다.':''));
  return result;
 }
 export function hasTm(v){return ['ok','tm-only'].includes(v?.status);}

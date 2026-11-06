@@ -30,13 +30,13 @@ export function resultText(records,{base=null,includeParent=false}={}){
  return lines.join('\n');
 }
 export function resultHTML(records,options){return textHTML(resultText(records,options));}
-export function structureReport(record,key){
+export function structureReport(record,key,{includeRaw=true}={}){
  if(!['hairpinA','hairpinB'].includes(key)||!record[key]?.structure)throw new Error('복사할 반환 구조가 없습니다.');
  const r=record.request,c=r.conditions;
  return [`JSU LabTools · ${record.id||'현재'} · ${key==='hairpinA'?'A':'B'} hairpin · 5′→3′`,
   `계산 시각: ${record.calculatedAt}`,`원본: ${r.parent.name} · ${r.selection.start}–${r.selection.end} · ${r.selection.length} nt`,
   conditionText(c),`Hairpin 모델: ${r.contract.hairpin}`,`엔진 ${r.contract.engineVersion} · WASM SHA-256: ${r.contract.wasm}`,
-  readableStructure(record[key].structure,key==='hairpinA'?r.strandA:r.strandB,r.contract.hairpin)].join('\n');
+  readableStructure(record[key].structure,key==='hairpinA'?r.strandA:r.strandB,r.contract.hairpin,{includeRaw})].join('\n');
 }
 export function csvCell(value){
  if(typeof value==='number'){if(!Number.isFinite(value))throw new Error('유한한 수만 내보낼 수 있습니다.');return String(value);}

@@ -24,14 +24,14 @@ export function parseHairpin(raw,sequence,model=SUPPORTED_HAIRPIN){
  pairs.sort((a,b)=>a.left-b.left);
  return {status:'ok',format:STRUCTURE_FORMAT,sequence,dotBracket:out.join(''),pairs,raw};
 }
-export function readableStructure(raw,sequence,model){
+export function readableStructure(raw,sequence,model,{includeRaw=true}={}){
  const s=parseHairpin(raw,sequence,model);
  if(s.status!=='ok')return `구조 표기 변환 불가: ${s.reason}\nTHAL 원문 (변경 없음):\n${raw}`;
  return [`구조 표기: ${s.format} · THAL 반환 구조의 표기 변환`,
   `seq  ${sequence}`,`str  ${s.dotBracket}`,
   '염기쌍 (독립 oligo · 1-based): '+s.pairs.map(p=>`${p.left}–${p.right} (${p.bases})`).join(', '),
   '( )는 염기쌍, .은 비결합 염기입니다. MFE·구조 확률을 계산한 값이 아닙니다.',
-  'THAL 원문 (변경 없음):',raw].join('\n');
+  ...(includeRaw?['THAL 원문 (변경 없음):',raw]:[])].join('\n');
 }
 export function escapeHTML(text){return String(text).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 export function textHTML(text){

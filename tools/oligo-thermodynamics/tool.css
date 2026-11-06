@@ -77,3 +77,24 @@ pre{font:12px/1.6 var(--sequence-font);white-space:pre-wrap;overflow-wrap:anywhe
 .fixed-register{font-weight:600}.fixed-difference{font-size:13px;font-weight:600;padding:8px;border:1px solid var(--line);border-radius:4px}.relationship-result{min-width:0}.relationship-result>details{margin:10px 0}
 .relationship-workspace.is-focused .rel-source .hint{font-size:11px}.relationship-workspace.is-focused .rel-source{padding-top:5px;padding-bottom:5px}.relationship-workspace.is-focused .rel-source .sequence-view{max-height:56px}
 @media(max-width:480px){.rel-toolbar-fields{grid-template-columns:1fr}.rel-boundary-grid .adjustment-row{gap:2px}.rel-boundary-grid .adjustment-row button{width:27px;min-width:27px}.rel-boundary-grid .adjustment-row{grid-template-columns:27px minmax(30px,1fr) 27px}.rel-source{padding-left:7px;padding-right:7px}}
+
+/* Keep the result shell and its status row in the same flow during recalculation. */
+.work-navigation{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 10px;margin:14px 0 6px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.work-navigation .work-tabs{margin:0;padding:0;border:0}
+#advanced-modes{min-width:0;margin:0}
+#advanced-modes>summary{min-height:36px;padding:6px 8px}
+.advanced-tabs{display:flex;flex-wrap:wrap;gap:5px;padding:4px 0}
+.advanced-tabs button[aria-selected=true]{background:var(--accent);color:#fff;border-color:var(--accent)}
+#calculation-status,#rel-status{display:block;min-height:2lh}
+#result-copy-status:empty,#rel-copy-status:empty{display:block}
+#current-result[data-freshness=stale],#rel-result[data-freshness=stale]{outline:1px dashed var(--line);outline-offset:2px;border-radius:4px}
+.basic-result-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.selection-metrics{font-size:12px;font-weight:600;margin:4px 0}
+.result-card details>summary{font-size:12px}
+.comparison-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:6px 0}
+.comparison-tools[hidden]{display:none}
+.comparison-tools label{display:flex;align-items:center;gap:6px}
+.comparison-tools select{width:auto;max-width:100%}
+#pins-table td:last-child button{min-height:29px;padding:3px 6px;font-size:11px}
+#pins-table [data-pin-detail]>td{background:#fafcfe}
+@media(max-width:640px){.basic-result-grid{grid-template-columns:1fr}.work-navigation{display:block}}

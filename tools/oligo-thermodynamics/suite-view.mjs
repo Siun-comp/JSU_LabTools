@@ -23,7 +23,7 @@ export function renderSuite(suite,{selectedPoint=0,onSelect,duplexCard,hairpinCa
   root.append(cards(suite.points[0]),differences(suite.points[0]));return root;
  }
  const summary=el('div',undefined,'scan-tm-summary');summary.append(el('strong','Duplex Tm 요약 · 고정 서열/조건에서 분석 온도와 무관'));
- for(const e of suite.points[0].entries)summary.append(el('p',`${titles[e.kind]}: ${hasTm(e.record.duplex)?display(e.record.duplex.tm)+'°C':STATUS[e.record.duplex.status]}`));root.append(summary);
+ for(const e of suite.points[0].entries)summary.append(el('p',`${titles[e.kind]}: ${hasTm(e.record.duplex)?display(e.record.duplex.tm)+'°C':STATUS[e.record.duplex.status]}`));
  const reference=source.conditions.mg>0;
  root.append(el('p',reference?'아래 duplex 에너지는 Mg=0 참고값입니다. 입력 Mg 효과 제외·dNTP 독립 효과 미반영.':'아래 duplex 에너지는 입력 조건의 ΔG°(T)입니다.','suite-caution'));
  const scroll=el('div',undefined,'table-scroll scan-scroll'),table=el('table');table.className='scan-table';table.append(el('caption',reference?'온도별 Mg=0 참고 duplex ΔG° · kcal/mol':'온도별 입력 조건 duplex ΔG° · kcal/mol'));
@@ -36,6 +36,7 @@ export function renderSuite(suite,{selectedPoint=0,onSelect,duplexCard,hairpinCa
  if(r.includeHairpin){
   const hs=el('div',undefined,'table-scroll scan-scroll'),ht=el('table');ht.append(el('caption','입력 조건 · 전체 A/B hairpin ΔG°(T) · kcal/mol · 위 Mg0 duplex와 직접 빼지 않음'));const hr=el('tr');for(const t of ['온도 °C','A hairpin ΔG°','B hairpin ΔG°'])hr.append(el('th',t));const hh=el('thead');hh.append(hr);ht.append(hh);const hb=el('tbody');for(const point of suite.points){const row=el('tr');row.append(el('td',String(point.temperature)));for(const key of ['hairpinA','hairpinB']){const v=point.entries[0].record[key];row.append(el('td',v.status==='ok'?display(v.dg):STATUS[v.status]));}hb.append(row);}ht.append(hb);hs.append(ht);root.append(hs);
  }else root.append(el('p','전체 A/B hairpin: 미요청. 옵션을 켜고 온도 비교를 다시 실행하면 계산합니다.','hint'));
+ root.append(summary);
  const p=suite.points[selectedPoint],detail=el('details');detail.dataset.detail='scan-selected';detail.append(el('summary',`선택한 ${p.temperature}°C의 수치·조건·구조`),cards(p),differences(p));
  if(r.includeHairpin){const hp=el('div',undefined,'result-grid hairpin-grid');hp.append(hairpinCard('A hairpin · 전체',p.entries[0].record,'hairpinA'),hairpinCard('B hairpin · 전체',p.entries[0].record,'hairpinB'));detail.append(hp);}root.append(detail);
  return root;
