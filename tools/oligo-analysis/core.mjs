@@ -1,5 +1,5 @@
 import * as d from './dimer.mjs';
-export const VERSION='0.2.2';
+export const VERSION='0.2.3';
 export const {energyMicros,formatDG,isWarning,idtDimer,thermoDimer,SOURCES,WARNING_MICROS}=d;
 export const IUPAC=Object.freeze({A:'A',C:'C',G:'G',T:'T',R:'AG',Y:'CT',S:'CG',W:'AT',K:'GT',M:'AC',B:'CGT',D:'AGT',H:'ACT',V:'ACG',N:'ACGT'});
 export const LIMITS=Object.freeze({oligos:20,length:200,characters:20000,variants:1024,pairWork:50000000,pairRows:250000,softWork:4000000,softRows:50000,polyWarningTriples:100,polyWarningWork:200000,polyLength:60,polyTimeMs:30000,polyMemoryBytes:134217728});
@@ -11,7 +11,18 @@ export function parseInput(raw){
  if(typeof raw!=='string'||raw.length>LIMITS.characters)throw Error(`입력은 ${LIMITS.characters.toLocaleString()}자까지 가능합니다.`);
  const lines=raw.replace(/^\uFEFF/,'').split(/\r?\n/),first=lines.find(x=>x.trim());if(!first)throw Error('이름과 DNA 서열을 입력하세요.');let records=[];
  if(first.trim().startsWith('>')){let rec;lines.forEach((line,i)=>{if(!line.trim())return;if(line.trim().startsWith('>')){rec={name:line.trim().slice(1).trim(),sequence:'',line:i+1};records.push(rec);}else{if(!rec)throw Error(`${i+1}행: FASTA 이름이 필요합니다.`);rec.sequence+=line;}});}
- else lines.forEach((line,i)=>{if(!line.trim()&&!line.includes('\t'))return;if(line.includes('\t')){const cells=line.split('\t').map(x=>x.trim());if(cells.length!==2||cells.some(x=>!x))throw Error(`${i+1}행: Excel 붙여넣기는 비어 있지 않은 이름과 서열 두 열이 필요합니다.`);records.push({name:cells[0],sequence:cells[1],line:i+1});return;}const m=line.trim().match(/^(\S+)\s+(.+)$/);if(!m)throw Error(`${i+1}행: 이름과 서열을 공백 또는 탭으로 나누세요.`);records.push({name:m[1],sequence:m[2],line:i+1});});
+ else lines.forEach((line,i)=>{
+  if(!line.trim())return;
+  if(line.includes('\t')){
+   const [name,...cells]=line.split('\t').map(cell=>cell.trim());
+   const values=cells.filter(Boolean),[sequence]=values;
+   if(!name||values.length!==1)throw Error(`${i+1}행: Excel 붙여넣기는 첫 열에 이름, 그 뒤에 서열 값 하나가 필요합니다. 병합으로 생긴 빈 셀은 무시합니다.`);
+   records.push({name,sequence,line:i+1});return;
+  }
+  const m=line.trim().match(/^(\S+)\s+(.+)$/);
+  if(!m)throw Error(`${i+1}행: 이름과 서열을 공백 또는 탭으로 나누세요.`);
+  records.push({name:m[1],sequence:m[2],line:i+1});
+ });
  if(records.length>LIMITS.oligos)throw Error(`최대 ${LIMITS.oligos}개 oligo까지 입력할 수 있습니다.`);
  let normalized=0;const names=new Set();for(const r of records){if(!r.name||r.name.length>100)throw Error(`${r.line}행: 이름은 1–100자여야 합니다.`);if(names.has(r.name))throw Error(`${r.line}행: 이름 “${r.name}”이 중복되었습니다.`);names.add(r.name);if(/[rdm](?=[ACGTU])/.test(r.sequence))throw Error(`${r.line}행 ${r.name}: RNA·수정 재질 접두어는 지원하지 않습니다. DNA 혼합염기는 대문자로 입력하세요.`);const s=r.sequence.replace(/\s/g,'').toUpperCase();if(s!==r.sequence)normalized++;if(!/^[ACGTRYSWKMBDHVN]+$/.test(s))throw Error(`${r.line}행 ${r.name}: DNA A/C/G/T 및 IUPAC 혼합염기만 지원합니다. U·RNA·수정염기는 지원하지 않습니다.`);if(s.length<3||s.length>LIMITS.length)throw Error(`${r.line}행 ${r.name}: 서열 길이는 3–${LIMITS.length} nt여야 합니다.`);r.sequence=s;r.variants=variantCount(s);}
  return {records,normalized};

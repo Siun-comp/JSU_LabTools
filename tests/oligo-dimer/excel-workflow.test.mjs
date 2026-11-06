@@ -6,7 +6,10 @@ const Zip=createRequire(import.meta.url)('../../tools/method-comparison/vendor/j
 
 const records=c.parseInput('Primer CAT\tGCGCGCAAAGCGCGC\r\n=Reverse & partner\tGCGCGC\r\nUnrelated\tAAAAAAAAA').records;
 assert.deepEqual(records.map(({name,sequence})=>[name,sequence]),[['Primer CAT','GCGCGCAAAGCGCGC'],['=Reverse & partner','GCGCGC'],['Unrelated','AAAAAAAAA']]);
-for(const raw of ['\tGCGC','Name\t','Name\tGCGC\tExtra'])assert.throws(()=>c.parseInput(raw),/1행.*두 열/);
+const padded=c.parseInput('\t\r\n  Primer CAT  \tGC G CAA \t\r\n \t \r\nReverse  primer\t \t\tTT GC GC\t \t\r\n\t').records;
+assert.deepEqual(padded.map(({name,sequence,line})=>[name,sequence,line]),[['Primer CAT','GCGCAA',2],['Reverse  primer','TTGCGC',4]]);
+for(const raw of ['\tGCGC','Name\t','Name\tGCGC\t\tExtra'])assert.throws(()=>c.parseInput('\t\n'+raw),/2행.*서열 값 하나/);
+assert.throws(()=>c.parseInput('Name\t\tOther'),/1행.*DNA/);
 assert.equal(c.parseInput('>Forward primer\nGCGC').records[0].name,'Forward primer');
 assert.equal(c.parseInput('Legacy GCGC').records[0].sequence,'GCGC');
 const result=c.runAnalysis(records,'idt',{poly:true});

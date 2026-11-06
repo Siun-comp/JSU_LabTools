@@ -16,6 +16,18 @@ const oligo=contract.oligoDimerRelease;
 const methodPatch=contract.methodComparisonPatchRelease;
 assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,'1.5.1');assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
 const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+const mergedPatch=contract.oligoMergedRelease;
+assert.equal(mergedPatch.previousSHA,'b7aa6ce7f243d2c4f3e40427a0bf6180557567ec');assert.equal(mergedPatch.portalVersion,manifest.version);assert.equal(mergedPatch.toolVersion,'0.2.3');assert.equal(mergedPatch.plotVersion,'2.3.0');
+assert.deepEqual(manifest.files,mergedPatch.previousPublic.map(({source,target})=>({source,target})));
+assert.deepEqual(mergedPatch.selected.map(e=>e.target).sort(),[...manifest.files.filter(e=>e.target==='index.html'||e.target.startsWith('info/')).map(e=>e.target),'tools/oligo-analysis/index.html','tools/oligo-analysis/core.mjs'].sort());
+async function preMergedBytes(target){
+ const entry=mergedPatch.previousPublic.find(e=>e.target===target);assert(entry);
+ const bytes=await readFile(resolve(dist,target)),selected=mergedPatch.selected.find(e=>e.target===target);
+ if(selected)assert.equal(hash(bytes),selected.sha256,'Reviewed merged paste release '+target);
+ const old=selected?execFileSync('git',['-C',gitRoot,'show',mergedPatch.previousSHA+':'+entry.source]):bytes;
+ assert.equal(hash(old),entry.sha256,'Previous release bytes '+target);return old;
+}
+for(const e of mergedPatch.previousPublic)await preMergedBytes(e.target);
 const excelPatch=contract.oligoExcelRelease;
 assert.equal(excelPatch.previousSHA,'62dc3868cad1f7cec342b8cf3b4306e61aaf9b32');assert.equal(excelPatch.toolVersion,'0.2.2');
 const priorTargets=new Set(excelPatch.previousPublic.map(e=>e.target));
@@ -25,14 +37,14 @@ assert.deepEqual(manifest.files.filter(e=>!priorTargets.has(e.target)).map(e=>e.
 assert.deepEqual(excelPatch.selected.map(e=>e.target).sort(),['index.html','info/oligo-analysis.html',...['app.mjs','core.mjs','index.html','xlsx.mjs'].map(name=>'tools/oligo-analysis/'+name)].sort());
 async function preExcelBytes(target){
  const entry=excelPatch.previousPublic.find(e=>e.target===target);assert(entry);
- const bytes=await readFile(resolve(dist,target)),changed=excelPatch.selected.find(e=>e.target===target);
+ const bytes=await preMergedBytes(target),changed=excelPatch.selected.find(e=>e.target===target);
  if(changed)assert.equal(hash(bytes),changed.sha256);
  const old=changed?execFileSync('git',['-C',gitRoot,'show',excelPatch.previousSHA+':'+entry.source]):bytes;
  assert.equal(hash(old),entry.sha256,'Prior public bytes: '+target);return old;
 }
 for(const e of excelPatch.previousPublic)await preExcelBytes(e.target);
 const plotPatch=contract.plotMetadataRelease;
-assert.equal(plotPatch.previousSHA,'8d6f67a946940f875859d94d75130f783f2a20a3');assert.equal(plotPatch.portalVersion,manifest.version);assert.equal(plotPatch.plotVersion,'2.2.0');assert.equal(plotPatch.previousPublic.length,231);
+assert.equal(plotPatch.previousSHA,'8d6f67a946940f875859d94d75130f783f2a20a3');assert.equal(plotPatch.portalVersion,mergedPatch.previousPortalVersion);assert.equal(plotPatch.plotVersion,'2.2.0');assert.equal(plotPatch.previousPublic.length,231);
 assert.deepEqual(priorFiles,plotPatch.previousPublic.map(({source,target})=>({source,target})),'Plot metadata update keeps all public paths');
 assert.deepEqual(plotPatch.selected.map(e=>e.target).sort(),manifest.files.filter(e=>e.target==='index.html'||/^info\/.*\.html$/.test(e.target)).map(e=>e.target).sort(),'Only portal metadata and version footers selected');
 const prePlotCache=new Map();
@@ -103,7 +115,7 @@ const previousHome=html=>preOligoHome(html).replace(method.portalRow,'').replace
 async function historicBytes(target){const bytes=await preOligoBytes(target);return target==='index.html'?Buffer.from(previousHome(bytes.toString())):/^info\/.*\.html$/.test(target)?Buffer.from(bytes.toString().replaceAll('포털 v1.4.0','포털 v1.3.0')):bytes;}
 for(const entry of method.previousPublic)assert.equal(hash(await historicBytes(entry.target)),entry.sha256,'Previous public content retained: '+entry.target);
 
-assert.equal(manifest.version,'1.8.1');assert.equal(manifest.candidate,undefined);
+assert.equal(manifest.version,'1.8.2');assert.equal(manifest.candidate,undefined);
 assert.equal(update.portalVersion,'1.2.1');assert.equal(buffer.portalVersion,'1.3.0');
 assert.equal(buffer.previousPortalVersion,'1.2.1');assert.equal(buffer.previousSHA,'d5b8ca0778a1e536867415156f081c9f2ebadacc');
 assert.equal(buffer.toolVersion,'1.1.0');assert.equal(buffer.algorithmVersion,'0.2.0');assert.equal(buffer.releasedOn,'2026-10-07');
@@ -139,8 +151,11 @@ for(const e of contract.baseline.files)assert(targets.has(e.target),'Previous pu
 for(const e of update.previousPublic)assert(targets.has(e.target),'AP144 public path retained');
 const home=await readFile(resolve(dist,'index.html'),'utf8');
 assert((await prePlotBytes('index.html')).toString().includes(upgrade.currentPlotRow),'Historical Plot2.0 row preserved');
-assert(home.includes(plotPatch.currentPlotRow)&&home.includes('화면 v2.2.0 · 문서 v2.2.0'),'Reviewed Plot2.2 row');
-const plotInfo=await readFile(resolve(dist,'info/plot.html'),'utf8');
+assert((await preMergedBytes('index.html')).toString().includes(plotPatch.currentPlotRow),'Historical Plot2.2 row');
+assert(home.includes(mergedPatch.plotRow)&&home.includes('화면 v2.3.0 · 문서 v2.3.0'),'Reviewed Plot2.3 row');
+const plotInfo=(await preMergedBytes('info/plot.html')).toString();
+const currentPlotInfo=await readFile(resolve(dist,'info/plot.html'),'utf8');
+for(const marker of ['v2.3.0','2026-11-06','평문 TXT','schema 10','schema 9','암호화 로그는 지원하지 않습니다'])assert(currentPlotInfo.includes(marker));
 for(const marker of ['v2.2.0','2026-11-01','디코딩된 장비 CSV','.chamber-preset.json','미리 본 뒤 명시적으로 적용','검체명·형광값·Threshold는 포함하지 않습니다','별도의 재적용 확인','다시 시험하지 않았습니다'])assert(plotInfo.includes(marker),'Plot metadata scope: '+marker);
 assert(home.includes('실행 가능 10개')&&home.includes('준비중 0개'));
 const aaRows=[...home.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].filter(m=>m[0].includes('<h2>Amplification Analysis</h2>'));
@@ -188,4 +203,4 @@ assert(mainText.includes('증폭 곡선 분석 · 베타'),'Beta display');
 const webManifest=JSON.parse(await readFile(resolve(appBase,'manifest.webmanifest'),'utf8'));
 assert.equal(webManifest.name,'Amplification Analysis');assert.equal(webManifest.scope,'.');assert.equal(webManifest.start_url,'.');
 for(const icon of webManifest.icons)await readFile(resolve(appBase,icon.src));
-console.log('PASS: reviewed232-file portal1.8.1 artifact; integrated thermodynamics and Plot metadata; every earlier release reconstructed and unselected assets byte-preserved; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');
+console.log('PASS: reviewed232-file portal1.8.2 artifact; integrated thermodynamics and Plot metadata; every earlier release reconstructed and unselected assets byte-preserved; all107 prior paths preserved; selected reagent update; nucleic release preserved; exact unchanged beta.1 runtime27 and nested assets valid.');
