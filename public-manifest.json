@@ -1,5 +1,5 @@
 {
-  "version": "1.8.2",
+  "version": "1.8.3",
   "files": [
     {
       "source": "portal/index.html",
@@ -928,6 +928,14 @@
     {
       "source": "tools/oligo-analysis/xlsx.mjs",
       "target": "tools/oligo-analysis/xlsx.mjs"
+    },
+    {
+      "source": "portal/contact.html",
+      "target": "contact.html"
+    },
+    {
+      "source": "portal/assets/contact.mjs",
+      "target": "assets/contact.mjs"
     }
   ],
   "date": "2026-10-06"

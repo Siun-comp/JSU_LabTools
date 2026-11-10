@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <title>개발자에게 문의 | JSU LabTools</title>
+  <link rel="icon" type="image/svg+xml" href="assets/brand.svg">
+  <link rel="stylesheet" href="assets/portal.css">
+  <script type="module" src="assets/contact.mjs"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 이동</a>
+  <header class="masthead">
+    <div class="brand">
+      <img class="brand-mark" src="assets/brand.svg" alt="" width="44" height="44">
+      <span class="brand-name">JSU <b>LabTools</b></span>
+    </div>
+  </header>
+  <main class="detail-main" id="main" tabindex="-1">
+    <a class="back-link" href="index.html">← 도구 목록으로 돌아가기</a>
+    <header class="detail-heading">
+      <h1>개발자에게 문의</h1>
+      <p>오류 제보, 사용 문의, 개선 제안을 이메일로 보낼 수 있습니다.</p>
+    </header>
+    <section class="detail-section" aria-labelledby="draft-heading">
+      <h2 id="draft-heading">이메일 초안</h2>
+      <p id="contact-help">오류를 제보할 때는 발생한 상황과 재현 순서를 적어 주세요. 검체명, 연구 서열, 원본 파일은 제외해 주세요.</p>
+      <div class="contact-fields">
+        <label for="contact-category">문의 유형</label>
+        <select id="contact-category">
+          <option>사용 문의</option>
+          <option>오류 제보</option>
+          <option>개선 제안</option>
+        </select>
+        <label for="contact-tool">관련 도구와 버전</label>
+        <select id="contact-tool">
+          <option value="">포털 공통</option>
+          <option value="plot">IsoAmplar Plot Analysis T · v2.3.0</option>
+          <option value="oligo-mix">Oligo Mix · v1.1.0</option>
+          <option value="sequence">Sequence 빠른변환 · v1.0.2</option>
+          <option value="dilution">시약·버퍼 조제 · v1.2.0</option>
+          <option value="nucleic-acid">핵산 농도·Copy 수 · v1.1.0</option>
+          <option value="amplification-analysis">Amplification Analysis · v0.1.0-beta.1</option>
+          <option value="detection-capability">LoB · LoD · LoQ 분석 · v0.9.1-beta.5</option>
+          <option value="method-comparison">검사법 비교 분석 · v0.4.1</option>
+          <option value="oligo-analysis">Oligo-dimer analysis · v0.2.3</option>
+          <option value="oligo-thermodynamics">Oligo Thermodynamics · v0.2.0-beta.1</option>
+        </select>
+        <label for="contact-message">문의 내용 <span class="subtle">(선택, 최대 500자)</span></label>
+        <textarea id="contact-message" rows="5" maxlength="500" aria-describedby="contact-help"></textarea>
+      </div>
+      <div class="detail-actions">
+        <a id="contact-draft" class="execute" href="mailto:siun.comp@gmail.com">이메일 작성</a>
+        <span>이메일 앱에서 초안을 확인한 후 보내 주세요.</span>
+      </div>
+    </section>
+    <section class="detail-section" aria-labelledby="address-heading">
+      <h2 id="address-heading">받는 주소</h2>
+      <p><a id="contact-address" href="mailto:siun.comp@gmail.com">siun.comp@gmail.com</a></p>
+      <p>이메일 앱이 열리지 않으면 주소를 복사해 웹메일에서 새 메시지를 작성해 주세요.</p>
+    </section>
+  </main>
+  <footer class="detail-footer"><p>JSU LabTools</p><p id="contact-portal-version">포털 v1.8.3</p></footer>
+</body>
+</html>

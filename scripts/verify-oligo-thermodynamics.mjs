@@ -18,7 +18,7 @@ assert((await readFile(new URL(prefix+'LICENSE.txt',root))).equals(await readFil
 const html=await readFile(new URL(prefix+'index.html',root),'utf8'),info=await readFile(new URL('portal/info/oligo-thermodynamics.html',root),'utf8'),audit=await readFile(new URL(prefix+'validation.html',root),'utf8');
 assert(html.includes('통합 베타 · v0.2.0-beta.1'));assert(html.includes("worker-src 'self'"));assert(html.includes("connect-src 'self'"));assert(html.includes("'wasm-unsafe-eval'"));
 for(const x of ['14.73','40.10','Mg=0 참고','속도','0.1.0-beta.1','GPL'])assert(audit.includes(x),'Limits/source documented: '+x);
-assert(info.includes('포털 v1.8.2')&&info.includes('2026-10-30')&&info.includes('통합 베타'));
+assert(info.includes('포털 v1.8.3')&&info.includes('2026-10-30')&&info.includes('통합 베타'));
 for(const e of entries.filter(e=>/\.(?:mjs|html)$/.test(e.target))){const s=await readFile(new URL(e.source,root),'utf8');assert(!/XMLHttpRequest|sendBeacon|localStorage|sessionStorage|https?:\/\/[^\s"']*\?/.test(s),'No persistence or sequence URL: '+e.target);}
 const worker=await readFile(new URL(prefix+'worker.mjs',root),'utf8');assert(worker.includes("mg:0")&&worker.includes('duplexMgZeroReference'));
 const home=await readFile(new URL('portal/index.html',root),'utf8');assert(home.includes('실행 가능 10개')&&home.includes(prefix+'index.html')&&home.includes('info/oligo-thermodynamics.html'));

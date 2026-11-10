@@ -17,9 +17,25 @@ for(const path of ['index.html','info/plot.html','info/oligo-mix.html','info/seq
  const nucleicSources=['https://biopython.org/docs/1.88/api/Bio.SeqUtils.html','https://raw.githubusercontent.com/biopython/biopython/biopython-188/Bio/Data/IUPACData.py','https://www.neb.com/en/tools-and-resources/usage-guidelines/nucleic-acid-data','https://www.promega.com/-/media/files/resources/technical-references/nucleotides-and-nucleic-acids.pdf','https://www.bipm.org/en/si-base-units/mole','https://documents.thermofisher.com/TFS-Assets/LSG/manuals/cms_041003.pdf','https://www.bionicsro.co.kr/contents/serviceGeneSynthesis','https://www.bionicsro.co.kr/support/supportFaq','https://www.idtdna.com/pages/Support/FAQs/do-custom-oligos-come-with-5-phosphorylation-','https://www.neb.com/en/-/media/nebus/files/brochures/molcloning_tech_guide.pdf','https://www.neb.com/en-de/tools-and-resources/feature-articles/mind-your-caps-and-poly-a-tails-strategies-for-synthesizing-in-vitro-transcribed-ivt-mrna','https://www.thermofisher.com/kr/ko/home/references/ambion-tech-support/rna-tools-and-calculators/dna-and-rna-molecular-weights-and-conversions.html','https://nebiocalculator.neb.com/#!/dsdnaamt','https://www.thermofisher.com/kr/ko/home/brands/thermo-scientific/molecular-biology/molecular-biology-learning-center/molecular-biology-resource-library/thermo-scientific-web-tools/dna-copy-number-calculator.html'];
  assert.deepEqual(remote,path==='info/nucleic-acid.html'?nucleicSources:['index.html','info/plot.html'].includes(path)?[plot]:[],'Only selected Plot or static scientific references');
  assert(html.includes('v'+manifest.version)&&html.includes(['info/amplification-analysis.html','info/nucleic-acid.html'].includes(path)?'2026-10-06':path==='info/oligo-mix.html'?'2026-10-12':path==='info/sequence.html'?'2026-10-19':path==='info/method-comparison.html'?'2026-10-13':['index.html','info/plot.html'].includes(path)?'2026-11-06':path==='info/oligo-thermodynamics.html'?'2026-10-30':path==='info/oligo-analysis.html'?'2026-11-06':path==='info/dilution.html'?'2026-10-08':'2026-10-02'),'Portal version/date');
- for(const m of html.matchAll(/(?:href|src)="([^" ]+)"/g)){if(m[1].startsWith('http')||m[1].startsWith('#'))continue;await readFile(resolve(dirname(resolve(dist,path)),m[1].endsWith('/')?m[1]+'index.html':m[1]));}
+ for(const m of html.matchAll(/(?:href|src)="([^" ]+)"/g)){if(m[1].startsWith('http')||m[1].startsWith('#'))continue;const href=m[1].split('#',1)[0];await readFile(resolve(dirname(resolve(dist,path)),href.endsWith('/')?href+'index.html':href));}
 }
 const home=await readFile(resolve(dist,'index.html'),'utf8');
+const contact=await readFile(resolve(dist,'contact.html'),'utf8');
+assert(home.includes('href="contact.html">개발자에게 문의</a>'));
+assert.deepEqual([...contact.matchAll(/href="(mailto:[^"]+)"/g)].map(m=>m[1]),Array(2).fill('mailto:siun.comp@gmail.com'));
+assert(!/<(?:form|iframe)\b|(?:href|src)="https?:/i.test(contact),'Only the local draft and approved mail address');
+assert(contact.includes('포털 v'+manifest.version));
+const toolRows=[...home.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].map(m=>m[0]);
+const contactOptions=[...contact.matchAll(/<option value="([a-z-]+)">[^<]+ · (v[^<]+)<\/option>/g)];
+const infoTargets=manifest.files.filter(e=>e.target.startsWith('info/')&&e.target.endsWith('.html'));
+assert.deepEqual(contactOptions.map(m=>`info/${m[1]}.html`).sort(),infoTargets.map(e=>e.target).sort());
+for(const [,id,version] of contactOptions){
+ const infoPath=`info/${id}.html`;
+ const info=await readFile(resolve(dist,infoPath),'utf8');
+ assert(info.includes(`href="../contact.html#${id}">개발자에게 문의</a>`));
+ const row=toolRows.find(row=>row.includes(`href="${infoPath}"`));
+ assert(row?.includes(version),`Contact version matches portal row: ${id}`);
+}
 const pending=[...home.matchAll(/<tr class="planned">([\s\S]*?)<\/tr>/g)];assert.equal(pending.length,0);
 for(const row of pending){assert(!/<a\b|v\d+\.\d+/.test(row[1]));assert(row[1].includes('준비중'));}
 assert(home.includes('도구 v0.1.0-beta.1')&&home.includes('사용 검토용 베타'),'Deferred tools preserved');

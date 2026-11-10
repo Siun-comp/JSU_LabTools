@@ -12,3 +12,31 @@ footer{max-width:1220px;margin:24px auto 0;padding:0 34px;display:flex;gap:18px;
 
 
 .sequence-button[aria-pressed=true]{background:#eef3f8;border-color:#9bb0c4;color:#183653;}
+
+.contact-fields {
+  display: grid;
+  gap: 7px;
+  max-width: 560px;
+  margin-top: 18px;
+}
+.contact-fields label {
+  margin-top: 7px;
+  font-weight: 600;
+}
+.contact-fields select,
+.contact-fields textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #aebbc9;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+.contact-fields select:focus-visible,
+.contact-fields textarea:focus-visible {
+  outline: 3px solid #397aaf;
+  outline-offset: 2px;
+}
+.contact-fields textarea { resize: vertical; }
