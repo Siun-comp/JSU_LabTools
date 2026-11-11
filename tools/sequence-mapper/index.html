@@ -35,9 +35,15 @@
 </div></details>
 
 <section id="result" hidden aria-label="결과">
-<div class="summary-bar"><div id="summary-line" class="stats"></div><button type="button" id="add-sequences" hidden>서열 추가</button><input class="file-input" id="file-add" type="file" multiple accept=".fasta,.fa,.fna,.fas,.gb,.gbk,.txt" hidden><p id="filter-line" class="hint" role="status"></p></div>
+<div class="summary-bar"><div id="summary-line" class="stats"></div><p id="filter-line" class="hint" role="status"></p></div>
 <div class="workspace">
  <aside class="side">
+  <details open class="mapped-only" id="records-panel"><summary>서열</summary>
+   <div class="button-row"><button type="button" id="add-sequences">서열 추가</button><input class="file-input" id="file-add" type="file" multiple accept=".fasta,.fa,.fna,.fas,.gb,.gbk,.txt" hidden></div>
+   <div class="button-row"><button type="button" id="drop-records" disabled>선택 서열 제외</button><button type="button" id="restore-records" disabled>제외 취소</button></div>
+   <p class="hint">정렬 화면에서 서열 이름을 누르면 선택됩니다. Ctrl을 누른 채 누르면 하나씩 더하거나 빼고, Shift는 사이의 서열을 함께 고릅니다. 제외한 서열은 통계·Consensus·Primer 결합·내보내기에서 빠집니다. 다시 매핑하지 않으며 원본은 지우지 않습니다.</p>
+   <p id="records-state" class="hint" role="status"></p>
+  </details>
   <details open class="mapped-only"><summary>보기 범위</summary>
    <label for="search">이름 검색</label><input id="search" type="search" spellcheck="false" placeholder="accession 또는 이름">
    <div class="two"><div><label for="sort">정렬</label><select id="sort"><option value="input">입력 순서</option><option value="name">이름</option><option value="identity-asc">identity 낮은 순</option><option value="identity-desc">identity 높은 순</option></select></div><div><label for="min-identity">최소 identity %</label><input id="min-identity" type="number" min="0" max="100" step="any" placeholder="제한 없음"></div></div>

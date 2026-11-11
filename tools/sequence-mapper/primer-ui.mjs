@@ -43,6 +43,9 @@ export function setupPrimers(host){
    body.append(tr);}
   updateOrderButtons();
  }
+ // The highlighted primer goes away on a click elsewhere in the view or on Esc. A drawn range selection takes Esc first.
+ function clearActive(){if(host.viewer.activePrimer==null)return false;host.viewer.setActivePrimer(null);renderList();return true;}
+ document.addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented||$('pane-viewer').hidden||!$('selection').hidden||document.querySelector('dialog[open]')||document.activeElement?.matches?.('input:not([type=checkbox],[type=range]),textarea,select'))return;if(clearActive())e.preventDefault();});
  function focus(id){const p=P.list.find(x=>x.id===id);if(!p?.site)return;host.showTab('viewer');host.viewer.setActivePrimer(id);host.viewer.scrollToColumn(host.cols().colOf[p.site.start]);renderList();host.hoverText(`${p.name} · ${siteText(p.site)} · ${p.site.strand>0?'+':'−'} · ${p.sequence}`);}
 
  // Registration dialog
@@ -244,5 +247,5 @@ export function setupPrimers(host){
   P.legacy=!!P.binding&&(saved.binding.method??1)<BINDING_METHOD;if(P.legacy)P.stale=true;P.relocate=(saved.placementMethod??1)<PLACEMENT_METHOD;}
  // Sites found under the old shape no longer hold, so chosen positions are searched again.
  function onTopology(){P.list=P.list.map(p=>p.manual&&p.site.end<=host.reference().length?p:{...p,locked:false,manual:false});changed({rerun:false});}
- return {handle,onRange,exportText,snapshot,restore,onTopology,edit:id=>openEdit(id),onData(){if(P.restored){P.restored=false;if(P.relocate){P.relocate=false;P.list=P.list.map(place);}refreshViewer();renderList();renderBinding();$('binding-state').textContent=P.binding?(P.legacy?'이전 버전 기준으로 계산한 결과입니다. 재분석이 필요합니다.':P.stale?'조건이 바뀌었습니다. 재분석이 필요합니다.':'저장된 결과입니다.'):'';$('binding-state').classList.toggle('stale',!!P.binding&&P.stale);return;}P.includeReference=host.referenceInList();P.binding=null;P.list=P.list.map(place);refreshViewer();renderList();},onConsensus(){if(P.list.some(p=>!p.manual&&p.site?.source!=='reference'))changed({rerun:false});},onFilter(){if(P.list.length){markStale();maybeAuto();}},onPrimerClick:focus,state:P,search,renderBinding};
+ return {handle,onRange,exportText,snapshot,restore,onTopology,edit:id=>openEdit(id),onData(){if(P.restored){P.restored=false;if(P.relocate){P.relocate=false;P.list=P.list.map(place);}refreshViewer();renderList();renderBinding();$('binding-state').textContent=P.binding?(P.legacy?'이전 버전 기준으로 계산한 결과입니다. 재분석이 필요합니다.':P.stale?'조건이 바뀌었습니다. 재분석이 필요합니다.':'저장된 결과입니다.'):'';$('binding-state').classList.toggle('stale',!!P.binding&&P.stale);return;}P.includeReference=host.referenceInList();P.binding=null;P.list=P.list.map(place);refreshViewer();renderList();},onConsensus(){if(P.list.some(p=>!p.manual&&p.site?.source!=='reference'))changed({rerun:false});},onFilter(){if(P.list.length){markStale();maybeAuto();}},onPrimerClick:focus,clearActive,state:P,search,renderBinding};
 }

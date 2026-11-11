@@ -7,8 +7,8 @@ const FONT='13px "Cascadia Mono",Consolas,"Liberation Mono","Courier New",monosp
 const pieces=(start,end,L)=>end>L?[{start,end:L},{start:0,end:end-L}]:[{start,end}];
 
 export class SequenceView{
- constructor(host,{onHover,onRange,onPrimer}={}){
-  Object.assign(this,{onHover,onRange,onPrimer});this.scroller=host.querySelector('.viewer-scroll');this.spacer=host.querySelector('.viewer-spacer');this.canvas=host.querySelector('canvas');this.ctx=this.canvas.getContext('2d',{alpha:false});
+ constructor(host,{onHover,onRange,onPrimer,onPrimerClear}={}){
+  Object.assign(this,{onHover,onRange,onPrimer,onPrimerClear});this.scroller=host.querySelector('.viewer-scroll');this.spacer=host.querySelector('.viewer-spacer');this.canvas=host.querySelector('canvas');this.ctx=this.canvas.getContext('2d',{alpha:false});
   this.sequence=null;this.primers=[];this.annotations=[];this.lines=[];this.range=null;this.mark=-1;this.found=null;this.activePrimer=null;this.showComplement=false;this.queued=false;this.drag=null;this.per=60;this.lastFrameMs=0;
   this.ctx.font=FONT;this.cw=Math.ceil(this.ctx.measureText('A').width)+2;
   this.scroller.addEventListener('scroll',()=>this.request(),{passive:true});new ResizeObserver(()=>this.resize()).observe(this.scroller);
@@ -87,7 +87,7 @@ export class SequenceView{
  hoverText(p){if(!p||p.pos<0)return null;const seq=this.sequence,parts=[`위치 ${(p.pos+1).toLocaleString()} · ${String.fromCharCode(seq[p.pos])}`];if(p.piece){const it=p.piece.item;parts.push(`${it.kind==='primer'?'Primer':it.type} ${it.label}`);}return parts.join(' · ');}
  move(e){const p=this.locate(e);if(this.drag&&p?.pos>=0){this.extend(p.pos);return;}this.canvas.style.cursor=p?.piece?'pointer':p?.onBases?'text':'';this.onHover?.(this.hoverText(p));}
  down(e){
-  if(e.button)return;const p=this.locate(e);if(!p||p.pos<0)return;
+  if(e.button)return;const p=this.locate(e);if(this.activePrimer!=null&&p?.piece?.item.kind!=='primer')this.onPrimerClear?.();if(!p||p.pos<0)return;
   if(p.piece){const it=p.piece.item;if(it.kind==='primer'){this.lastPrimer={id:it.id,t:performance.now()};this.onPrimer?.(it.id);}else{const r=p.piece.range;this.range={c0:r.start,c1:r.end,source:'reference',row:-1};this.request();this.onRange?.(this.range);}return;}
   if(!p.onBases)return;e.preventDefault();this.drag={start:p.pos,moved:false};this.scroller.focus({preventScroll:true});
  }

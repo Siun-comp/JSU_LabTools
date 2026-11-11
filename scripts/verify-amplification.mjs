@@ -17,9 +17,25 @@ const oligo=contract.oligoDimerRelease;
 const methodPatch=contract.methodComparisonPatchRelease;
 assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,'1.5.1');assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
 const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+const mapperPatch=contract.sequenceMapperPatchRelease;
+assert.equal(mapperPatch.previousSHA,'36990d1879e3a058f4e31889017108703372f6cd');
+assert.equal(mapperPatch.portalVersion,manifest.version);assert.equal(mapperPatch.previousPortalVersion,'1.8.4');assert.equal(mapperPatch.toolVersion,T['sequence-mapper'].version);
+assert.equal(mapperPatch.previousPublic.length,276);assert.deepEqual(mapperPatch.addedTargets,[]);
+assert.deepEqual(mapperPatch.previousPublic.map(({source,target})=>({source,target})),manifest.files,'Sequence Mapper 0.1.0-beta.2 keeps every public path');
+assert.deepEqual(mapperPatch.selected.map(e=>e.target).sort(),['index.html','contact.html',...mapperPatch.previousPublic.filter(e=>/^info\/.*\.html$/.test(e.target)).map(e=>e.target),...['app.mjs','core/stats.mjs','index.html','list-ui.mjs','primer-ui.mjs','view/sequence-view.mjs','view/viewer.mjs'].map(p=>'tools/sequence-mapper/'+p)].sort(),'Only portal version text and the reviewed Sequence Mapper files change');
+const beforePatch=new Map();
+for(const entry of mapperPatch.previousPublic){
+ const current=await readFile(resolve(dist,entry.target));
+ const changed=mapperPatch.selected.find(e=>e.target===entry.target);
+ if(changed)assert.equal(hash(current),changed.sha256,'Reviewed Sequence Mapper patch change: '+entry.target);
+ const previous=changed?execFileSync('git',['-C',gitRoot,'show',mapperPatch.previousSHA+':'+entry.source]):current;
+ assert.equal(hash(previous),entry.sha256,'Portal bytes before the Sequence Mapper patch: '+entry.target);
+ beforePatch.set(entry.target,previous);
+}
+for(const e of mapperPatch.selected.filter(e=>/^info\/.*\.html$/.test(e.target))){let t=beforePatch.get(e.target).toString().replace('포털 v1.8.4','포털 v1.8.5');if(e.target==='info/sequence-mapper.html')t=t.replace('<dd>v0.1.0-beta.1</dd>','<dd>v0.1.0-beta.2</dd>');assert.equal(t,(await readFile(resolve(dist,e.target))).toString(),'Information pages change only version text: '+e.target);}
 const mapperRelease=contract.sequenceMapperRelease;
 assert.equal(mapperRelease.previousSHA,'b0d50ca7f942d58c1354586644500251a77c37ee');
-assert.equal(mapperRelease.portalVersion,manifest.version);assert.equal(mapperRelease.previousPortalVersion,'1.8.3');assert.equal(mapperRelease.toolVersion,T['sequence-mapper'].version);
+assert.equal(mapperRelease.portalVersion,mapperPatch.previousPortalVersion);assert.equal(mapperRelease.previousPortalVersion,'1.8.3');assert.equal(mapperRelease.toolVersion,'0.1.0-beta.1');
 assert.equal(mapperRelease.previousPublic.length,234);assert.equal(mapperRelease.addedTargets.length,42);
 assert.deepEqual(manifest.files,[
  ...mapperRelease.previousPublic.map(({source,target})=>({source,target})),
@@ -29,14 +45,14 @@ assert.deepEqual(mapperRelease.addedTargets.filter(t=>!t.startsWith('tools/seque
 assert.deepEqual(mapperRelease.selected.map(e=>e.target).sort(),['index.html','contact.html','assets/contact.mjs',...mapperRelease.previousPublic.filter(e=>/^info\/.*\.html$/.test(e.target)).map(e=>e.target)].sort(),'Only portal list, contact page and version footers change');
 const beforeMapper=new Map();
 for(const entry of mapperRelease.previousPublic){
- const current=await readFile(resolve(dist,entry.target));
+ const current=beforePatch.get(entry.target);
  const changed=mapperRelease.selected.find(e=>e.target===entry.target);
  if(changed)assert.equal(hash(current),changed.sha256,'Reviewed Sequence Mapper release change: '+entry.target);
  const previous=changed?execFileSync('git',['-C',gitRoot,'show',mapperRelease.previousSHA+':'+entry.source]):current;
  assert.equal(hash(previous),entry.sha256,'Portal bytes before Sequence Mapper: '+entry.target);
  beforeMapper.set(entry.target,previous);
 }
-for(const e of mapperRelease.selected.filter(e=>/^info\/.*\.html$/.test(e.target)))assert.equal(beforeMapper.get(e.target).toString().replace('포털 v1.8.3','포털 v1.8.4'),(await readFile(resolve(dist,e.target))).toString(),'Information pages change only the portal version: '+e.target);
+for(const e of mapperRelease.selected.filter(e=>/^info\/.*\.html$/.test(e.target)))assert.equal(beforeMapper.get(e.target).toString().replace('포털 v1.8.3','포털 v1.8.4'),beforePatch.get(e.target).toString(),'Information pages change only the portal version: '+e.target);
 const contactRelease=contract.contactRelease;
 assert.equal(contactRelease.previousSHA,'4086b0880ea6f4c711187df544dc8f9576f3d0af');
 assert.equal(contactRelease.portalVersion,mapperRelease.previousPortalVersion);

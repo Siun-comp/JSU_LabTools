@@ -77,7 +77,11 @@ assert.equal(samCigar(S.cig,0,S.cig.length,0,0),'3M1D2M1I2M');assert.equal(samCi
 // Position statistics: missing != deletion != N != mismatch
 {const t=rec(['AC','AG','A-'.replace('-','N'),'AC'],[{start:0,cig:[[2,EQ]]},{start:0,cig:[[1,EQ],[1,X]]},{start:0,cig:[[1,EQ],[1,X]]},{start:1,qs:1,qe:2,cig:[[1,EQ]]}]);
  const st=computeStats(t,Uint32Array.from([0,1,2]),4);assert.equal(st.coverage[0],3);assert.equal(st.called[1],2);assert.equal(st.coverage[1],3);assert.equal(st.coverage[2],0);assert(Number.isNaN(st.identity[2]));assert.equal(st.consensus[2],0);assert.equal(String.fromCharCode(st.consensus[1]),'S');assert.equal(st.identity[1],.5);
- const one=computeStats(t,Uint32Array.from([0]),4);assert.equal(String.fromCharCode(one.consensus[1]),'C');assert.equal(one.coverage[0],1);}
+ const one=computeStats(t,Uint32Array.from([0]),4);assert.equal(String.fromCharCode(one.consensus[1]),'C');assert.equal(one.coverage[0],1);
+ // One sequence has nothing to be conserved against: no conservation value, coverage still counts it.
+ assert(Number.isNaN(one.identity[0]));assert(Number.isNaN(one.identity[1]));}
+// A deletion in the only sequence: covered (counted as deletion), no conservation value
+{const t=rec(['AT'],[{start:0,cig:[[1,EQ],[1,D],[1,EQ]]}]),st=computeStats(t,Uint32Array.from([0]),3);assert.equal(st.coverage[1],1);assert.equal(st.called[1],0);assert.equal(st.counts[1*6+5],1);assert(Number.isNaN(st.identity[1]));assert.equal(st.consensus[1],GAP);}
 {const t=rec(['AT','AT','AGT'],[{start:0,cig:[[1,EQ],[1,D],[1,EQ]]},{start:0,cig:[[1,EQ],[1,D],[1,EQ]]},{start:0,cig:[[3,EQ]]}]),st=computeStats(t,Uint32Array.from([0,1,2]),3);assert.equal(st.consensus[1],GAP);assert.equal(st.coverage[1],3);assert.equal(st.called[1],1);assert.equal(st.identity[1],Math.fround(2/3));}
 // Status keeps states apart
 {const t=rec(['ACGTACGTAC','ACGTACGTAC','ACGT'],[{start:0,cig:[[10,EQ]]},{start:0,qs:0,qe:5,cig:[[5,EQ]]},null]);t.meta[2*STRIDE+REF]=-1;assert.deepEqual([0,1,2].map(i=>statusOf(t,i)),['mapped','partial','unmapped']);const n=rec(['AC'],[null]);n.meta[REF]=-2;assert.equal(statusOf(n,0),'skipped');assert.equal(summarize(t).partial,1);}

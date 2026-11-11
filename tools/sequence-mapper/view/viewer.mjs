@@ -12,8 +12,8 @@ const TINT={A:'#efc9c6',C:'#c6d9ec',G:'#ecdcb9',T:'#c3e3d1'};
 const baseColor=c=>COLOR[String.fromCharCode(c)]??COLOR.other,baseTint=c=>TINT[String.fromCharCode(c)]??'#d8d2e6';
 const FONT='"Cascadia Mono",Consolas,"Liberation Mono","Courier New",monospace',UI='"Segoe UI","Malgun Gothic",sans-serif';
 export class Viewer{
- constructor(host,{onHover,onSelect,onRange,onPrimer,onZoom}={}){
-  Object.assign(this,{onHover,onSelect,onRange,onPrimer,onZoom,host});this.wheelSum=0;this.scroller=host.querySelector('.viewer-scroll');this.spacer=host.querySelector('.viewer-spacer');this.canvas=host.querySelector('canvas');this.ctx=this.canvas.getContext('2d',{alpha:false});
+ constructor(host,{onHover,onSelect,onRange,onPrimer,onPrimerClear,onZoom}={}){
+  Object.assign(this,{onHover,onSelect,onRange,onPrimer,onPrimerClear,onZoom,host});this.wheelSum=0;this.scroller=host.querySelector('.viewer-scroll');this.spacer=host.querySelector('.viewer-spacer');this.canvas=host.querySelector('canvas');this.ctx=this.canvas.getContext('2d',{alpha:false});
   this.nameW=DEFAULT_NAME_W;this.cell=ZOOMS[0];this.mode='all';this.nameMode='both';this.compare='reference';this.selected=-1;this.mark=-1;this.data=null;this.queued=false;this.lastFrameMs=0;this.primers=[];this.lanes=0;this.top=BASE_TOP;this.range=null;this.drag=null;this.pointer=null;this.activePrimer=null;this.found=null;this.consLabel='Consensus';
   this.scroller.addEventListener('scroll',()=>this.request(),{passive:true});this.scroller.addEventListener('wheel',e=>this.wheel(e),{passive:false});
   new ResizeObserver(()=>this.resize()).observe(this.scroller);
@@ -35,6 +35,8 @@ export class Viewer{
  setNameMode(m){this.nameMode=m;this.request();}
  setCompare(c){this.compare=c;this.request();}
  setSelected(viewRow){this.selected=viewRow;this.request();}
+ // Records (not view rows) picked together with Ctrl or Shift; drawn like the selected row.
+ setPicked(records){this.picked=records;this.request();}
  setMark(col){this.mark=col;this.request();}
  setNameWidth(w){this.nameW=Math.max(MIN_NAME_W,Math.min(MAX_NAME_W,Math.round(w)));this.updateSize();this.request();}
  clearRange(){this.range=null;this.request();}
@@ -66,7 +68,7 @@ export class Viewer{
   this.insertionBands(x,c0,c1,off,TOP,h-TOP);
   const cmp=this.compare==='consensus'?this.consRow:this.refRow;
   for(let v=0;v<rows;v++){const n=r0+v;if(n>=d.order.length)break;const y=TOP+v*ROW+yoff,i=d.order[n];
-   if(n===this.selected){x.fillStyle='#fdf3d0';x.fillRect(this.nameW,y,w-this.nameW,ROW);}else if(n&1){x.fillStyle='#fafbfd';x.fillRect(this.nameW,y,w-this.nameW,ROW);}
+   if(n===this.selected||this.picked?.has(i)){x.fillStyle='#fdf3d0';x.fillRect(this.nameW,y,w-this.nameW,ROW);}else if(n&1){x.fillStyle='#fafbfd';x.fillRect(this.nameW,y,w-this.nameW,ROW);}
    projectRow(d.S,i,d.cols,this.buf,c0,c1);this.rowCells(x,this.buf,c0,c1,off,y,cmp);}
   this.foundRows(x,r0,rows,yoff,c0,c1,off);this.rangeRows(x,r0,rows,yoff,c0,off);
   x.restore();
@@ -109,7 +111,7 @@ export class Viewer{
    x.fillStyle=diff?baseColor(base):gap?'#59697b':'#dbe2e9';x.fillRect(px,y+1,wd,hgt);}
  }
  names(x,r0,rows,yoff){const d=this.data,TOP=this.top;x.save();x.beginPath();x.rect(0,TOP,this.nameW,this.height-TOP);x.clip();x.font=`12px ${UI}`;x.textBaseline='middle';x.textAlign='left';
-  for(let v=0;v<rows;v++){const n=r0+v;if(n>=d.order.length)break;const y=TOP+v*ROW+yoff,i=d.order[n];if(n===this.selected){x.fillStyle='#fdf3d0';x.fillRect(0,y,this.nameW,ROW);}else if(n&1){x.fillStyle='#fafbfd';x.fillRect(0,y,this.nameW,ROW);}x.fillStyle=d.S.meta[i*8]<0?'#8d99a5':'#23364d';x.fillText(this.fit(x,`${n+1}. ${displayName(d.names[i],this.nameMode)}`,this.nameW-10),6,y+ROW/2+.5);}
+  for(let v=0;v<rows;v++){const n=r0+v;if(n>=d.order.length)break;const y=TOP+v*ROW+yoff,i=d.order[n];if(n===this.selected||this.picked?.has(i)){x.fillStyle='#fdf3d0';x.fillRect(0,y,this.nameW,ROW);}else if(n&1){x.fillStyle='#fafbfd';x.fillRect(0,y,this.nameW,ROW);}x.fillStyle=d.S.meta[i*8]<0?'#8d99a5':'#23364d';x.fillText(this.fit(x,`${n+1}. ${displayName(d.names[i],this.nameMode)}`,this.nameW-10),6,y+ROW/2+.5);}
   x.restore();}
  fit(x,s,max){if(s.length>90)s=s.slice(0,90);if(x.measureText(s).width<=max)return s;let lo=0,hi=s.length;while(lo<hi){const m=(lo+hi+1)>>1;if(x.measureText(s.slice(0,m)+'…').width<=max)lo=m;else hi=m-1;}return s.slice(0,lo)+'…';}
  arrows(x,y,c0,c1,off){
@@ -120,11 +122,11 @@ export class Viewer{
    const tw=x.measureText(p.name).width;if(tw+head+6<right-left){x.fillStyle='#fff';x.fillText(p.name,left+(p.strand>0?4:head+3),mid+.5);}else{x.fillStyle='#23364d';x.fillText(p.name,right+3,mid+.5);}}
  }
  tracks(x,c0,c1,off){
-  const d=this.data,cell=this.cell,{refOfCol,total}=d.cols,cov=d.stats.coverage,idn=d.stats.identity,maxCov=d.maxCoverage||1,TOP=this.top;let y=0;
+  const d=this.data,cell=this.cell,{refOfCol,total}=d.cols,cov=d.stats.coverage,cnt=d.stats.counts,idn=d.stats.identity,maxCov=d.maxCoverage||1,TOP=this.top;let y=0;
   x.font=`12px ${UI}`;x.textBaseline='middle';x.textAlign='left';
   const label=(t,hh)=>{x.fillStyle='#59697b';x.fillText(t,6,y+hh/2+.5);};
   const ow=this.width-this.nameW-2;label('전체 위치',H.overview);const L=cov.length;x.fillStyle='#e7ecf1';x.fillRect(this.nameW+1,5,ow,10);x.fillStyle='#9fb2c4';
-  for(let p=0;p<ow;p+=2){const r=Math.min(L-1,Math.floor(p/ow*L));const f=cov[r]/maxCov;x.fillRect(this.nameW+1+p,15-10*f,2,10*f);}
+  for(let p=0;p<ow;p+=2){const r=Math.min(L-1,Math.floor(p/ow*L));const f=(cov[r]-cnt[r*6+5])/maxCov;x.fillRect(this.nameW+1+p,15-10*f,2,10*f);}
   for(const p of this.shown??[]){x.fillStyle=p.mismatches?'#8a9a3a':'#3f9a63';x.fillRect(this.nameW+1+p.c0/total*ow,1,Math.max(2,(p.c1-p.c0)/total*ow),18);}
   x.strokeStyle='#344e6b';x.lineWidth=1;x.strokeRect(this.nameW+1+c0/total*ow+.5,3.5,Math.max(3,(c1-c0)/total*ow),13);y+=H.overview;
   x.save();x.beginPath();x.rect(this.nameW,0,this.width-this.nameW,TOP);x.clip();
@@ -132,8 +134,11 @@ export class Viewer{
   for(let c=c0;c<c1;c++){const r=refOfCol[c],px=this.nameW+off+(c-c0)*cell;if(r<0){x.fillStyle='#b8831f';x.fillRect(px,y+H.ruler-7,Math.max(cell,1),6);x.fillStyle='#23364d';continue;}const pos=r+1;if(pos%unit===0||pos===1){x.fillRect(px,y+H.ruler-6,1,5);x.fillText(pos.toLocaleString(),px+2,y+9);}}
   y+=H.ruler;this.arrows(x,y,c0,c1,off);y+=this.lanes*LANE;
   this.seqTrack(x,this.consRow,y,H.consensus,c0,c1,off,this.refRow);y+=H.consensus;
-  x.fillStyle='#8fa8bf';const step=Math.max(1,Math.floor(1/cell));for(let c=c0;c<c1;c+=step){const r=refOfCol[c];if(r<0)continue;const f=cov[r]/maxCov,hh=(H.coverage-4)*f;x.fillRect(this.nameW+off+(c-c0)*cell,y+H.coverage-2-hh,Math.max(cell*step,1),hh);}y+=H.coverage;
-  for(let c=c0;c<c1;c+=step){const r=refOfCol[c];if(r<0)continue;let v=1;for(let j=c;j<c+step&&j<c1;j++){const q=refOfCol[j];if(q>=0&&idn[q]<v)v=idn[q];}x.fillStyle=Number.isNaN(idn[r])?'#e7ecf1':v>=1?'#3f9a63':v<.3?'#c2453f':'#b5a93a';x.fillRect(this.nameW+off+(c-c0)*cell,y+1,Math.max(cell*step,1),H.identity-2);}y+=H.identity;
+  // Coverage: dark = sequences with a base here, light on top = sequences with a deletion here.
+  const step=Math.max(1,Math.floor(1/cell)),full=H.coverage-4;for(let c=c0;c<c1;c+=step){const r=refOfCol[c];if(r<0)continue;const del=cnt[r*6+5],hb=full*(cov[r]-del)/maxCov,hd=full*del/maxCov,px=this.nameW+off+(c-c0)*cell,w=Math.max(cell*step,1);x.fillStyle='#8fa8bf';x.fillRect(px,y+H.coverage-2-hb,w,hb);if(del){x.fillStyle='#dfe6ee';x.fillRect(px,y+H.coverage-2-hb-hd,w,hd);}}y+=H.coverage;
+  // Conservation: slate where every covering sequence has a deletion, grey where fewer than two sequences can be compared.
+  const delOnly=r=>cnt[r*6+5]>0&&cov[r]===cnt[r*6+5];
+  for(let c=c0;c<c1;c+=step){const r=refOfCol[c];if(r<0)continue;let v=1;for(let j=c;j<c+step&&j<c1;j++){const q=refOfCol[j];if(q>=0&&idn[q]<v)v=idn[q];}x.fillStyle=delOnly(r)?'#8796a8':Number.isNaN(idn[r])?'#e7ecf1':v>=1?'#3f9a63':v<.3?'#c2453f':'#b5a93a';x.fillRect(this.nameW+off+(c-c0)*cell,y+1,Math.max(cell*step,1),H.identity-2);}y+=H.identity;
   this.seqTrack(x,this.refRow,y,H.reference,c0,c1,off,this.consRow);
   x.restore();
   y=H.overview;x.font=`12px ${UI}`;x.textBaseline='middle';x.textAlign='left';x.fillStyle='#f8fafc';x.fillRect(0,y,this.nameW,TOP-y);
@@ -152,15 +157,17 @@ export class Viewer{
  move(e){const p=this.locate(e);if(this.drag?.resize){if(p)this.setNameWidth(p.px);return;}this.canvas.style.cursor=this.nearSplit(p)?'col-resize':'';if(this.drag)return;this.onHover?.(p);}
  down(e){if(e.button)return;const p=this.locate(e);if(!p)return;if(this.nearSplit(p)){e.preventDefault();this.drag={resize:true};this.request();return;}if(p.track==='overview'&&p.px>=this.nameW){this.scrollToColumn((p.px-this.nameW)/(this.width-this.nameW)*this.data.cols.total);return;}
   if(p.primer){this.lastPrimer={id:p.primer.id,t:performance.now()};this.onPrimer?.(p.primer.id);return;}
-  if(p.col<0){if(p.row>=0)this.onSelect?.(p.row);return;}
+  if(this.activePrimer!=null)this.onPrimerClear?.(); // a click anywhere but a primer drops the primer highlight
+  const mods={add:e.ctrlKey||e.metaKey,span:e.shiftKey};
+  if(p.col<0){if(p.row>=0)this.onSelect?.(p.row,mods);return;}
   if(p.track==='other')return;
-  e.preventDefault();this.drag={start:p.col,lane:p.track==='consensus'?-2:p.track==='reference'?-1:p.row,moved:false,row:p.row};this.pointer=e;this.scroller.focus({preventScroll:true});}
+  e.preventDefault();this.drag={start:p.col,lane:p.track==='consensus'?-2:p.track==='reference'?-1:p.row,moved:false,row:p.row,mods};this.pointer=e;this.scroller.focus({preventScroll:true});}
  // Screen point to column and lane, held inside the data. Lanes in screen order: -2 consensus, -1 reference, 0.. shown rows.
  pointAt(e){const b=this.canvas.getBoundingClientRect(),v=this.view,d=this.data,px=Math.max(this.nameW,Math.min(this.width-1,e.clientX-b.left)),py=e.clientY-b.top,cons=H.overview+H.ruler+this.lanes*LANE,ref=cons+H.consensus+H.coverage+H.identity,col=Math.max(0,Math.min(d.cols.total-1,v.c0+Math.floor((px-this.nameW-v.off)/this.cell)));let lane=py<ref?-2:-1;if(py>=this.top&&d.order.length)lane=Math.max(0,Math.min(d.order.length-1,v.r0+Math.floor((py-this.top-v.yoff)/ROW)));return {col,lane,px,py};}
  extend({col,lane}){const d=this.drag;if(col!==d.start||lane!==d.lane)d.moved=true;if(!d.moved)return;const from=Math.min(lane,d.lane),to=Math.max(lane,d.lane),next={c0:Math.min(d.start,col),c1:Math.max(d.start,col)+1,from,to,source:from!==to?'multi':from===-2?'consensus':from===-1?'reference':'row',row:from===to&&from>=0?from:-1},r=this.range;if(r&&r.c0===next.c0&&r.c1===next.c1&&r.from===from&&r.to===to)return;this.range=next;this.request();this.onRange?.(next);}
  // Holding the pointer at an edge keeps scrolling, so rows off screen can join the selection.
  follow(){this.extend(this.pointAt(this.pointer));if(this.following)return;this.following=true;const tick=()=>{if(!this.drag||this.drag.resize){this.following=false;return;}const s=this.scroller,{px,py}=this.pointAt(this.pointer),l=s.scrollLeft,t=s.scrollTop;if(py>this.height-14)s.scrollTop+=ROW;else if(py>=this.top&&py<this.top+8)s.scrollTop-=ROW;if(px>this.width-14)s.scrollLeft+=Math.max(this.cell*2,8);else if(px<this.nameW+8)s.scrollLeft-=Math.max(this.cell*2,8);if(s.scrollLeft!==l||s.scrollTop!==t){this.draw();this.extend(this.pointAt(this.pointer));}requestAnimationFrame(tick);};requestAnimationFrame(tick);}
- up(){const d=this.drag;if(!d)return;this.drag=null;if(d.resize){this.request();return;}if(!d.moved&&d.row>=0)this.onSelect?.(d.row);}
+ up(){const d=this.drag;if(!d)return;this.drag=null;if(d.resize){this.request();return;}if(!d.moved&&d.row>=0)this.onSelect?.(d.row,d.mods);}
  key(e){const s=this.scroller,stepX=this.cell*10,page=this.height-this.top-ROW,map={ArrowLeft:[-stepX,0],ArrowRight:[stepX,0],ArrowUp:[0,-ROW],ArrowDown:[0,ROW],PageUp:[0,-page],PageDown:[0,page]},m=map[e.key];if(m){e.preventDefault();s.scrollBy(m[0],m[1]);}}
 }
 export const LAYOUT=Object.freeze({ROW,BASE_TOP});

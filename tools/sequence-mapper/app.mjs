@@ -14,11 +14,11 @@ import {setupList} from './list-ui.mjs';
 import {SequenceView} from './view/sequence-view.mjs';
 import {parseFeatures,featureTypes} from './core/features.mjs';
 import {gatherChunk,subsetData,MAX_LIST_BASES,mergeRecords,recordFacts} from './core/list.mjs';
-export const TOOL_VERSION='0.1.0-beta.1';
+export const TOOL_VERSION='0.1.0-beta.2';
 const $=id=>document.getElementById(id),dec=new TextDecoder();
-const state={files:{reference:null,queries:[],aligned:null},loaded:null,S:null,R:null,order:null,workers:[],busy:false,analysis:null,statsId:0,cols:null,stats:null,navIndex:-1,selectedRecord:-1};
-const viewer=new Viewer($('viewer'),{onZoom:i=>{$('zoom').value=i;},onHover:hover,onSelect:selectRow,onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id)});
-const sequenceView=new SequenceView($('sequence-view'),{onHover:t=>{$('hover-line').textContent=t??'';},onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id)});
+const state={files:{reference:null,queries:[],aligned:null},loaded:null,S:null,R:null,order:null,workers:[],busy:false,analysis:null,statsId:0,cols:null,stats:null,navIndex:-1,selectedRecord:-1,dropped:new Set(),picked:new Set(),anchor:-1};
+const viewer=new Viewer($('viewer'),{onZoom:i=>{$('zoom').value=i;},onHover:hover,onSelect:selectRow,onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id),onPrimerClear:()=>primers.clearActive()});
+const sequenceView=new SequenceView($('sequence-view'),{onHover:t=>{$('hover-line').textContent=t??'';},onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id),onPrimerClear:()=>primers.clearActive()});
 const activeView=()=>state.single?sequenceView:viewer,circular=()=>!!state.single&&state.loaded?.reference?.topology==='circular';
 const primers=setupPrimers({get viewer(){return activeView();},circular,reference:()=>state.ref,consensus:()=>state.single?null:state.stats?.consensus??null,cols:()=>state.cols,ready:()=>!!state.stats,baseOrder:()=>state.baseOrder,analysis:()=>state.analysis,showTab,referenceInfo:()=>state.loaded.reference,referenceId:()=>state.refName,referenceInList:()=>!!state.refFromList,scopeText:bindingScope,saveText,hoverText:t=>{$('hover-line').textContent=t;},forceRecords(list,label){state.forced=new Set(list);$('forced-text').textContent=`${label} ${list.length.toLocaleString()}건만 표시`;$('forced-chip').hidden=false;applyFilter(true);},project:(row,buf,c0,c1)=>projectRow(state.S,state.order[row],state.cols,buf,c0,c1),rowName:row=>accessionOf(state.names[state.order[row]])});
 viewer.onPrimerEdit=sequenceView.onPrimerEdit=id=>primers.edit(id);
@@ -38,7 +38,7 @@ $('support-range').textContent=`권장: 총 ${formatBases(LIMITS.recommendedBase
 for(const [k,v] of Object.entries({Coverage:POSITION_DEFINITIONS.coverage,'보존도 막대':POSITION_DEFINITIONS.identity,'변이 위치':POSITION_DEFINITIONS.variant,'정렬 방식':POSITION_DEFINITIONS.alignment,Consensus:POSITION_DEFINITIONS.consensus,'서열별 identity':'match ÷ (match+mismatch+insertion+deletion). 혼합염기는 분모에서 뺍니다.','일부만 정렬':'서열 길이의 95% 미만만 정렬된 경우입니다.'})){const t=document.createElement('dt');t.textContent=k;const d=document.createElement('dd');d.textContent=v;$('definitions').append(t,d);}
 
 function setError(m=''){$('error').textContent=m;}
-function setBusy(on){state.busy=on;for(const id of ['load','example','load-aligned','run','file-reference','file-queries','file-aligned'])$(id).disabled=on;if(!on)refreshButtons();if(typeof refreshAdd==='function')refreshAdd();}
+function setBusy(on){state.busy=on;for(const id of ['load','example','load-aligned','run','file-reference','file-queries','file-aligned'])$(id).disabled=on;if(!on)refreshButtons();if(typeof refreshAdd==='function')refreshAdd();if(typeof refreshRecords==='function')refreshRecords();}
 function refreshButtons(){$('load').disabled=!(state.files.queries?.length||state.files.reference)||tooLarge();$('load-aligned').disabled=!state.files.aligned;}
 function progress(on,value=0,text=''){$('progress-box').hidden=!on;$('progress').value=value;$('progress-text').textContent=text;}
 
@@ -153,12 +153,12 @@ $('run').addEventListener('click',runMapping);
 // Add sequences to a mapped result: the current records and the new ones go back to the list with the same reference,
 // and the whole set is mapped again. Primers stay; the binding table is recalculated after mapping.
 const canAdd=()=>!!state.S&&!state.single&&!state.loaded?.columns&&!state.busy;
-function refreshAdd(){$('add-sequences').hidden=!state.S||state.single;$('add-sequences').disabled=!canAdd();$('add-sequences').title=state.loaded?.columns?'정렬 파일로 연 결과에는 서열을 추가할 수 없습니다. 원래 서열 파일로 매핑해 주세요.':'';}
+function refreshAdd(){$('add-sequences').disabled=!canAdd();$('add-sequences').title=state.loaded?.columns?'정렬 파일로 연 결과에는 서열을 추가할 수 없습니다. 원래 서열 파일로 매핑해 주세요.':'';}
 async function addSequences(files){
  if(!canAdd()||!files.length)return;let nr;
  try{nr=await load({mode:'mapping',reference:null,queries:[...files]});}catch(e){if(e.message!=='cancelled')setError(e.message);return;}
  const cur=state.loaded,curFiles=cur.files??[];let data;try{data=mergeRecords(cur.data,nr.data,curFiles.length);}catch(e){setError(e.message);return;}
- const r={reference:cur.reference,data,facts:recordFacts(data),reports:[{file:'현재 결과',records:cur.data.names.length,bases:cur.data.offs[cur.data.names.length],format:'매핑한 서열',errors:[]},...nr.reports],counts:summarizeFlags(data.flags),duplicates:duplicateIds(data.names),files:[...curFiles,...nr.files],keepRefFromList:!!state.refFromList,added:nr.data.names.length};
+ const r={reference:cur.reference,data,facts:recordFacts(data),reports:[{file:'현재 결과',records:cur.data.names.length,bases:cur.data.offs[cur.data.names.length],format:'매핑한 서열',errors:[]},...nr.reports],counts:summarizeFlags(data.flags),duplicates:duplicateIds(data.names),files:[...curFiles,...nr.files],keepRefFromList:!!state.refFromList,added:nr.data.names.length,preExcluded:[...state.dropped]};
  state.list=r;$('input-panel').open=true;report(r);$('input-report').scrollIntoView({block:'start'});
 }
 $('add-sequences').addEventListener('click',()=>$('file-add').click());
@@ -168,6 +168,7 @@ $('file-add').addEventListener('change',e=>{const f=[...e.target.files];e.target
 async function showResult(r,m,parameters,seconds){
  state.parameters=parameters;state.fileNames=r.files;state.single=!!r.single;state.loaded=r;$('result').classList.toggle('is-single',state.single);for(const e of document.querySelectorAll('.single-only'))e.hidden=!state.single;$('back-to-list').hidden=!state.list;const S={pool:r.data.pool,offs:r.data.offs,flags:r.data.flags,fileIdx:r.data.fileIdx,inputOrder:r.data.inputOrder,meta:m.meta,cig:m.cig,extra:m.extra};
  state.S=S;state.names=r.data.names;state.ref=r.reference.sequence;state.refName=accessionOf(r.reference.name);
+ state.dropped=new Set(state.pendingDropped??[]);state.pendingDropped=null;state.picked=new Set();state.anchor=-1;refreshRecords();
  state.primersReady=false;state.baseOrder=null;state.forced=null;$('forced-chip').hidden=true;state.selectedRecord=-1;viewer.clearRange();sequenceView.clearRange();$('selection').hidden=true;
  const parsed=parseFeatures(r.reference.features,state.ref.length);state.annotations=parsed.list;find.setSingle(state.single);$('tab-viewer').textContent=state.single?'서열 화면':'정렬 화면';if(state.single)openSequenceView(r,parsed);
  find.reset();state.analysis?.terminate();const a=new Worker('workers/analysis-worker.mjs',{type:'module'});state.analysis=a;
@@ -197,7 +198,7 @@ async function saveText(name,type,text){try{const sink=await sinkFor(name,type);
 document.querySelectorAll('[data-annotation]').forEach(b=>b.addEventListener('click',()=>{const [name,type,text]=primers.exportText(b.dataset.annotation);saveText(name,type,text);}));
 function currentOrder(){
  const {S,R,names}=state,n=names.length,q=$('search').value.trim().toLowerCase(),min=$('min-identity').value===''?null:Number($('min-identity').value)/100,allowed=new Set([...document.querySelectorAll('[data-status]')].filter(x=>x.checked).map(x=>x.dataset.status)),keep=[];
- for(let i=0;i<n;i++){if(!allowed.has(statusOf(S,i)))continue;if(q&&!names[i].toLowerCase().includes(q))continue;if(min!==null){const v=identityFromStats(R,i);if(v===null||v<min)continue;}keep.push(i);}
+ for(let i=0;i<n;i++){if(state.dropped.has(i))continue;if(!allowed.has(statusOf(S,i)))continue;if(q&&!names[i].toLowerCase().includes(q))continue;if(min!==null){const v=identityFromStats(R,i);if(v===null||v<min)continue;}keep.push(i);}
  const s=$('sort').value;
  if(s==='name')keep.sort((a,b)=>names[a]<names[b]?-1:names[a]>names[b]?1:a-b);
  else if(s!=='input'){const v=new Float64Array(n);for(const i of keep)v[i]=identityFromStats(R,i)??-1;const sign=s==='identity-asc'?1:-1;keep.sort((a,b)=>sign*(v[a]-v[b])||a-b);}
@@ -210,7 +211,7 @@ const consensusLabel=()=>{const p=consensusPercent();return p?`Consensus ${p}%`:
 function consensusChanged(){$('consensus-custom').hidden=$('consensus-percent').value!=='custom';if(!state.analysis||!state.stats)return;state.consensusId=(state.consensusId||0)+1;state.analysis.postMessage({type:'consensus',id:state.consensusId,percent:consensusPercent()});}
 $('consensus-percent').addEventListener('change',consensusChanged);$('consensus-custom').addEventListener('change',consensusChanged);
 function applyFilter(now=false){clearTimeout(filterTimer);filterTimer=setTimeout(()=>{
- find.hold();const base=currentOrder(),same=state.baseOrder&&sameOrder(state.baseOrder,base);state.baseOrder=base;const order=state.forced?base.filter(i=>state.forced.has(i)):base;state.order=order;state.baseChanged=!same;state.statsId++;state.selectedRecord=-1;viewer.setSelected(-1);$('detail').hidden=true;$('filter-line').textContent=`표시 ${order.length.toLocaleString()} / 전체 ${state.names.length.toLocaleString()} · Consensus 계산 중…`;
+ find.hold();const base=currentOrder(),same=state.baseOrder&&sameOrder(state.baseOrder,base);state.baseOrder=base;const order=state.forced?base.filter(i=>state.forced.has(i)):base;state.order=order;state.baseChanged=!same;state.statsId++;state.selectedRecord=-1;viewer.setSelected(-1);state.picked=new Set();state.anchor=-1;viewer.setPicked(state.picked);refreshRecords();$('detail').hidden=true;$('filter-line').textContent=`표시 ${order.length.toLocaleString()} / 전체 ${state.names.length.toLocaleString()} · Consensus 계산 중…`;
  viewer.clearRange();$('selection').hidden=true;state.analysis.postMessage({type:'stats',id:state.statsId,order,percent:consensusPercent()});
 },now?0:200);}
 function analysisMessage({data:d}){
@@ -239,7 +240,7 @@ function goTo(){const p=Number($('goto').value);if(!Number.isInteger(p)||p<1||p>
 $('goto-button').addEventListener('click',goTo);$('goto').addEventListener('keydown',e=>{if(e.key==='Enter')goTo();});
 
 // Where the binding table's records came from. The parts add up to the total input.
-function bindingScope(order,withReference){const {S,names}=state,n=names.length,inSet=new Uint8Array(n);for(const i of order)inSet[i]=1;let skipped=0,unmapped=0,filtered=0;for(let i=0;i<n;i++){if(inSet[i])continue;const s=statusOf(S,i);if(s==='skipped')skipped++;else if(s==='unmapped')unmapped++;else filtered++;}const listed=state.loaded.excluded||0,ref=withReference?1:0,f=x=>x.toLocaleString();return `전체 입력 ${f(n+listed+ref)} · 목록 제외 ${f(listed)} · 입력 오류 ${f(skipped)} · 정렬 안 됨 ${f(unmapped)} · 보기 범위 제외 ${f(filtered)} · 분석 대상 ${f(order.length+ref)}${ref?' (Reference 포함)':''}`;}
+function bindingScope(order,withReference){const {S,names}=state,n=names.length,inSet=new Uint8Array(n);for(const i of order)inSet[i]=1;let skipped=0,unmapped=0,filtered=0,dropped=0;for(let i=0;i<n;i++){if(inSet[i])continue;if(state.dropped.has(i)){dropped++;continue;}const s=statusOf(S,i);if(s==='skipped')skipped++;else if(s==='unmapped')unmapped++;else filtered++;}const listed=state.loaded.excluded||0,ref=withReference?1:0,f=x=>x.toLocaleString();return `전체 입력 ${f(n+listed+ref)} · 목록 제외 ${f(listed)} · 입력 오류 ${f(skipped)} · 정렬 안 됨 ${f(unmapped)}${dropped?` · 선택 제외 ${f(dropped)}`:""} · 보기 범위 제외 ${f(filtered)} · 분석 대상 ${f(order.length+ref)}${ref?' (Reference 포함)':''}`;}
 // Variant navigation: the selected row if any, otherwise every position that differs from the compared sequence.
 function updateNavScope(){$('nav-scope').textContent=state.selectedRecord>=0?'(선택한 서열)':'(전체 위치)';}
 function variantColumns(){
@@ -255,12 +256,26 @@ $('next-diff').addEventListener('click',()=>step(1));$('prev-diff').addEventList
 function hover(p){
  const line=$('hover-line');if(!p||p.col<0||!state.stats){line.textContent='';return;}
  const r=state.cols.refOfCol[p.col];let t=r<0?'insertion 열':`위치 ${toDisplay(r).toLocaleString()} · ref ${String.fromCharCode(state.ref[r])}`;
- if(r>=0){const s=state.stats;t+=` · consensus ${s.consensus[r]?String.fromCharCode(s.consensus[r]):'없음'} · coverage ${s.coverage[r].toLocaleString()} · A/C/G/T 판독 ${s.called[r].toLocaleString()} · 보존도 ${Number.isNaN(s.identity[r])?'–':(s.identity[r]*100).toFixed(1)+'%'}`;}
+ if(r>=0){const s=state.stats;t+=` · consensus ${s.consensus[r]?String.fromCharCode(s.consensus[r]):'없음'} · coverage ${s.coverage[r].toLocaleString()}${s.counts[r*6+5]?` (deletion ${s.counts[r*6+5].toLocaleString()})`:''} · A/C/G/T 판독 ${s.called[r].toLocaleString()} · 보존도 ${Number.isNaN(s.identity[r])?(s.coverage[r]?'비교 서열 2개 미만':'–'):(s.identity[r]*100).toFixed(1)+'%'}`;}
  else{let q=p.col;while(q<state.cols.total&&state.cols.refOfCol[q]<0)q++;const at=state.cols.refOfCol[q];if(at>=0)t+=` · 위치 ${toDisplay(at).toLocaleString()} 앞 · 해당 서열 ${state.stats.insRows[at].toLocaleString()}개`;else t+=` · Reference 끝 뒤 · 해당 서열 ${state.stats.insRows[state.ref.length].toLocaleString()}개`;}
  if(p.row>=0){const i=state.order[p.row],b=new Uint8Array(1);projectRow(state.S,i,state.cols,b,p.col,p.col+1);t+=` · ${accessionOf(state.names[i])}: ${b[0]?String.fromCharCode(b[0]):'정렬 밖'}`;}
  line.textContent=t;
 }
-function selectRow(row){
+// Ctrl adds or removes one record, Shift takes the rows between the last click and this one. The clicked row shows its details.
+function pickRows(row,mods={}){
+ const i=state.order[row];
+ if(mods.span&&state.anchor>=0){const a=Math.min(state.anchor,row),b=Math.max(state.anchor,row);if(!mods.add)state.picked=new Set();for(let k=a;k<=b;k++)state.picked.add(state.order[k]);}
+ else{if(mods.add){if(state.picked.has(i))state.picked.delete(i);else state.picked.add(i);}else state.picked=new Set([i]);state.anchor=row;}
+ viewer.setPicked(state.picked);refreshRecords();
+}
+function refreshRecords(){
+ const n=state.picked?.size??0,d=state.dropped?.size??0;$('drop-records').disabled=!n||state.busy;$('drop-records').textContent=n?`선택 서열 제외 (${n.toLocaleString()})`:'선택 서열 제외';$('restore-records').disabled=!d||state.busy;
+ $('records-state').textContent=d?`제외 ${d.toLocaleString()}개. 제외 취소를 누르면 모두 되돌립니다.`:'';
+}
+$('drop-records').addEventListener('click',()=>{if(!state.picked.size)return;for(const i of state.picked)state.dropped.add(i);applyFilter(true);});
+$('restore-records').addEventListener('click',()=>{state.dropped.clear();applyFilter(true);});
+function selectRow(row,mods){
+ if(mods)pickRows(row,mods);
  const i=state.order[row],{S,R}=state;state.selectedRecord=i;state.variable=null;state.navIndex=-1;updateNavScope();viewer.setSelected(row);const b=i*STRIDE,m=S.meta,mapped=m[b+REF]>=0,len=recordLength(S,i),st=statusOf(S,i),id=identityFromStats(R,i),c=i*RS;
  $('detail').hidden=false;$('detail-title').textContent=displayName(state.names[i]).slice(0,200);$('copy-state').textContent='';
  const facts=[['상태',STATUS_LABEL[st]],['길이',len.toLocaleString()+' nt']];
@@ -284,8 +299,8 @@ document.querySelectorAll('[data-export]').forEach(b=>b.addEventListener('click'
  }catch(e){if(e.name!=='AbortError')setError(e.message);}
 }));
 // Project file
-function viewState(){return {search:$('search').value,sort:$('sort').value,minIdentity:$('min-identity').value,status:Object.fromEntries([...document.querySelectorAll('[data-status]')].map(x=>[x.dataset.status,x.checked])),zoom:$('zoom').value,consensusPercent:$('consensus-percent').value,consensusCustom:$('consensus-custom').value,nameWidth:viewer.nameW,nameMode:$('name-mode').value,compare:$('compare').value,diffOnly:$('diff-only').checked,scrollLeft:viewer.scroller.scrollLeft,scrollTop:viewer.scroller.scrollTop};}
-function applyView(v){$('consensus-percent').value=v.consensusPercent??'0';$('consensus-custom').value=v.consensusCustom??'';$('consensus-custom').hidden=$('consensus-percent').value!=='custom';$('search').value=v.search;$('sort').value=v.sort;$('min-identity').value=v.minIdentity;document.querySelectorAll('[data-status]').forEach(x=>{x.checked=!!v.status[x.dataset.status];});$('zoom').value=v.zoom;viewer.setZoom(+v.zoom);if(v.nameWidth)viewer.setNameWidth(v.nameWidth);$('name-mode').value=v.nameMode??'both';viewer.setNameMode($('name-mode').value);$('compare').value=v.compare;viewer.setCompare(v.compare);$('diff-only').checked=v.diffOnly;viewer.setMode(v.diffOnly?'diff':'all');state.restoreScroll={left:v.scrollLeft,top:v.scrollTop};}
+function viewState(){return {search:$('search').value,sort:$('sort').value,minIdentity:$('min-identity').value,status:Object.fromEntries([...document.querySelectorAll('[data-status]')].map(x=>[x.dataset.status,x.checked])),zoom:$('zoom').value,consensusPercent:$('consensus-percent').value,consensusCustom:$('consensus-custom').value,nameWidth:viewer.nameW,nameMode:$('name-mode').value,compare:$('compare').value,diffOnly:$('diff-only').checked,scrollLeft:viewer.scroller.scrollLeft,scrollTop:viewer.scroller.scrollTop,dropped:[...state.dropped]};}
+function applyView(v){$('consensus-percent').value=v.consensusPercent??'0';$('consensus-custom').value=v.consensusCustom??'';$('consensus-custom').hidden=$('consensus-percent').value!=='custom';$('search').value=v.search;$('sort').value=v.sort;$('min-identity').value=v.minIdentity;document.querySelectorAll('[data-status]').forEach(x=>{x.checked=!!v.status[x.dataset.status];});$('zoom').value=v.zoom;viewer.setZoom(+v.zoom);if(v.nameWidth)viewer.setNameWidth(v.nameWidth);$('name-mode').value=v.nameMode??'both';viewer.setNameMode($('name-mode').value);$('compare').value=v.compare;viewer.setCompare(v.compare);$('diff-only').checked=v.diffOnly;viewer.setMode(v.diffOnly?'diff':'all');state.restoreScroll={left:v.scrollLeft,top:v.scrollTop};state.pendingDropped=v.dropped??[];}
 async function saveProject(){
  const name=(state.refName||'mapping').replace(/[^\w.-]+/g,'_')+'.jsumap';let sink;try{sink=await sinkFor(name,'application/octet-stream');}catch(e){if(e.name!=='AbortError')setError(e.message);return;}
  const p=primers.snapshot(),ref=state.loaded.reference;state.exportSink=sink;state.projectSave={name,started:performance.now()};$('save-project').disabled=true;$('project-state').textContent='저장 중…';

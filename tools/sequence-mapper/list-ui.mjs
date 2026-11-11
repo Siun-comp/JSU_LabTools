@@ -54,6 +54,7 @@ export function setupList(host){
  return {
   open(r){
    buildRows();data=r.data;L={names:data.names,offs:data.offs,flags:data.flags,pool:data.pool,...r.facts};const n=L.names.length;reasons=new Uint8Array(n);manual=new Uint8Array(n);reference=-1;fileReference=r.reference;sortKey='input';ascending=true;sorted=sortedIds(L);
+   for(const i of r.preExcluded??[])if(i<n)manual[i]=1; // records left out of the current result stay out unless ticked again
    for(const id of ['list-name','list-min','list-max','list-ambiguous'])$(id).value='';$('list-first').checked=false;$('list-hidden').checked=false;$('list-preview').hidden=true;scroller.scrollTop=0;
    document.querySelectorAll('[data-sort]').forEach(b=>b.classList.toggle('is-on',b.dataset.sort==='input'));refresh();},
   close(){L=data=reasons=manual=sorted=view=null;chosen=new Uint32Array(0);rows.length=0;body.replaceChildren();},
