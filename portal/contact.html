@@ -21,46 +21,45 @@
     <a class="back-link" href="index.html">← 도구 목록으로 돌아가기</a>
     <header class="detail-heading">
       <h1>개발자에게 문의</h1>
-      <p>오류 제보, 사용 문의, 개선 제안을 이메일로 보낼 수 있습니다.</p>
+      <p>오류 신고, 기능 제안, 사용 문의를 받습니다.</p>
     </header>
-    <section class="detail-section" aria-labelledby="draft-heading">
-      <h2 id="draft-heading">이메일 초안</h2>
-      <p id="contact-help">오류를 제보할 때는 발생한 상황과 재현 순서를 적어 주세요. 검체명, 연구 서열, 원본 파일은 제외해 주세요.</p>
-      <div class="contact-fields">
-        <label for="contact-category">문의 유형</label>
-        <select id="contact-category">
-          <option>사용 문의</option>
-          <option>오류 제보</option>
-          <option>개선 제안</option>
-        </select>
-        <label for="contact-tool">관련 도구와 버전</label>
-        <select id="contact-tool">
-          <option value="">포털 공통</option>
-          <option value="plot">IsoAmplar Plot Analysis T · v2.3.0</option>
-          <option value="oligo-mix">Oligo Mix · v1.1.0</option>
-          <option value="sequence">Sequence 빠른변환 · v1.0.2</option>
-          <option value="dilution">시약·버퍼 조제 · v1.2.0</option>
-          <option value="nucleic-acid">핵산 농도·Copy 수 · v1.1.0</option>
-          <option value="amplification-analysis">Amplification Analysis · v0.1.0-beta.1</option>
-          <option value="detection-capability">LoB · LoD · LoQ 분석 · v0.9.1-beta.5</option>
-          <option value="method-comparison">검사법 비교 분석 · v0.4.1</option>
-          <option value="oligo-analysis">Oligo-dimer analysis · v0.2.3</option>
-          <option value="oligo-thermodynamics">Oligo Thermodynamics · v0.2.0-beta.1</option>
-        </select>
-        <label for="contact-message">문의 내용 <span class="subtle">(선택, 최대 500자)</span></label>
-        <textarea id="contact-message" rows="5" maxlength="500" aria-describedby="contact-help"></textarea>
-      </div>
+    <section class="detail-section" aria-labelledby="form-heading">
+      <h2 id="form-heading">문의 양식</h2>
+      <p>Google 설문지로 보냅니다. 회신 받을 이메일, 관련 도구, 문의 유형, 내용을 적어 주세요. Google 로그인은 필요하지 않습니다.</p>
+      <p>실험 데이터, 서열, 검체명, 원본 파일은 양식에 넣지 마세요. 필요하면 회신 메일로 따로 주고받습니다.</p>
+      <p id="contact-tool-hint" hidden></p>
       <div class="detail-actions">
-        <a id="contact-draft" class="execute" href="mailto:siun.comp@gmail.com">이메일 작성</a>
-        <span>이메일 앱에서 초안을 확인한 후 보내 주세요.</span>
+        <a class="execute" href="https://docs.google.com/forms/d/e/1FAIpQLSc3ROW5oMva0XhmGQIuYeCS6ybRYHpjlfNGpH7tzamIMzfcAg/viewform" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">문의 양식 열기 ↗</a>
+        <span>새 브라우저 탭에서 열립니다. 문의 내용은 Google 서비스에 저장됩니다.</span>
       </div>
     </section>
     <section class="detail-section" aria-labelledby="address-heading">
-      <h2 id="address-heading">받는 주소</h2>
-      <p><a id="contact-address" href="mailto:siun.comp@gmail.com">siun.comp@gmail.com</a></p>
-      <p>이메일 앱이 열리지 않으면 주소를 복사해 웹메일에서 새 메시지를 작성해 주세요.</p>
+      <h2 id="address-heading">이메일로 문의</h2>
+      <p>평소 쓰는 메일에서 아래 주소로 직접 보내셔도 됩니다.</p>
+      <div class="detail-actions">
+        <strong id="contact-address">siun.comp@gmail.com</strong>
+        <button type="button" class="execute" id="contact-copy">주소 복사</button>
+        <span id="contact-copy-status" role="status" aria-live="polite"></span>
+      </div>
+    </section>
+    <section class="detail-section" aria-labelledby="version-heading">
+      <h2 id="version-heading">도구와 현재 버전</h2>
+      <p>문의할 때 도구 이름과 버전을 함께 적어 주시면 확인이 빠릅니다.</p>
+      <dl class="facts">
+        <dt id="plot">IsoAmplar Plot Analysis T</dt><dd>v2.3.0</dd>
+        <dt id="oligo-mix">Oligo Mix</dt><dd>v1.1.0</dd>
+        <dt id="sequence">Sequence 빠른변환</dt><dd>v1.0.2</dd>
+        <dt id="dilution">시약·버퍼 조제</dt><dd>v1.2.0</dd>
+        <dt id="nucleic-acid">핵산 농도·Copy 수</dt><dd>v1.1.0</dd>
+        <dt id="amplification-analysis">Amplification Analysis</dt><dd>v0.1.0-beta.1</dd>
+        <dt id="detection-capability">LoB · LoD · LoQ 분석</dt><dd>v0.9.1-beta.5</dd>
+        <dt id="method-comparison">검사법 비교 분석</dt><dd>v0.4.1</dd>
+        <dt id="oligo-analysis">Oligo-dimer analysis</dt><dd>v0.2.3</dd>
+        <dt id="oligo-thermodynamics">Oligo Thermodynamics</dt><dd>v0.2.0-beta.1</dd>
+        <dt id="sequence-mapper">Sequence Mapper</dt><dd>v0.1.0-beta.1</dd>
+      </dl>
     </section>
   </main>
-  <footer class="detail-footer"><p>JSU LabTools</p><p id="contact-portal-version">포털 v1.8.3</p></footer>
+  <footer class="detail-footer"><p>JSU LabTools</p><p id="contact-portal-version">포털 v1.8.4</p></footer>
 </body>
 </html>

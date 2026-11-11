@@ -1,33 +1,24 @@
-const category = document.querySelector('#contact-category');
-const tool = document.querySelector('#contact-tool');
-const message = document.querySelector('#contact-message');
-const draft = document.querySelector('#contact-draft');
-const recipient = document.querySelector('#contact-address').getAttribute('href');
-const portalVersion = document.querySelector('#contact-portal-version').textContent;
+const address = document.querySelector('#contact-address');
+const copy = document.querySelector('#contact-copy');
+const status = document.querySelector('#contact-copy-status');
+const hint = document.querySelector('#contact-tool-hint');
 
-function updateDraft() {
-  const context = tool.selectedOptions[0].textContent;
-  const subject = `[JSU LabTools] ${category.value} - ${context}`;
-  const body = [
-    `문의 유형: ${category.value}`,
-    `관련 도구: ${context}`,
-    portalVersion,
-    '',
-    '문의 내용',
-    message.value.trim().replace(/\r\n?|\n/g, '\r\n'),
-  ].join('\r\n');
+copy.addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(address.textContent.trim());
+    status.textContent = '주소를 복사했습니다.';
+  } catch {
+    status.textContent = '복사하지 못했습니다. 주소를 직접 선택해 복사해 주세요.';
+  }
+});
 
-  draft.href = `${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.toWellFormed())}`;
+// A tool's information page links here as contact.html#<tool>. Name that tool for the form's tool list.
+function showLinkedTool() {
+  const id = location.hash.slice(1);
+  const term = id ? document.getElementById(id) : null;
+  if (term?.tagName !== 'DT') { hint.hidden = true; return; }
+  hint.textContent = `양식의 "관련 도구"에서 "${term.textContent}" 항목을 골라 주세요. 현재 버전은 ${term.nextElementSibling.textContent}입니다.`;
+  hint.hidden = false;
 }
-
-function selectToolFromLink() {
-  const linkedTool = location.hash.slice(1);
-  tool.value = Array.from(tool.options).some(option => option.value === linkedTool) ? linkedTool : '';
-  updateDraft();
-}
-
-category.addEventListener('change', updateDraft);
-tool.addEventListener('change', updateDraft);
-message.addEventListener('input', updateDraft);
-draft.addEventListener('click', updateDraft);
-selectToolFromLink();
+addEventListener('hashchange', showLinkedTool);
+showLinkedTool();

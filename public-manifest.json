@@ -1,5 +1,5 @@
 {
-  "version": "1.8.3",
+  "version": "1.8.4",
   "files": [
     {
       "source": "portal/index.html",
@@ -936,6 +936,174 @@
     {
       "source": "portal/assets/contact.mjs",
       "target": "assets/contact.mjs"
+    },
+    {
+      "source": "portal/info/sequence-mapper.html",
+      "target": "info/sequence-mapper.html"
+    },
+    {
+      "source": "tools/sequence-mapper/LICENSE.txt",
+      "target": "tools/sequence-mapper/LICENSE.txt"
+    },
+    {
+      "source": "tools/sequence-mapper/NOTICE.md",
+      "target": "tools/sequence-mapper/NOTICE.md"
+    },
+    {
+      "source": "tools/sequence-mapper/app.mjs",
+      "target": "tools/sequence-mapper/app.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/brand.svg",
+      "target": "tools/sequence-mapper/brand.svg"
+    },
+    {
+      "source": "tools/sequence-mapper/core/aligned-import.mjs",
+      "target": "tools/sequence-mapper/core/aligned-import.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/alignment.mjs",
+      "target": "tools/sequence-mapper/core/alignment.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/annotation-export.mjs",
+      "target": "tools/sequence-mapper/core/annotation-export.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/binding.mjs",
+      "target": "tools/sequence-mapper/core/binding.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/example.mjs",
+      "target": "tools/sequence-mapper/core/example.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/export.mjs",
+      "target": "tools/sequence-mapper/core/export.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/features.mjs",
+      "target": "tools/sequence-mapper/core/features.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/find.mjs",
+      "target": "tools/sequence-mapper/core/find.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/limits.mjs",
+      "target": "tools/sequence-mapper/core/limits.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/list.mjs",
+      "target": "tools/sequence-mapper/core/list.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/map-chunk.mjs",
+      "target": "tools/sequence-mapper/core/map-chunk.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/parse.mjs",
+      "target": "tools/sequence-mapper/core/parse.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/primer.mjs",
+      "target": "tools/sequence-mapper/core/primer.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/project.mjs",
+      "target": "tools/sequence-mapper/core/project.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/selection.mjs",
+      "target": "tools/sequence-mapper/core/selection.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/stats.mjs",
+      "target": "tools/sequence-mapper/core/stats.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/xlsx-read.mjs",
+      "target": "tools/sequence-mapper/core/xlsx-read.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/engine/engine.mjs",
+      "target": "tools/sequence-mapper/engine/engine.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/engine/mm2.wasm",
+      "target": "tools/sequence-mapper/engine/mm2.wasm"
+    },
+    {
+      "source": "tools/sequence-mapper/engine/source/MINIMAP2-LICENSE.txt",
+      "target": "tools/sequence-mapper/engine/source/MINIMAP2-LICENSE.txt"
+    },
+    {
+      "source": "tools/sequence-mapper/engine/source/SIMDE-LICENSE.txt",
+      "target": "tools/sequence-mapper/engine/source/SIMDE-LICENSE.txt"
+    },
+    {
+      "source": "tools/sequence-mapper/engine/source/build.sh",
+      "target": "tools/sequence-mapper/engine/source/build.sh"
+    },
+    {
+      "source": "tools/sequence-mapper/engine/source/compat/zlib.h",
+      "target": "tools/sequence-mapper/engine/source/compat/zlib.h"
+    },
+    {
+      "source": "tools/sequence-mapper/engine/source/kthread_stub.c",
+      "target": "tools/sequence-mapper/engine/source/kthread_stub.c"
+    },
+    {
+      "source": "tools/sequence-mapper/engine/source/wrapper.c",
+      "target": "tools/sequence-mapper/engine/source/wrapper.c"
+    },
+    {
+      "source": "tools/sequence-mapper/find-ui.mjs",
+      "target": "tools/sequence-mapper/find-ui.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/icon.svg",
+      "target": "tools/sequence-mapper/icon.svg"
+    },
+    {
+      "source": "tools/sequence-mapper/index.html",
+      "target": "tools/sequence-mapper/index.html"
+    },
+    {
+      "source": "tools/sequence-mapper/list-ui.mjs",
+      "target": "tools/sequence-mapper/list-ui.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/primer-ui.mjs",
+      "target": "tools/sequence-mapper/primer-ui.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/tool.css",
+      "target": "tools/sequence-mapper/tool.css"
+    },
+    {
+      "source": "tools/sequence-mapper/view/sequence-view.mjs",
+      "target": "tools/sequence-mapper/view/sequence-view.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/view/viewer.mjs",
+      "target": "tools/sequence-mapper/view/viewer.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/workers/analysis-worker.mjs",
+      "target": "tools/sequence-mapper/workers/analysis-worker.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/workers/load-worker.mjs",
+      "target": "tools/sequence-mapper/workers/load-worker.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/workers/map-worker.mjs",
+      "target": "tools/sequence-mapper/workers/map-worker.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/workers/selection-worker.mjs",
+      "target": "tools/sequence-mapper/workers/selection-worker.mjs"
     }
   ],
   "date": "2026-10-06"

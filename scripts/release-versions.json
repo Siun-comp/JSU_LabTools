@@ -1,0 +1,17 @@
+{
+  "note": "Current public versions and dates read by scripts/verify*.mjs. Historical release records stay fixed in amplification-release-contract.json and the scripts.",
+  "portal": { "version": "1.8.4", "homeDate": "2026-11-11", "files": 276, "available": 11 },
+  "tools": {
+    "plot": { "version": "2.3.0", "infoDate": "2026-11-06" },
+    "oligo-mix": { "version": "1.1.0", "algorithm": "0.5.0", "infoDate": "2026-10-12" },
+    "sequence": { "version": "1.0.2", "algorithm": "0.2.3", "infoDate": "2026-10-19" },
+    "dilution": { "version": "1.2.0", "composer": "0.2.0", "infoDate": "2026-10-08" },
+    "nucleic-acid": { "version": "1.1.0", "algorithm": "0.3.0", "infoDate": "2026-10-06" },
+    "amplification-analysis": { "version": "0.1.0-beta.1", "infoDate": "2026-10-06" },
+    "detection-capability": { "version": "0.9.1-beta.5", "baseline": "0.9.0-beta.6", "ui": "0.3.1", "infoDate": "2026-10-13" },
+    "method-comparison": { "version": "0.4.1", "infoDate": "2026-10-13" },
+    "oligo-analysis": { "version": "0.2.3", "infoDate": "2026-11-06" },
+    "oligo-thermodynamics": { "version": "0.2.0-beta.1", "infoDate": "2026-10-30" },
+    "sequence-mapper": { "version": "0.1.0-beta.1", "engine": "2.31", "infoDate": "2026-11-11" }
+  }
+}

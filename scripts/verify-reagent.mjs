@@ -1,6 +1,7 @@
 import {readFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+const R=JSON.parse(await readFile(new URL('./release-versions.json',import.meta.url),'utf8')),T=R.tools;
 const load=p=>readFile(new URL('../dist/tools/dilution-calculator/'+p,import.meta.url),'utf8');
 const [html,app,core,legacy,raw]=await Promise.all(['index.html','composer.mjs','composer-core.mjs','app.mjs','presets.json'].map(load));
 const data=JSON.parse(raw),contract=JSON.parse(await readFile(new URL('../amplification-release-contract.json',import.meta.url),'utf8'));
@@ -17,7 +18,7 @@ for(const p of data.recipes){
 }
 const neb=data.recipes.find(p=>p.sources.some(s=>s.url==='https://www.neb.com/en/products/b0537-isothermal-amplification-buffer'));
 assert(neb);assert.equal(neb.rows.length,5);assert(neb.rows.some(r=>r.name==='MgSO4'&&r.target==='2'&&r.unit==='mM'));assert(neb.note.includes('v/v'));
-assert(core.includes("TOOL_VERSION='1.2.0',COMPOSER_VERSION='0.2.0'"));
+assert(core.includes(`TOOL_VERSION='${T.dilution.version}',COMPOSER_VERSION='${T.dilution.composer}'`));
 assert(!/dev\.\d+|로컬.*후보/.test(html+app+core));
 assert.deepEqual([...app.matchAll(/fetch\(([^)]+)\)/g)].map(m=>m[1]),["'./presets.json'"],'Only fixed same-origin preset read');
 assert(!/XMLHttpRequest|sendBeacon|localStorage|sessionStorage|document\.write|\beval\s*\(|postMessage/.test(app+core));
