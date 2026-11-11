@@ -6,7 +6,7 @@ const IUPAC={1:'A',2:'C',4:'G',8:'T',3:'M',5:'R',9:'W',6:'S',10:'Y',12:'K',7:'V'
 export const POSITION_DEFINITIONS=Object.freeze({
  coverage:'위치를 덮는 서열 수. 정렬 구간 안의 deletion을 포함하고, 정렬 밖은 세지 않습니다. Reference 자신은 세지 않습니다. 막대의 진한 부분은 염기가 있는 서열, 옅은 부분은 그 위치가 deletion인 서열입니다.',
  called:'그 위치에서 A/C/G/T로 읽힌 서열 수.',
- identity:'위치별 최다 염기 수 ÷ (A+C+G+T+deletion). 비교 서열끼리 얼마나 같은지를 나타내며 Reference 일치율이 아닙니다. N 등 혼합염기는 분모에서 뺍니다. 비교할 서열이 2개 미만이면 계산하지 않습니다(회색). 덮는 서열이 모두 deletion인 위치는 따로 표시합니다(청회색).',
+ identity:'위치별 평균 pairwise identity: 서열 두 개씩 짝지었을 때 같은 염기(또는 둘 다 deletion)인 짝의 비율. Geneious의 Identity 그래프와 같은 방식입니다(예: A 7 · C 3 → 53.3%). 막대 높이가 값이고, 100%는 초록, 30% 이상은 황록, 30% 미만은 빨강입니다. 비교 서열끼리의 값이며 Reference 일치율이 아닙니다(왼쪽 "최소 identity %"는 서열별 Reference 일치율로 다른 값). N 등 혼합염기는 빼고 셉니다. 비교할 서열이 2개 미만이면 계산하지 않습니다(바닥 회색 선). 덮는 서열이 모두 deletion인 위치는 따로 표시합니다(청회색).',
  variant:'Reference와 다른 판독(치환, deletion)이 1개 이상인 위치. N 등 혼합염기는 세지 않고, insertion은 따로 셉니다. Reference 자신은 세지 않습니다.',
  alignment:'각 서열을 Reference 좌표에 배치한 결과입니다. insertion끼리는 서로 다시 정렬하지 않습니다. 역위나 원점이 다른 서열은 주 정렬 구간만 표시합니다.',
  consensus:'기본은 현재 표시 서열의 최다 염기입니다. 기준 %를 정하면 많은 염기부터 더해 A/C/G/T 판독의 그 비율에 도달할 때까지의 염기를 IUPAC 코드로 표시합니다. 같은 수의 염기는 함께 포함합니다. deletion이 최다이면 -, 덮는 서열이 없으면 표시하지 않습니다. Reference는 포함하지 않습니다.'});
@@ -28,8 +28,12 @@ export function computeStats(S,order,refLength,percent=0){
   const tail=ins[L];if(tail){insRows[L]++;if(tail>insMax[L])insMax[L]=tail;}}
  const coverage=new Uint32Array(L),called=new Uint32Array(L),identity=new Float32Array(L),consensus=new Uint8Array(L);
  for(let r=0;r<L;r++){const b=r*6,a=counts[b],c=counts[b+1],g=counts[b+2],t=counts[b+3],o=counts[b+4],d=counts[b+5];
-  const acgt=a+c+g+t,max=Math.max(a,c,g,t);coverage[r]=acgt+o+d;called[r]=acgt;
-  identity[r]=acgt+d>=2?Math.max(max,d)/(acgt+d):NaN; // one sequence has nothing to be conserved against
+  const acgt=a+c+g+t;coverage[r]=acgt+o+d;called[r]=acgt;
+  // Identity: mean pairwise identity, the share of sequence pairs with the same state (A, C, G, T or deletion), as
+  // Geneious draws its Identity graph (checked by the user 2026-11-12 with a synthetic alignment: 7 A + 3 C shows
+  // 53%, 4 A + 3 C + 3 G shows red). How Geneious counts deletions is not checked; here a deletion is one more state.
+  // One sequence has nothing to be compared with.
+  const n=acgt+d;identity[r]=n>=2?(a*(a-1)+c*(c-1)+g*(g-1)+t*(t-1)+d*(d-1))/(n*(n-1)):NaN;
   if(coverage[r])consensus[r]=codeAt(counts,b,percent);}
  return {coverage,called,identity,consensus,counts,insMax,insRows};
 }

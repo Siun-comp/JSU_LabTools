@@ -76,13 +76,16 @@ assert.equal(samCigar(S.cig,0,S.cig.length,0,0),'3M1D2M1I2M');assert.equal(samCi
 {const t=rec(['ACGTACGTAC','GTAGTTTC'],[{start:0,cig:[[10,EQ]]},fwd]),st=computeStats(t,Uint32Array.from([0,1]),10),cols=buildColumns(st.insMax,10),o=new Uint8Array(cols.total);projectRow(t,0,cols,o,0,cols.total);assert.equal(str(o),'ACGTACGT-AC');assert.equal(st.insRows[8],1);}
 // Position statistics: missing != deletion != N != mismatch
 {const t=rec(['AC','AG','A-'.replace('-','N'),'AC'],[{start:0,cig:[[2,EQ]]},{start:0,cig:[[1,EQ],[1,X]]},{start:0,cig:[[1,EQ],[1,X]]},{start:1,qs:1,qe:2,cig:[[1,EQ]]}]);
- const st=computeStats(t,Uint32Array.from([0,1,2]),4);assert.equal(st.coverage[0],3);assert.equal(st.called[1],2);assert.equal(st.coverage[1],3);assert.equal(st.coverage[2],0);assert(Number.isNaN(st.identity[2]));assert.equal(st.consensus[2],0);assert.equal(String.fromCharCode(st.consensus[1]),'S');assert.equal(st.identity[1],.5);
+ const st=computeStats(t,Uint32Array.from([0,1,2]),4);assert.equal(st.coverage[0],3);assert.equal(st.called[1],2);assert.equal(st.coverage[1],3);assert.equal(st.coverage[2],0);assert(Number.isNaN(st.identity[2]));assert.equal(st.consensus[2],0);assert.equal(String.fromCharCode(st.consensus[1]),'S');assert.equal(st.identity[1],0);/* C and G: the one pair differs (mean pairwise, AP-272; was most-common share .5) */
  const one=computeStats(t,Uint32Array.from([0]),4);assert.equal(String.fromCharCode(one.consensus[1]),'C');assert.equal(one.coverage[0],1);
  // One sequence has nothing to be conserved against: no conservation value, coverage still counts it.
  assert(Number.isNaN(one.identity[0]));assert(Number.isNaN(one.identity[1]));}
 // A deletion in the only sequence: covered (counted as deletion), no conservation value
 {const t=rec(['AT'],[{start:0,cig:[[1,EQ],[1,D],[1,EQ]]}]),st=computeStats(t,Uint32Array.from([0]),3);assert.equal(st.coverage[1],1);assert.equal(st.called[1],0);assert.equal(st.counts[1*6+5],1);assert(Number.isNaN(st.identity[1]));assert.equal(st.consensus[1],GAP);}
-{const t=rec(['AT','AT','AGT'],[{start:0,cig:[[1,EQ],[1,D],[1,EQ]]},{start:0,cig:[[1,EQ],[1,D],[1,EQ]]},{start:0,cig:[[3,EQ]]}]),st=computeStats(t,Uint32Array.from([0,1,2]),3);assert.equal(st.consensus[1],GAP);assert.equal(st.coverage[1],3);assert.equal(st.called[1],1);assert.equal(st.identity[1],Math.fround(2/3));}
+{const t=rec(['AT','AT','AGT'],[{start:0,cig:[[1,EQ],[1,D],[1,EQ]]},{start:0,cig:[[1,EQ],[1,D],[1,EQ]]},{start:0,cig:[[3,EQ]]}]),st=computeStats(t,Uint32Array.from([0,1,2]),3);assert.equal(st.consensus[1],GAP);assert.equal(st.coverage[1],3);assert.equal(st.called[1],1);assert.equal(st.identity[1],Math.fround(1/3));/* deletion, deletion, G: 1 of 3 pairs alike (AP-272; was 2/3) */
+ // Geneious check cases (synthetic): 9A+1C 80%, 7A+3C 53.3%, 4A+3C+3G 26.7% (red), all alike 100%
+ {const one=b=>({A:'A',C:'C',G:'G'})[b];const cases=[['AAAAAAAAAC',.8],['AAAAAAACCC',24/45],['AAAACCCGGG',12/45],['AAAAAAAAAA',1]];
+  for(const [col,want] of cases){const seqs=[...col].map(one),t2=rec(seqs,seqs.map(()=>({start:0,cig:[[1,EQ]]}))),s2=computeStats(t2,Uint32Array.from(seqs.map((_,i)=>i)),1);assert.equal(s2.identity[0],Math.fround(want),col);}}}
 // Status keeps states apart
 {const t=rec(['ACGTACGTAC','ACGTACGTAC','ACGT'],[{start:0,cig:[[10,EQ]]},{start:0,qs:0,qe:5,cig:[[5,EQ]]},null]);t.meta[2*STRIDE+REF]=-1;assert.deepEqual([0,1,2].map(i=>statusOf(t,i)),['mapped','partial','unmapped']);const n=rec(['AC'],[null]);n.meta[REF]=-2;assert.equal(statusOf(n,0),'skipped');assert.equal(summarize(t).partial,1);}
 // Chunks merge with shifted offsets

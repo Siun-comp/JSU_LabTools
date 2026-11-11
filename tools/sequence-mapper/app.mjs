@@ -6,6 +6,7 @@ import {RS,RS_MATCH,RS_MISMATCH,RS_AMBIG,RS_INS,RS_DEL,RS_REFEND,statusOf,STATUS
 import {accessionOf,displayName,FLAG,summarizeFlags,duplicateIds} from './core/parse.mjs';
 import {exampleFiles} from './core/example.mjs';
 import {alignedFastaBytes} from './core/export.mjs';
+import {zipParts,crc32,crc32Start,crc32Update,crc32End} from './core/zip.mjs';
 import {ENGINE,PARAMETERS} from './engine/engine.mjs';
 import {Viewer} from './view/viewer.mjs';
 import {setupPrimers} from './primer-ui.mjs';
@@ -14,13 +15,13 @@ import {setupList} from './list-ui.mjs';
 import {SequenceView} from './view/sequence-view.mjs';
 import {parseFeatures,featureTypes} from './core/features.mjs';
 import {gatherChunk,subsetData,MAX_LIST_BASES,mergeRecords,recordFacts} from './core/list.mjs';
-export const TOOL_VERSION='0.1.0-beta.2';
+export const TOOL_VERSION='0.1.0-beta.3';
 const $=id=>document.getElementById(id),dec=new TextDecoder();
 const state={files:{reference:null,queries:[],aligned:null},loaded:null,S:null,R:null,order:null,workers:[],busy:false,analysis:null,statsId:0,cols:null,stats:null,navIndex:-1,selectedRecord:-1,dropped:new Set(),picked:new Set(),anchor:-1};
-const viewer=new Viewer($('viewer'),{onZoom:i=>{$('zoom').value=i;},onHover:hover,onSelect:selectRow,onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id),onPrimerClear:()=>primers.clearActive()});
-const sequenceView=new SequenceView($('sequence-view'),{onHover:t=>{$('hover-line').textContent=t??'';},onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id),onPrimerClear:()=>primers.clearActive()});
+const viewer=new Viewer($('viewer'),{onZoom:i=>{$('zoom').value=i;},onHover:hover,onSelect:selectRow,onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id),onPrimerClear:()=>primers.clearActive(),onRangeClear:()=>primers.clearRange()});
+const sequenceView=new SequenceView($('sequence-view'),{onHover:t=>{$('hover-line').textContent=t??'';},onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id),onPrimerClear:()=>primers.clearActive(),onRangeClear:()=>primers.clearRange()});
 const activeView=()=>state.single?sequenceView:viewer,circular=()=>!!state.single&&state.loaded?.reference?.topology==='circular';
-const primers=setupPrimers({get viewer(){return activeView();},circular,reference:()=>state.ref,consensus:()=>state.single?null:state.stats?.consensus??null,cols:()=>state.cols,ready:()=>!!state.stats,baseOrder:()=>state.baseOrder,analysis:()=>state.analysis,showTab,referenceInfo:()=>state.loaded.reference,referenceId:()=>state.refName,referenceInList:()=>!!state.refFromList,scopeText:bindingScope,saveText,hoverText:t=>{$('hover-line').textContent=t;},forceRecords(list,label){state.forced=new Set(list);$('forced-text').textContent=`${label} ${list.length.toLocaleString()}건만 표시`;$('forced-chip').hidden=false;applyFilter(true);},project:(row,buf,c0,c1)=>projectRow(state.S,state.order[row],state.cols,buf,c0,c1),rowName:row=>accessionOf(state.names[state.order[row]])});
+const primers=setupPrimers({get viewer(){return activeView();},onClear:()=>find.release(),circular,reference:()=>state.ref,consensus:()=>state.single?null:state.stats?.consensus??null,cols:()=>state.cols,ready:()=>!!state.stats,baseOrder:()=>state.baseOrder,analysis:()=>state.analysis,showTab,referenceInfo:()=>state.loaded.reference,referenceId:()=>state.refName,referenceInList:()=>!!state.refFromList,scopeText:bindingScope,saveText,hoverText:t=>{$('hover-line').textContent=t;},forceRecords(list,label){state.forced=new Set(list);$('forced-text').textContent=`${label} ${list.length.toLocaleString()}건만 표시`;$('forced-chip').hidden=false;applyFilter(true);},project:(row,buf,c0,c1)=>projectRow(state.S,state.order[row],state.cols,buf,c0,c1),rowName:row=>accessionOf(state.names[state.order[row]])});
 viewer.onPrimerEdit=sequenceView.onPrimerEdit=id=>primers.edit(id);
 const find=setupFind({get viewer(){return activeView();},circular,single:()=>!!state.single,annotations:()=>state.annotations??[],analysis:()=>state.analysis,ready:()=>!!state.stats&&!$('result').hidden,cols:()=>state.cols,order:()=>state.order,reference:()=>state.ref,consensus:()=>state.stats.consensus,primers:()=>primers.state.list,nameOf:i=>state.names[i],rowName:row=>state.names[state.order[row]],showTab,forceRecords(list,label){state.forced=new Set(list);$('forced-text').textContent=`${label} ${list.length.toLocaleString()}건만 표시`;$('forced-chip').hidden=false;applyFilter(true);}});
 const list=setupList({changed:updateJudge,view:openSingle});
@@ -35,7 +36,7 @@ $('forced-clear').addEventListener('click',()=>{state.forced=null;$('forced-chip
 
 $('tool-version').textContent='v'+TOOL_VERSION;
 $('support-range').textContent=`권장: 총 ${formatBases(LIMITS.recommendedBases)} 이하 · 주의: ${formatBases(LIMITS.maxBases)}까지 · 초과: 실행 불가 · Reference ${LIMITS.maxReferenceLength.toLocaleString()} nt까지. 이 범위는 목록에서 고른 서열 기준이며, 파일은 ${formatBases(MAX_LIST_BASES)}까지 읽어 목록에서 줄일 수 있습니다. 총 염기 수 = 서열 수 × 길이입니다. 권장 범위 끝에서 메모리 약 2.3 GB, 주의 범위 끝에서 약 4.3 GB를 썼습니다. Ryzen 5 5600·16 GB·합성 자료 측정이며 실제 자료와 PC에 따라 달라집니다. 반복 구간이 많은 reference는 훨씬 오래 걸릴 수 있습니다.`;
-for(const [k,v] of Object.entries({Coverage:POSITION_DEFINITIONS.coverage,'보존도 막대':POSITION_DEFINITIONS.identity,'변이 위치':POSITION_DEFINITIONS.variant,'정렬 방식':POSITION_DEFINITIONS.alignment,Consensus:POSITION_DEFINITIONS.consensus,'서열별 identity':'match ÷ (match+mismatch+insertion+deletion). 혼합염기는 분모에서 뺍니다.','일부만 정렬':'서열 길이의 95% 미만만 정렬된 경우입니다.'})){const t=document.createElement('dt');t.textContent=k;const d=document.createElement('dd');d.textContent=v;$('definitions').append(t,d);}
+for(const [k,v] of Object.entries({Coverage:POSITION_DEFINITIONS.coverage,'Identity 막대':POSITION_DEFINITIONS.identity,'변이 위치':POSITION_DEFINITIONS.variant,'정렬 방식':POSITION_DEFINITIONS.alignment,Consensus:POSITION_DEFINITIONS.consensus,'서열별 identity':'match ÷ (match+mismatch+insertion+deletion). 혼합염기는 분모에서 뺍니다.','일부만 정렬':'서열 길이의 95% 미만만 정렬된 경우입니다.'})){const t=document.createElement('dt');t.textContent=k;const d=document.createElement('dd');d.textContent=v;$('definitions').append(t,d);}
 
 function setError(m=''){$('error').textContent=m;}
 function setBusy(on){state.busy=on;for(const id of ['load','example','load-aligned','run','file-reference','file-queries','file-aligned'])$(id).disabled=on;if(!on)refreshButtons();if(typeof refreshAdd==='function')refreshAdd();if(typeof refreshRecords==='function')refreshRecords();}
@@ -201,6 +202,8 @@ function currentOrder(){
  for(let i=0;i<n;i++){if(state.dropped.has(i))continue;if(!allowed.has(statusOf(S,i)))continue;if(q&&!names[i].toLowerCase().includes(q))continue;if(min!==null){const v=identityFromStats(R,i);if(v===null||v<min)continue;}keep.push(i);}
  const s=$('sort').value;
  if(s==='name')keep.sort((a,b)=>names[a]<names[b]?-1:names[a]>names[b]?1:a-b);
+ // Coverage here is the share of the reference a record spans, so short fragments come first and can be dropped.
+ else if(s==='coverage-asc'){const v=new Float64Array(n),L=state.ref.length;for(const i of keep)v[i]=referenceCoverage(S,R,i,L);keep.sort((a,b)=>v[a]-v[b]||a-b);}
  else if(s!=='input'){const v=new Float64Array(n);for(const i of keep)v[i]=identityFromStats(R,i)??-1;const sign=s==='identity-asc'?1:-1;keep.sort((a,b)=>sign*(v[a]-v[b])||a-b);}
  return Uint32Array.from(keep);
 }
@@ -219,7 +222,7 @@ function analysisMessage({data:d}){
  if(d.type==='consensus-done'){if(d.id!==state.consensusId)return;state.stats.consensus=d.consensus;viewer.setConsensus(d.consensus,consensusLabel());state.variable=null;state.navIndex=-1;primers.onConsensus();find.onView();return;}
  if(d.type==='stats-done'){if(d.id!==state.statsId)return;progress(false);state.stats=d.stats;state.cols=d.cols;let max=0;for(const v of d.stats.coverage)if(v>max)max=v;
   viewer.consLabel=consensusLabel();viewer.setData({S:state.S,names:state.names,order:state.order,cols:d.cols,stats:d.stats,ref:state.ref,refName:state.refName,refFull:state.loaded.reference.name,maxCoverage:max});
-  if(!state.primersReady){state.primersReady=true;primers.onData();}else if(state.baseChanged){primers.onConsensus();primers.onFilter();}
+  if(!state.primersReady){state.primersReady=true;primers.onData();}else if(state.baseChanged){primers.onConsensus();primers.onFilter();}else primers.refresh();
   let ins=0;for(const v of d.stats.insRows)if(v)ins++;let variable=0;for(let r=0;r<state.ref.length;r++)if(differsFrom(d.stats.counts,r,state.ref[r]))variable++;state.variable=null;state.navIndex=-1;$('nav-state').textContent='';updateNavScope();
   if(state.restoreScroll){const v=state.restoreScroll;state.restoreScroll=null;requestAnimationFrame(()=>{viewer.scroller.scrollLeft=v.left;viewer.scroller.scrollTop=v.top;});}
   $('filter-line').textContent=state.single?'':`표시 ${state.order.length.toLocaleString()} / 전체 ${state.names.length.toLocaleString()} · 변이 위치 ${variable.toLocaleString()} · insertion 위치 ${ins.toLocaleString()}`;find.onView();return;}
@@ -256,7 +259,7 @@ $('next-diff').addEventListener('click',()=>step(1));$('prev-diff').addEventList
 function hover(p){
  const line=$('hover-line');if(!p||p.col<0||!state.stats){line.textContent='';return;}
  const r=state.cols.refOfCol[p.col];let t=r<0?'insertion 열':`위치 ${toDisplay(r).toLocaleString()} · ref ${String.fromCharCode(state.ref[r])}`;
- if(r>=0){const s=state.stats;t+=` · consensus ${s.consensus[r]?String.fromCharCode(s.consensus[r]):'없음'} · coverage ${s.coverage[r].toLocaleString()}${s.counts[r*6+5]?` (deletion ${s.counts[r*6+5].toLocaleString()})`:''} · A/C/G/T 판독 ${s.called[r].toLocaleString()} · 보존도 ${Number.isNaN(s.identity[r])?(s.coverage[r]?'비교 서열 2개 미만':'–'):(s.identity[r]*100).toFixed(1)+'%'}`;}
+ if(r>=0){const s=state.stats;t+=` · consensus ${s.consensus[r]?String.fromCharCode(s.consensus[r]):'없음'} · coverage ${s.coverage[r].toLocaleString()}${s.counts[r*6+5]?` (deletion ${s.counts[r*6+5].toLocaleString()})`:''} · A/C/G/T 판독 ${s.called[r].toLocaleString()} · Identity ${Number.isNaN(s.identity[r])?(s.coverage[r]?'비교 서열 2개 미만':'–'):(s.identity[r]*100).toFixed(1)+'%'}`;}
  else{let q=p.col;while(q<state.cols.total&&state.cols.refOfCol[q]<0)q++;const at=state.cols.refOfCol[q];if(at>=0)t+=` · 위치 ${toDisplay(at).toLocaleString()} 앞 · 해당 서열 ${state.stats.insRows[at].toLocaleString()}개`;else t+=` · Reference 끝 뒤 · 해당 서열 ${state.stats.insRows[state.ref.length].toLocaleString()}개`;}
  if(p.row>=0){const i=state.order[p.row],b=new Uint8Array(1);projectRow(state.S,i,state.cols,b,p.col,p.col+1);t+=` · ${accessionOf(state.names[i])}: ${b[0]?String.fromCharCode(b[0]):'정렬 밖'}`;}
  line.textContent=t;
@@ -298,6 +301,18 @@ document.querySelectorAll('[data-export]').forEach(b=>b.addEventListener('click'
   $('export-state').textContent='내보내는 중…';state.analysis.postMessage({type:'export',kind,id:Date.now(),order:state.order,options:{includeConsensus:$('export-consensus').checked}});
  }catch(e){if(e.name!=='AbortError')setError(e.message);}
 }));
+// Geneious: the reference GenBank (with the primers) and the SAM in one ZIP. Geneious takes both in one import and
+// places the reads on the reference (checked by the user, 2026-11-11). GFF3 stays out: the GenBank already has the primers.
+$('export-geneious').addEventListener('click',async()=>{
+ const name=(state.refName||'mapping').replace(/[^\w.-]+/g,'_')+'_geneious.zip';let out;
+ try{out=await sinkFor(name,'application/zip');}catch(e){if(e.name!=='AbortError')setError(e.message);return;}
+ const [gbName,,gbText]=primers.exportText('genbank'),gb=new TextEncoder().encode(gbText),sam=[];let crc=crc32Start(),size=0;
+ state.exportSink={write(b){const u=b instanceof Uint8Array?b:new Uint8Array(b);crc=crc32Update(crc,u);size+=u.length;sam.push(u);},
+  async close(){try{const parts=zipParts([{name:gbName,parts:[gb],size:gb.length,crc:crc32(gb)},{name:'mapping.sam',parts:sam,size,crc:crc32End(crc)}]);let n=0;for(const p of parts){await out.write(p);n+=p.length;}await out.close(n);
+   $('export-state').textContent=`${name} 저장 완료 (${formatBytes(n)}) · ${state.order.length.toLocaleString()}개 서열 · Reference GenBank와 SAM`;}catch(e){out.abort();$('export-state').textContent='';setError(e.message);}},
+  abort(){sam.length=0;out.abort();}};
+ $('export-state').textContent='내보내는 중…';state.analysis.postMessage({type:'export',kind:'sam',id:Date.now(),order:state.order,options:{includeConsensus:false}});
+});
 // Project file
 function viewState(){return {search:$('search').value,sort:$('sort').value,minIdentity:$('min-identity').value,status:Object.fromEntries([...document.querySelectorAll('[data-status]')].map(x=>[x.dataset.status,x.checked])),zoom:$('zoom').value,consensusPercent:$('consensus-percent').value,consensusCustom:$('consensus-custom').value,nameWidth:viewer.nameW,nameMode:$('name-mode').value,compare:$('compare').value,diffOnly:$('diff-only').checked,scrollLeft:viewer.scroller.scrollLeft,scrollTop:viewer.scroller.scrollTop,dropped:[...state.dropped]};}
 function applyView(v){$('consensus-percent').value=v.consensusPercent??'0';$('consensus-custom').value=v.consensusCustom??'';$('consensus-custom').hidden=$('consensus-percent').value!=='custom';$('search').value=v.search;$('sort').value=v.sort;$('min-identity').value=v.minIdentity;document.querySelectorAll('[data-status]').forEach(x=>{x.checked=!!v.status[x.dataset.status];});$('zoom').value=v.zoom;viewer.setZoom(+v.zoom);if(v.nameWidth)viewer.setNameWidth(v.nameWidth);$('name-mode').value=v.nameMode??'both';viewer.setNameMode($('name-mode').value);$('compare').value=v.compare;viewer.setCompare(v.compare);$('diff-only').checked=v.diffOnly;viewer.setMode(v.diffOnly?'diff':'all');state.restoreScroll={left:v.scrollLeft,top:v.scrollTop};state.pendingDropped=v.dropped??[];}

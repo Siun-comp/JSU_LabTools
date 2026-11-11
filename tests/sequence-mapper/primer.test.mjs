@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {normalizeSequence,reverseComplement,parseText,detectColumns,buildPrimers,findSites,placePrimer,chooseHit,siteForm,mixedBases,MASK} from '../../tools/sequence-mapper/core/primer.mjs';
+import {normalizeSequence,reverseComplement,parseText,detectColumns,buildPrimers,findSites,placePrimer,chooseHit,siteForm,mixedBases,MASK,PRIMER_COLORS,primerFill,primerInk,consensusDiffs} from '../../tools/sequence-mapper/core/primer.mjs';
 import {computeBinding,runToEnd,classify,passesRule,CAT,END3_FLAG,RULE_FLAG,recordsInCell} from '../../tools/sequence-mapper/core/binding.mjs';
 import {analyzeSelection,gcRange,tmSummary,selfDimerSummary,DEFAULT_CONDITIONS} from '../../tools/sequence-mapper/core/selection.mjs';
 import {STRIDE,REF,QS,QE,HITS,COFF,CN,OP} from '../../tools/sequence-mapper/core/alignment.mjs';
@@ -61,4 +61,25 @@ assert.equal(tmSummary('A',DEFAULT_CONDITIONS).status,'na');assert.equal(tmSumma
 assert.equal(selfDimerSummary('A'.repeat(201)).status,'na');assert.equal(selfDimerSummary('ACGTNNNNACGT').status,'na');assert.equal(selfDimerSummary('AAAAAAAAAAAA').status,'none');
 {const s=selfDimerSummary('ACGTRCGTAC');assert.equal(s.variants,2);assert.equal(s.status,'ok');}
 assert.deepEqual(gcRange('GCAT'),{min:50,max:50});{const g=gcRange('GNAT');assert.equal(g.min,25);assert.equal(g.max,50);}
+// Primer colours: the offered set, one default green (differences are cells, not a colour), readable label ink
+assert.deepEqual(PRIMER_COLORS.map(c=>c[0]),['','#7030A0','#0926FB','#00B050','#FFC000','#FF0000']);
+assert.equal(primerFill(''),'#3f9a63');assert.equal(primerFill('#7030A0'),'#7030A0');
+assert.equal(primerInk('#FFC000'),'#1f2d3a');for(const c of ['#7030A0','#0926FB','#00B050','#FF0000','#3f9a63'])assert.equal(primerInk(c),'#fff',c);
+// Differences from the consensus, top strand. Synthetic.
+{const cons=Uint8Array.from('AACGTACGTAGGTN-A',c=>c.charCodeAt(0));
+ // Plus strand at 2..10: CGTACGTA vs consensus CGTACGTA -> none; one change at offset 3 (A->C)
+ assert.deepEqual(consensusDiffs('CGTACGTA',{start:2,end:10,strand:1},cons),[]);
+ assert.deepEqual(consensusDiffs('CGTCCGTA',{start:2,end:10,strand:1},cons),[{pos:5,base:'C'}]);
+ // Mixed primer base covers the consensus base (R covers A); an ambiguous consensus must lie inside the primer base
+ assert.deepEqual(consensusDiffs('CGTRCGTA',{start:2,end:10,strand:1},cons),[]);
+ {const amb=Uint8Array.from('AACGTRCGTA',c=>c.charCodeAt(0));assert.deepEqual(consensusDiffs('CGTACGTA',{start:2,end:10,strand:1},amb),[{pos:5,base:'A'}]);assert.deepEqual(consensusDiffs('CGTNCGTA',{start:2,end:10,strand:1},amb),[]);}
+ // Minus strand is compared as its reverse complement: primer TACGTACG binds top CGTACGTA
+ assert.deepEqual(consensusDiffs('TACGTACG',{start:2,end:10,strand:-1},cons),[]);
+ assert.deepEqual(consensusDiffs('TACGGACG',{start:2,end:10,strand:-1},cons),[{pos:5,base:'C'}]);
+ // N consensus and no data are not compared; a deletion consensus is a difference
+ assert.deepEqual(consensusDiffs('GTTAA',{start:11,end:16,strand:1},cons),[{pos:14,base:'A'}]);
+ {const holes=Uint8Array.from('AACGTACGTA',c=>c.charCodeAt(0));holes[4]=0;assert.deepEqual(consensusDiffs('CGAACGTA',{start:2,end:10,strand:1},holes),[]);}
+ // Circular reference: positions wrap; a site whose length does not match the primer is not compared
+ assert.deepEqual(consensusDiffs('TAACG',{start:14,end:19,strand:1},cons).map(d=>d.pos),[14,1,2]);
+ assert.deepEqual(consensusDiffs('CGTACGTA',{start:2,end:11,strand:1},cons),[]);assert.deepEqual(consensusDiffs('CGTACGTA',{start:2,end:10,strand:1},null),[]);}
 console.log('PASS: Sequence Mapper primer input, site search, binding classes, LAMP parts and selection analysis.');

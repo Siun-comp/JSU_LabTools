@@ -1,9 +1,25 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Primer input and binding-site search. A sequence match is not a claim that priming will work.
 const CODES={A:1,C:2,G:4,T:8,R:5,Y:10,S:6,W:9,K:12,M:3,B:14,D:13,H:11,V:7,N:15};
+// Primer colours offered to the user. An empty colour is the default green. Differences are drawn as hatched cells
+// (consensusDiffs), not as a colour, so the colour only ever means what the user chose.
+export const PRIMER_COLORS=Object.freeze([['','기본'],['#7030A0','보라'],['#0926FB','파랑'],['#00B050','초록'],['#FFC000','노랑'],['#FF0000','빨강']]);
+export const primerFill=color=>color||'#3f9a63';
+// Dark text on light fills (yellow), white otherwise.
+export function primerInk(fill){const n=parseInt(fill.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return 0.299*r+0.587*g+0.114*b>170?'#1f2d3a':'#fff';}
 export const MASK=new Uint8Array(256);for(const [k,v] of Object.entries(CODES))MASK[k.charCodeAt(0)]=v;
 const COMP={A:'T',C:'G',G:'C',T:'A',R:'Y',Y:'R',S:'S',W:'W',K:'M',M:'K',B:'V',V:'B',D:'H',H:'D',N:'N'};
 export const reverseComplement=s=>{let o='';for(let i=s.length-1;i>=0;i--)o+=COMP[s[i]];return o;};
+// Positions where a placed primer differs from the consensus (or, with one sequence, from that sequence), read on the
+// top strand: a minus-strand primer is compared as its reverse complement. A primer base matches when it covers the
+// consensus base (R covers A and G; an ambiguous consensus must lie wholly inside it). Positions with no consensus
+// or an N consensus are not compared; a deletion consensus counts as a difference. Returns {pos, base} with pos the
+// reference position (wrapped on a circular reference) and base the primer's top-strand base there.
+export function consensusDiffs(sequence,site,target){
+ const out=[],L=target?.length??0;if(!L||!site||site.end-site.start!==sequence.length)return out;
+ const top=site.strand<0?reverseComplement(sequence):sequence;
+ for(let i=0;i<top.length;i++){const pos=(site.start+i)%L,c=target[pos];if(!c||c===78)continue;const m=MASK[c];if(!m||m&~MASK[top.charCodeAt(i)])out.push({pos,base:top[i]});}
+ return out;}
 export const MAX_PRIMER_LENGTH=200,MIN_PRIMER_LENGTH=8;
 // Raised when site search changes. 2: N in the target is unresolved, not a match.
 export const PLACEMENT_METHOD=2;

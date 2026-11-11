@@ -2,18 +2,20 @@
 // Canvas alignment viewer. Only the visible rows and columns are drawn, whatever the record count.
 import {projectRow,GAP,coversBase} from '../core/alignment.mjs';
 import {displayName} from '../core/parse.mjs';
+import {primerFill,primerInk} from '../core/primer.mjs';
+import {diffCells,label,CELL_MIN} from './primer-cells.mjs';
 export const ZOOMS=Object.freeze([14,10,7,5,4,3.5,2,1,.5,.35]);
 // Letters fit down to 4 px per base. Below that each base is still its own coloured cell, until bases share pixels.
 const GLYPH_MIN=4,PAINT_MIN=3,WHEEL_STEP=40;
-const DEFAULT_NAME_W=260,MIN_NAME_W=120,MAX_NAME_W=640,ROW=16,LANE=18,MAX_LANES=8,H={overview:20,ruler:24,consensus:16,coverage:36,identity:14,reference:16};
+const DEFAULT_NAME_W=260,MIN_NAME_W=120,MAX_NAME_W=640,ROW=16,LANE=18,MAX_LANES=8,H={overview:20,ruler:24,consensus:16,coverage:36,identity:28,reference:16};
 const BASE_TOP=H.overview+H.ruler+H.consensus+H.coverage+H.identity+H.reference;
 const COLOR={A:'#c2453f',C:'#2f6fb3',G:'#b8831f',T:'#2f8f5b',other:'#7a6aa8',gap:'#59697b'};
 const TINT={A:'#efc9c6',C:'#c6d9ec',G:'#ecdcb9',T:'#c3e3d1'};
 const baseColor=c=>COLOR[String.fromCharCode(c)]??COLOR.other,baseTint=c=>TINT[String.fromCharCode(c)]??'#d8d2e6';
 const FONT='"Cascadia Mono",Consolas,"Liberation Mono","Courier New",monospace',UI='"Segoe UI","Malgun Gothic",sans-serif';
 export class Viewer{
- constructor(host,{onHover,onSelect,onRange,onPrimer,onPrimerClear,onZoom}={}){
-  Object.assign(this,{onHover,onSelect,onRange,onPrimer,onPrimerClear,onZoom,host});this.wheelSum=0;this.scroller=host.querySelector('.viewer-scroll');this.spacer=host.querySelector('.viewer-spacer');this.canvas=host.querySelector('canvas');this.ctx=this.canvas.getContext('2d',{alpha:false});
+ constructor(host,{onHover,onSelect,onRange,onRangeClear,onPrimer,onPrimerClear,onZoom}={}){
+  Object.assign(this,{onHover,onSelect,onRange,onRangeClear,onPrimer,onPrimerClear,onZoom,host});this.wheelSum=0;this.scroller=host.querySelector('.viewer-scroll');this.spacer=host.querySelector('.viewer-spacer');this.canvas=host.querySelector('canvas');this.ctx=this.canvas.getContext('2d',{alpha:false});
   this.nameW=DEFAULT_NAME_W;this.cell=ZOOMS[0];this.mode='all';this.nameMode='both';this.compare='reference';this.selected=-1;this.mark=-1;this.data=null;this.queued=false;this.lastFrameMs=0;this.primers=[];this.lanes=0;this.top=BASE_TOP;this.range=null;this.drag=null;this.pointer=null;this.activePrimer=null;this.found=null;this.consLabel='Consensus';
   this.scroller.addEventListener('scroll',()=>this.request(),{passive:true});this.scroller.addEventListener('wheel',e=>this.wheel(e),{passive:false});
   new ResizeObserver(()=>this.resize()).observe(this.scroller);
@@ -40,6 +42,8 @@ export class Viewer{
  setMark(col){this.mark=col;this.request();}
  setNameWidth(w){this.nameW=Math.max(MIN_NAME_W,Math.min(MAX_NAME_W,Math.round(w)));this.updateSize();this.request();}
  clearRange(){this.range=null;this.request();}
+ // A range chosen in code (a find hit) behaves like one drawn with the pointer.
+ selectRange(r){this.range=r;this.request();this.onRange?.(r);}
  centerColumn(){return this.cell?(this.scroller.scrollLeft+(this.width-this.nameW)/2)/this.cell:0;}
  updateSize(){if(!this.data)return;this.scroller.style.scrollPaddingLeft=this.nameW+'px';this.spacer.style.width=this.nameW+this.data.cols.total*this.cell+'px';this.spacer.style.height=this.top+this.data.order.length*ROW+'px';}
  resize(){const d=devicePixelRatio||1,w=this.scroller.clientWidth,h=this.scroller.clientHeight;this.width=w;this.height=h;this.canvas.width=w*d;this.canvas.height=h*d;this.canvas.style.width=w+'px';this.canvas.style.height=h+'px';this.dpr=d;this.atlas=null;this.request();}
@@ -115,11 +119,16 @@ export class Viewer{
   x.restore();}
  fit(x,s,max){if(s.length>90)s=s.slice(0,90);if(x.measureText(s).width<=max)return s;let lo=0,hi=s.length;while(lo<hi){const m=(lo+hi+1)>>1;if(x.measureText(s.slice(0,m)+'…').width<=max)lo=m;else hi=m-1;}return s.slice(0,lo)+'…';}
  arrows(x,y,c0,c1,off){
-  const cell=this.cell;x.font=`11px ${UI}`;x.textBaseline='middle';x.textAlign='left';
+  const cell=this.cell,colOf=this.data.cols.colOf;x.font=`11px ${UI}`;x.textBaseline='middle';x.textAlign='left';
   for(const p of this.shown??[]){if(p.c1<c0||p.c0>c1)continue;const left=this.nameW+off+(p.c0-c0)*cell,right=this.nameW+off+(p.c1-c0)*cell,top=y+p.lane*LANE+2,hh=LANE-4,mid=top+hh/2,head=Math.min(7,Math.max(2,(right-left)/2));
-   x.beginPath();if(p.strand>0){x.moveTo(left,top);x.lineTo(right-head,top);x.lineTo(right,mid);x.lineTo(right-head,top+hh);x.lineTo(left,top+hh);}else{x.moveTo(right,top);x.lineTo(left+head,top);x.lineTo(left,mid);x.lineTo(left+head,top+hh);x.lineTo(right,top+hh);}x.closePath();
-   x.fillStyle=p.mismatches?'#8a9a3a':'#3f9a63';x.fill();if(p.id===this.activePrimer){x.strokeStyle='#1d3b2a';x.lineWidth=1.5;x.stroke();}
-   const tw=x.measureText(p.name).width;if(tw+head+6<right-left){x.fillStyle='#fff';x.fillText(p.name,left+(p.strand>0?4:head+3),mid+.5);}else{x.fillStyle='#23364d';x.fillText(p.name,right+3,mid+.5);}}
+   const shape=()=>{x.beginPath();if(p.strand>0){x.moveTo(left,top);x.lineTo(right-head,top);x.lineTo(right,mid);x.lineTo(right-head,top+hh);x.lineTo(left,top+hh);}else{x.moveTo(right,top);x.lineTo(left+head,top);x.lineTo(left,mid);x.lineTo(left+head,top+hh);x.lineTo(right,top+hh);}x.closePath();};
+   const fill=primerFill(p.color),diffs=p.diffs??[];shape();x.fillStyle=fill;x.fill();
+   // Bases that differ from the consensus are hatched cells; too small to see, the dashed outline says the same.
+   const cells=cell>=CELL_MIN?diffs.map(d=>({px:this.nameW+off+(colOf[d.pos]-c0)*cell,w:cell,base:d.base})).filter(q=>q.px+q.w>=left&&q.px<=right):[];
+   if(cells.length){shape();diffCells(x,cells,top,hh,fill);}
+   if(p.id===this.activePrimer){shape();x.strokeStyle='#1d3b2a';x.lineWidth=1.5;x.stroke();}else if(diffs.length){shape();x.setLineDash([3,2]);x.strokeStyle='#1f2d3a';x.lineWidth=1.2;x.stroke();x.setLineDash([]);}
+   x.font=`11px ${UI}`;x.textBaseline='middle';x.textAlign='left';
+   const tw=x.measureText(p.name).width;if(tw+head+6<right-left)label(x,p.name,left+(p.strand>0?4:head+3),mid+.5,primerInk(fill),fill,cells.length>0);else{x.fillStyle='#23364d';x.fillText(p.name,right+3,mid+.5);}}
  }
  tracks(x,c0,c1,off){
   const d=this.data,cell=this.cell,{refOfCol,total}=d.cols,cov=d.stats.coverage,cnt=d.stats.counts,idn=d.stats.identity,maxCov=d.maxCoverage||1,TOP=this.top;let y=0;
@@ -127,7 +136,7 @@ export class Viewer{
   const label=(t,hh)=>{x.fillStyle='#59697b';x.fillText(t,6,y+hh/2+.5);};
   const ow=this.width-this.nameW-2;label('전체 위치',H.overview);const L=cov.length;x.fillStyle='#e7ecf1';x.fillRect(this.nameW+1,5,ow,10);x.fillStyle='#9fb2c4';
   for(let p=0;p<ow;p+=2){const r=Math.min(L-1,Math.floor(p/ow*L));const f=(cov[r]-cnt[r*6+5])/maxCov;x.fillRect(this.nameW+1+p,15-10*f,2,10*f);}
-  for(const p of this.shown??[]){x.fillStyle=p.mismatches?'#8a9a3a':'#3f9a63';x.fillRect(this.nameW+1+p.c0/total*ow,1,Math.max(2,(p.c1-p.c0)/total*ow),18);}
+  for(const p of this.shown??[]){x.fillStyle=primerFill(p.color);x.fillRect(this.nameW+1+p.c0/total*ow,1,Math.max(2,(p.c1-p.c0)/total*ow),18);}
   x.strokeStyle='#344e6b';x.lineWidth=1;x.strokeRect(this.nameW+1+c0/total*ow+.5,3.5,Math.max(3,(c1-c0)/total*ow),13);y+=H.overview;
   x.save();x.beginPath();x.rect(this.nameW,0,this.width-this.nameW,TOP);x.clip();
   const unit=[1,2,5,10,20,50,100,200,500,1000,2000,5000,10000].find(u=>u*cell>=70)||20000;x.fillStyle='#23364d';x.font=`11px ${UI}`;
@@ -136,13 +145,15 @@ export class Viewer{
   this.seqTrack(x,this.consRow,y,H.consensus,c0,c1,off,this.refRow);y+=H.consensus;
   // Coverage: dark = sequences with a base here, light on top = sequences with a deletion here.
   const step=Math.max(1,Math.floor(1/cell)),full=H.coverage-4;for(let c=c0;c<c1;c+=step){const r=refOfCol[c];if(r<0)continue;const del=cnt[r*6+5],hb=full*(cov[r]-del)/maxCov,hd=full*del/maxCov,px=this.nameW+off+(c-c0)*cell,w=Math.max(cell*step,1);x.fillStyle='#8fa8bf';x.fillRect(px,y+H.coverage-2-hb,w,hb);if(del){x.fillStyle='#dfe6ee';x.fillRect(px,y+H.coverage-2-hb-hd,w,hd);}}y+=H.coverage;
-  // Conservation: slate where every covering sequence has a deletion, grey where fewer than two sequences can be compared.
+  // Identity: bar height is the value, coloured as Geneious does (green 100%, olive from 30%, red below). Slate where every
+  // covering sequence has a deletion, a grey base line where fewer than two sequences can be compared.
   const delOnly=r=>cnt[r*6+5]>0&&cov[r]===cnt[r*6+5];
-  for(let c=c0;c<c1;c+=step){const r=refOfCol[c];if(r<0)continue;let v=1;for(let j=c;j<c+step&&j<c1;j++){const q=refOfCol[j];if(q>=0&&idn[q]<v)v=idn[q];}x.fillStyle=delOnly(r)?'#8796a8':Number.isNaN(idn[r])?'#e7ecf1':v>=1?'#3f9a63':v<.3?'#c2453f':'#b5a93a';x.fillRect(this.nameW+off+(c-c0)*cell,y+1,Math.max(cell*step,1),H.identity-2);}y+=H.identity;
+  for(let c=c0;c<c1;c+=step){const r=refOfCol[c];if(r<0)continue;let v=1;for(let j=c;j<c+step&&j<c1;j++){const q=refOfCol[j];if(q>=0&&idn[q]<v)v=idn[q];}const px=this.nameW+off+(c-c0)*cell,w=Math.max(cell*step,1),full=H.identity-3,base=y+H.identity-1;
+   if(delOnly(r)){x.fillStyle='#8796a8';x.fillRect(px,base-full,w,full);}else if(Number.isNaN(idn[r])){x.fillStyle='#c9d2db';x.fillRect(px,base-1,w,1);}else{const h=Math.max(1,full*v);x.fillStyle=v>=1?'#3f9a63':v<.3?'#c2453f':'#b5a93a';x.fillRect(px,base-h,w,h);}}y+=H.identity;
   this.seqTrack(x,this.refRow,y,H.reference,c0,c1,off,this.consRow);
   x.restore();
   y=H.overview;x.font=`12px ${UI}`;x.textBaseline='middle';x.textAlign='left';x.fillStyle='#f8fafc';x.fillRect(0,y,this.nameW,TOP-y);
-  for(const [t,hh] of [['좌표 (reference)',H.ruler],...(this.lanes?[['Primer',this.lanes*LANE]]:[]),[this.consLabel,H.consensus],[`Coverage (최대 ${maxCov.toLocaleString()})`,H.coverage],['보존도',H.identity]]){label(t,hh);y+=hh;}
+  for(const [t,hh] of [['좌표 (reference)',H.ruler],...(this.lanes?[['Primer',this.lanes*LANE]]:[]),[this.consLabel,H.consensus],[`Coverage (최대 ${maxCov.toLocaleString()})`,H.coverage],['Identity',H.identity]]){label(t,hh);y+=hh;}
   x.fillStyle='#fdf8e6';x.fillRect(0,y,this.nameW,H.reference);x.fillStyle='#23364d';x.fillText(this.fit(x,'Reference: '+displayName(d.refFull??d.refName,this.nameMode),this.nameW-10),6,y+H.reference/2+.5);
  }
  seqTrack(x,seq,y,hh,c0,c1,off,other){const cell=this.cell;
@@ -156,6 +167,7 @@ export class Viewer{
  nearSplit(p){return p&&Math.abs(p.px-this.nameW)<=4;}
  move(e){const p=this.locate(e);if(this.drag?.resize){if(p)this.setNameWidth(p.px);return;}this.canvas.style.cursor=this.nearSplit(p)?'col-resize':'';if(this.drag)return;this.onHover?.(p);}
  down(e){if(e.button)return;const p=this.locate(e);if(!p)return;if(this.nearSplit(p)){e.preventDefault();this.drag={resize:true};this.request();return;}if(p.track==='overview'&&p.px>=this.nameW){this.scrollToColumn((p.px-this.nameW)/(this.width-this.nameW)*this.data.cols.total);return;}
+  if(this.range)this.onRangeClear?.(); // any click in the view drops the drawn range; a drag draws a new one
   if(p.primer){this.lastPrimer={id:p.primer.id,t:performance.now()};this.onPrimer?.(p.primer.id);return;}
   if(this.activePrimer!=null)this.onPrimerClear?.(); // a click anywhere but a primer drops the primer highlight
   const mods={add:e.ctrlKey||e.metaKey,span:e.shiftKey};

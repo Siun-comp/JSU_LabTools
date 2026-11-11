@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Primer registration, list, binding table and selected-range analysis.
-import {PLACEMENT_METHOD,MIN_PRIMER_LENGTH,MAX_PRIMER_LENGTH,MASK,parseText,detectColumns,buildPrimers,placePrimer,chooseHit,reverseComplement,mixedBases,normalizeSequence,findSites} from './core/primer.mjs';
+import {consensusDiffs,PRIMER_COLORS,PLACEMENT_METHOD,MIN_PRIMER_LENGTH,MAX_PRIMER_LENGTH,MASK,parseText,detectColumns,buildPrimers,placePrimer,chooseHit,reverseComplement,mixedBases,normalizeSequence,findSites} from './core/primer.mjs';
 import {CAT,CAT_LABEL,BINDING_NOTE,BINDING_METHOD,recordsInCell,variantParts,isWholeDeletion} from './core/binding.mjs';
 import {readFirstSheet} from './core/xlsx-read.mjs';
 import {DEFAULT_CONDITIONS,tmSummary,gcRange,selfDimerSummary} from './core/selection.mjs';
@@ -27,9 +27,20 @@ export function setupPrimers(host){
  const selfCache=new Map();
  function selfOf(seq){let s=selfCache.get(seq);if(!s){const f=selfDimerSummary(seq);s=f.status==='ok'?{text:f.text,warn:!!f.warning}:{text:f.status==='none'?'없음':'N/A',warn:false};if(selfCache.size>2000)selfCache.clear();selfCache.set(seq,s);}return s;}
  function changed({rerun=true}={}){P.list=P.list.map(place);refreshViewer();renderList();markStale();if(rerun)maybeAuto();}
- function refreshViewer(){host.viewer.setPrimers(P.list.filter(p=>p.site).map(p=>({id:p.id,name:p.name,start:p.site.start,end:p.site.end,strand:p.site.strand,mismatches:p.site.mismatches+(p.site.unresolved??0),visible:p.visible})));}
+ // Differences are read against the consensus; one sequence alone has none, so it is compared with itself.
+ const diffTarget=()=>host.consensus()??host.reference();
+ const diffsOf=p=>consensusDiffs(p.sequence,p.site,diffTarget());
+ function refreshViewer(){host.viewer.setPrimers(P.list.filter(p=>p.site).map(p=>({id:p.id,name:p.name,start:p.site.start,end:p.site.end,strand:p.site.strand,mismatches:p.site.mismatches+(p.site.unresolved??0),visible:p.visible,color:p.color||'',diffs:diffsOf(p)})));}
+ // Colour menus: the list cell, the bulk menu and the dialogs share the same choices. Each choice shows in its own colour.
+ function fillColors(sel,value='',lead=null){sel.replaceChildren(...(lead?[el('option',{value:'*',textContent:lead})]:[]),...PRIMER_COLORS.map(([v,t])=>{const o=el('option',{value:v,textContent:v?'■ '+t:t});o.style.color=v||'';return o;}));sel.value=lead?'*':value;tint(sel);return sel;}
+ const tint=sel=>{sel.style.color=sel.value&&sel.value!=='*'?sel.value:'';};
+ for(const id of ['edit-color','selection-color','primer-color'])fillColors($(id));
+ for(const id of ['edit-color','selection-color','primer-color'])$(id).addEventListener('change',e=>tint(e.target));
+ fillColors($('order-color'),'','선택 Primer 색…');
+ $('order-color').addEventListener('change',e=>{const v=e.target.value;if(v==='*')return;for(const p of P.list)if(P.selected.has(p.id))p.color=v;e.target.value='*';tint(e.target);refreshViewer();renderList();$('order-state').textContent=`${P.selected.size}개 색을 바꿨습니다.`;});
  function add(primers){for(const p of primers)P.list.push({...p,id:P.nextId++});changed();$('primer-count').textContent=P.list.length?`(${P.list.length})`:'';}
- function statusText(p){if(!p.site)return '위치 없음';const parts=[];if(p.manual)parts.push('직접 지정');if(p.site.source==='consensus')parts.push('Consensus에서 찾음');if(p.site.end>host.reference().length)parts.push('원점 걸침');const unsure=p.site.unresolved??0;if(p.site.mismatches)parts.push(`mismatch ${p.site.mismatches}`);if(unsure)parts.push(`판정 불가 염기 ${unsure}개`);if(!p.site.mismatches&&!unsure)parts.push('일치');if(p.hits?.length>1){const tied=new Set(p.hits.filter(h=>h.mismatches===p.site.mismatches&&(h.unresolved??0)===unsure).map(h=>h.start)).size;parts.push(tied>1?`위치 ${p.hits.length}곳 (같은 점수 ${tied}곳)`:`위치 ${p.hits.length}곳`);}return parts.join(' · ');}
+ function statusText(p){if(!p.site)return '위치 없음';const parts=[];if(p.manual)parts.push('직접 지정');if(p.site.source==='consensus')parts.push('Consensus에서 찾음');if(p.site.end>host.reference().length)parts.push('원점 걸침');const unsure=p.site.unresolved??0;// Placement is read against the reference; the consensus comparison is added by the list.
+ if(p.site.mismatches)parts.push(`Reference mismatch ${p.site.mismatches}`);if(unsure)parts.push(`판정 불가 염기 ${unsure}개`);if(!p.site.mismatches&&!unsure)parts.push('Reference 일치');if(p.hits?.length>1){const tied=new Set(p.hits.filter(h=>h.mismatches===p.site.mismatches&&(h.unresolved??0)===unsure).map(h=>h.start)).size;parts.push(tied>1?`위치 ${p.hits.length}곳 (같은 점수 ${tied}곳)`:`위치 ${p.hits.length}곳`);}return parts.join(' · ');}
  function renderList(){
   const body=$('primer-rows');body.replaceChildren();$('primer-empty').hidden=P.list.length>0;
   for(const id of [...P.selected])if(!P.list.some(p=>p.id===id))P.selected.delete(id);
@@ -38,8 +49,8 @@ export function setupPrimers(host){
    const where=p.site?siteText(p.site):'–',m=metrics(p);
    const cell=el('td',{class:'num'},where);
    if(p.hits?.length>1){const sel=el('select',{ariaLabel:p.name+' 위치 선택',onchange(){const q=chooseHit(p,+sel.value);Object.assign(p,{site:q.site,locked:true});refreshViewer();markStale();maybeAuto();}});p.hits.slice(0,20).forEach((h,i)=>sel.append(el('option',{value:i,selected:h.start===p.site.start&&h.strand===p.site.strand,textContent:`${toDisplay(h.start).toLocaleString()} (${h.strand>0?'+':'−'}, mm ${h.mismatches}${h.unresolved?`, 판정 불가 ${h.unresolved}`:''})`})));cell.replaceChildren(sel);}
-   const self=selfOf(p.sequence);
-   tr.append(el('td',{class:'handle',title:'끌어서 순서 변경',ariaHidden:'true'},'⋮⋮'),el('td',{},show),el('td',{},p.set||'–'),el('td',{},el('button',{type:'button',class:'link',textContent:p.name,disabled:!p.site,onclick(){focus(p.id);}})),el('td',{class:'mono'},p.sequence),el('td',{class:'num'},String(p.sequence.length)),el('td',{class:'num'},String(mixedBases(p.sequence))),el('td',{class:'num'},m.tm),el('td',{class:'num'},m.gc),el('td',{class:'num'+(self.warn?' warn':''),title:self.warn?'≤ −9 kcal/mol':''},self.text),cell,el('td',{class:'dir'},p.site?(p.site.strand>0?'+':'−'):'–'),el('td',{class:p.site?'':'bad'},statusText(p)),el('td',{class:'actions'},el('button',{type:'button',textContent:'수정',ariaLabel:p.name+' 수정',onclick(){openEdit(p.id);}}),el('button',{type:'button',textContent:'삭제',ariaLabel:p.name+' 삭제',onclick(){P.list=P.list.filter(x=>x!==p);P.selected.delete(p.id);if(P.editTarget===p.id)P.editTarget=null;changed();$('primer-count').textContent=P.list.length?`(${P.list.length})`:'';}})));
+   const self=selfOf(p.sequence),color=fillColors(el('select',{class:'color-select',ariaLabel:p.name+' 색',onchange(){p.color=color.value;tint(color);refreshViewer();}}),p.color||'');
+   tr.append(el('td',{class:'handle',title:'끌어서 순서 변경',ariaHidden:'true'},'⋮⋮'),el('td',{},show),el('td',{},color),el('td',{},p.set||'–'),el('td',{},el('button',{type:'button',class:'link',textContent:p.name,disabled:!p.site,onclick(){focus(p.id);}})),el('td',{class:'mono'},p.sequence),el('td',{class:'num'},String(p.sequence.length)),el('td',{class:'num'},String(mixedBases(p.sequence))),el('td',{class:'num'},m.tm),el('td',{class:'num'},m.gc),el('td',{class:'num'+(self.warn?' warn':''),title:self.warn?'≤ −9 kcal/mol':''},self.text),cell,el('td',{class:'dir'},p.site?(p.site.strand>0?'+':'−'):'–'),el('td',{class:p.site?'':'bad'},statusText(p)+(p.site&&host.consensus()?((n=>n?` · Consensus 차이 ${n}`:''))(diffsOf(p).length):'')),el('td',{class:'actions'},el('button',{type:'button',textContent:'수정',ariaLabel:p.name+' 수정',onclick(){openEdit(p.id);}}),el('button',{type:'button',textContent:'삭제',ariaLabel:p.name+' 삭제',onclick(){P.list=P.list.filter(x=>x!==p);P.selected.delete(p.id);if(P.editTarget===p.id)P.editTarget=null;changed();$('primer-count').textContent=P.list.length?`(${P.list.length})`:'';}})));
    body.append(tr);}
   updateOrderButtons();
  }
@@ -69,7 +80,7 @@ export function setupPrimers(host){
  $('primer-paste').addEventListener('input',e=>preview(parseText(e.target.value).rows));
  $('primer-file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{if(/\.xlsx$/i.test(f.name))preview(await readFirstSheet(await f.arrayBuffer()));else preview(parseText(await f.text()).rows);}catch(x){$('primer-error').textContent=x.message;}});
  for(const id of ['map-name','map-sequence','map-set','map-header','primer-set'])$(id).addEventListener('input',updateDraft);
- $('primer-add').addEventListener('click',()=>{if(P.draft?.result)add(P.draft.result.primers);dialog.close();host.showTab('primers');});
+ $('primer-add').addEventListener('click',()=>{const color=$('primer-color').value;if(P.draft?.result)add(P.draft.result.primers.map(p=>({...p,color})));dialog.close();host.showTab('primers');});
 
  // Search options
  for(const [id,key] of [['opt-mismatch','maxMismatch'],['opt-end3-exact','end3Exact'],['opt-end3','end3'],['opt-rule-end3','ruleEnd3'],['opt-rule-mismatch','ruleMismatch']])$(id).addEventListener('change',e=>{const v=Number(e.target.value),max=key==='ruleEnd3'?30:10;if(!Number.isInteger(v)||v<0||v>max){e.target.value=P.options[key];return;}P.options[key]=v;changed();});
@@ -130,7 +141,7 @@ export function setupPrimers(host){
   const out=[];for(let k=0;k<n;k++){const lane=r.from+k;out.push(`${laneText(lane,r,buf)}\n`);}return {text:out.join('')};}
  function onRange(r){P.range=r;P.selectionId++;const c=host.cols(),n=laneCount(r),buf=new Uint8Array(r.c1-r.c0);let a=r.c0,b=r.c1-1;while(a<r.c1&&c.refOfCol[a]<0)a++;while(b>=r.c0&&c.refOfCol[b]<0)b--;
   const start=a<r.c1?c.refOfCol[a]:-1,end=b>=r.c0?c.refOfCol[b]+1:-1,where=start>=0?toDisplay(start).toLocaleString()+'–'+end.toLocaleString():'insertion 열';
-  $('selection').hidden=false;$('selection').classList.toggle('is-multi',n>1);$('selection-state').textContent='';clearTimeout(timer);
+  showBar();$('selection').classList.toggle('is-multi',n>1);$('selection-state').textContent='';clearTimeout(timer);
   if(n>1){P.selection=null;$('selection-where').textContent=`${n.toLocaleString()}줄 · ${where}`;$('selection-seq').textContent='';$('selection-length').textContent=`${buf.length.toLocaleString()} 열`;return;}
   const lane=firstLane(r),shown=laneText(lane,r,buf),seq=shown.replaceAll('-','');
   P.selection={seq,start,end,source:r.source};
@@ -146,8 +157,16 @@ export function setupPrimers(host){
   const t=r.tm;$('selection-tm').textContent=t.status==='ok'?(t.variants>1?`${t.min.toFixed(1)}–${t.max.toFixed(1)} °C · 평균 ${t.mean.toFixed(1)} · 변이 ${t.variants}종`:`${t.mean.toFixed(1)} °C`):`N/A (${t.reason})`;$('selection-tm').title=t.model??'';
   const f=r.self;$('selection-self').textContent=f.status==='ok'?`최저 ${f.text} kcal/mol · 구조 ${f.structures.toLocaleString()}개`+(f.variants>1?` · 변이 ${f.variants}종`:'')+(f.warning?' · ≤ −9 경고':''):f.status==='none'?'검출 구조 없음':`N/A (${f.reason})`;$('selection-self').classList.toggle('warn',!!f.warning);};
  $('selection-strand').addEventListener('change',()=>{$('selection-dialog-seq').textContent=orient();analyze();});
- const clearSelection=()=>{host.viewer.clearRange();$('selection').hidden=true;P.selection=null;updateReplace();};
- $('selection-clear').addEventListener('click',clearSelection);
+ const clearSelection=()=>{host.viewer.clearRange();$('selection').hidden=true;P.selection=null;updateReplace();host.onClear?.();};
+ // The bar sits over the bottom of the shown view, clear of its scrollbars. When the view runs past the bottom of the window,
+ // the bar is lifted to the window edge so it stays in sight (never above the top of the view).
+ function placeBar(){const s=document.querySelector('.viewer:not([hidden]) .viewer-scroll'),b=$('selection');if(!s)return;const r=s.getBoundingClientRect(),bar=s.offsetHeight-s.clientHeight+1,lift=Math.min(Math.max(0,r.bottom-innerHeight),Math.max(0,s.clientHeight-b.offsetHeight-40));
+  b.style.setProperty('--sel-bottom',(bar+lift)+'px');b.style.setProperty('--sel-right',(s.offsetWidth-s.clientWidth+1)+'px');}
+ function showBar(){$('selection').hidden=false;placeBar();}
+ for(const ev of ['resize','scroll'])addEventListener(ev,()=>{if(!$('selection').hidden)placeBar();},{passive:true});
+ // A press anywhere else closes the bar with the selection. The view handles its own presses; the view toolbars,
+ // the find bar and the dialogs keep it.
+ document.addEventListener('pointerdown',e=>{if($('selection').hidden||e.target.closest?.('.selection,.viewer,.toolbar,dialog'))return;clearSelection();},true);
  // Esc keeps its meaning in dialogs and text fields; the find box handles its own.
  document.addEventListener('keydown',e=>{if(e.key!=='Escape'||e.defaultPrevented||$('selection').hidden||document.querySelector('dialog[open]')||document.activeElement?.matches?.('input:not([type=checkbox],[type=range]),textarea,select'))return;clearSelection();});
  const copyButton=reverse=>async()=>{const c=copyText(reverse);if(c.error){$('selection-state').textContent=c.error;return;}try{await navigator.clipboard.writeText(c.text);$('selection-state').textContent=reverse?'역상보를 복사했습니다.':'복사했습니다.';}catch{$('selection-state').textContent='복사에 실패했습니다.';}};
@@ -156,16 +175,16 @@ export function setupPrimers(host){
  document.addEventListener('copy',e=>{const a=document.activeElement;if(!P.range||$('selection').hidden||$('pane-viewer').hidden||document.querySelector('dialog[open]')||a?.matches?.('input:not([type=checkbox]),textarea')||String(getSelection()))return;const c=copyText();if(c.error){$('selection-state').textContent=c.error;return;}e.clipboardData.setData('text/plain',c.text);e.preventDefault();$('selection-state').textContent='복사했습니다.';});
  // The strand choice lives in the dialog, so a closed dialog always means the shown strand.
  const addDialog=$('selection-dialog');
- $('selection-open-add').addEventListener('click',()=>{const s=P.selection;if(!s?.seq)return;if(s.start<0||s.end-s.start!==s.seq.length){$('selection-state').textContent='insertion이나 deletion이 포함된 구간은 위치를 고정할 수 없습니다. Primer 등록에서 서열로 입력하세요.';return;}$('selection-dialog-where').textContent=$('selection-where').textContent;$('selection-dialog-seq').textContent=orient();$('selection-dialog-error').textContent='';addDialog.showModal();$('selection-name').focus();});
+ $('selection-open-add').addEventListener('click',()=>{const s=P.selection;if(!s?.seq)return;if(s.start<0||s.end-s.start!==s.seq.length){$('selection-state').textContent='insertion이나 deletion이 포함된 구간은 위치를 고정할 수 없습니다. Primer 등록에서 서열로 입력하세요.';return;}$('selection-dialog-where').textContent=$('selection-where').textContent;if(P.range?.strand==='-'){$('selection-strand').value='-';analyze();}$('selection-dialog-seq').textContent=orient();$('selection-dialog-error').textContent='';addDialog.showModal();$('selection-name').focus();});
  $('selection-cancel').addEventListener('click',()=>addDialog.close());
  addDialog.addEventListener('close',()=>{if($('selection-strand').value==='+')return;$('selection-strand').value='+';analyze();});
  $('selection-add').addEventListener('click',()=>{const s=P.selection;if(!s?.seq)return;const n=normalizeSequence(orient());if(n.error){$('selection-dialog-error').textContent=n.error;return;}
   const name=$('selection-name').value.trim();if(!name){$('selection-dialog-error').textContent='이름을 입력하세요.';$('selection-name').focus();return;}
   const strand=$('selection-strand').value==='-'?-1:1,form=strand>0?n.sequence:reverseComplement(n.sequence),hit=findSites(host.reference().subarray(s.start,s.end),n.sequence,{maxMismatch:n.sequence.length}).find(h=>h.strand===strand);
-  add([{name,set:$('selection-set').value.trim(),sequence:n.sequence,visible:true,manual:true,hits:[],placed:'found',site:{start:s.start,end:s.end,strand,mismatches:hit?.mismatches??0,unresolved:hit?.unresolved??0,source:s.source==='consensus'?'consensus':'reference'},form}]);addDialog.close();$('selection-state').textContent=`${name}을 등록했습니다.`;$('selection-name').value='';});
+  add([{name,set:$('selection-set').value.trim(),color:$('selection-color').value,sequence:n.sequence,visible:true,manual:true,hits:[],placed:'found',site:{start:s.start,end:s.end,strand,mismatches:hit?.mismatches??0,unresolved:hit?.unresolved??0,source:s.source==='consensus'?'consensus':'reference'},form}]);addDialog.close();$('selection-state').textContent=`${name}을 등록했습니다.`;$('selection-name').value='';});
  // Row selection and order. Moving keeps the relative order of the chosen rows; the binding table is only redrawn.
  const listIds=()=>P.list.map(p=>p.id),picked=()=>P.list.filter(p=>P.selected.has(p.id));
- function updateOrderButtons(){const n=P.selected.size;for(const id of ['order-top','order-up','order-down','order-bottom'])$(id).disabled=!n;$('order-undo').disabled=!P.undo;$('order-state').textContent=n?`${n}개 선택`:'';}
+ function updateOrderButtons(){const n=P.selected.size;for(const id of ['order-top','order-up','order-down','order-bottom','order-color'])$(id).disabled=!n;$('order-undo').disabled=!P.undo;$('order-state').textContent=n?`${n}개 선택`:'';}
  function paint(){for(const tr of $('primer-rows').children)tr.classList.toggle('is-picked',P.selected.has(+tr.dataset.id));updateOrderButtons();}
  function setOrder(next){const before=listIds();if(next.length===before.length&&next.every((p,i)=>p.id===before[i]))return false;P.undo=before;P.list=next;renderList();renderBinding();return true;}
  function moveBy(dir){const a=[...P.list],on=x=>P.selected.has(x.id);if(dir<0){for(let i=1;i<a.length;i++)if(on(a[i])&&!on(a[i-1]))[a[i-1],a[i]]=[a[i],a[i-1]];}else{for(let i=a.length-2;i>=0;i--)if(on(a[i])&&!on(a[i+1]))[a[i],a[i+1]]=[a[i+1],a[i]];}setOrder(a);}
@@ -204,7 +223,7 @@ export function setupPrimers(host){
  function openEdit(id,range=null){const p=byId(id);if(!p)return;P.editTarget=null;updateReplace();
   E={id,mode:'none',sequence:p.sequence,site:p.site?{start:p.site.start,end:p.site.end,strand:p.site.strand}:null};
   if(range){E.site={start:range.start,end:range.end,strand:p.site?.strand??1};E.sequence=refSlice(E.site);E.mode='range';}
-  $('edit-name').value=p.name;$('edit-set').value=p.set;$('edit-seq').value=E.sequence;$('edit-error').textContent='';$('edit-title').textContent=`Primer 수정 · ${p.name}`;if(!editor.open)editor.showModal();drawEdit();}
+  $('edit-name').value=p.name;$('edit-set').value=p.set;$('edit-color').value=p.color||'';tint($('edit-color'));$('edit-seq').value=E.sequence;$('edit-error').textContent='';$('edit-title').textContent=`Primer 수정 · ${p.name}`;if(!editor.open)editor.showModal();drawEdit();}
  function drawEdit(){
   const box=$('edit-context'),s=E.site,L=host.reference().length,seq=E.sequence,cons=host.consensus();box.replaceChildren();
   const nudge=!!s&&(host.circular()||s.end<=L);for(const id of ['edit-ext5','edit-trim5','edit-ext3','edit-trim3','edit-left','edit-right'])$(id).disabled=!nudge;$('edit-flip').disabled=!seq;
@@ -233,7 +252,8 @@ export function setupPrimers(host){
   const n=normalizeSequence($('edit-seq').value);if(n.error){$('edit-error').textContent=n.error;return;}if(n.sequence!==E.sequence&&E.mode!=='typed'){E.sequence=n.sequence;E.mode='typed';}
   let next;if(E.mode==='range'){const f=siteFacts(n.sequence,E.site);next={...p,name,set,sequence:n.sequence,manual:true,locked:false,hits:[],site:{...E.site,mismatches:f.mismatches,unresolved:f.unresolved,source:'reference'}};}
   else if(E.mode==='typed')next={...p,name,set,sequence:n.sequence,manual:false,locked:false,hits:[],site:null};else next={...p,name,set};
-  P.list=P.list.map(x=>x.id===p.id?next:x);editor.close();if(E.mode==='none'){refreshViewer();renderList();renderBinding();}else changed();$('primer-state').textContent=`${name}을 수정했습니다.`;});
+  next={...next,color:$('edit-color').value};P.list=P.list.map(x=>x.id===p.id?next:x);editor.close();if(E.mode==='none'){refreshViewer();renderList();renderBinding();}else changed();$('primer-state').textContent=`${name}을 수정했습니다.`;});
+ function refresh(){refreshViewer();renderList();}
  function updateReplace(){const b=$('selection-replace'),p=P.editTarget!==null?byId(P.editTarget):null,ok=!!p&&!!P.selection?.seq;b.hidden=!ok;if(ok)b.textContent=`${p.name}을 이 구간으로 바꾸기`;}
  $('selection-replace').addEventListener('click',()=>{const s=P.selection;if(!s?.seq)return;if(s.start<0||s.end-s.start!==s.seq.length){$('selection-state').textContent='insertion이나 deletion이 포함된 구간은 위치를 고정할 수 없습니다.';return;}if(s.end-s.start<MIN_PRIMER_LENGTH||s.end-s.start>MAX_PRIMER_LENGTH){$('selection-state').textContent=`길이는 ${MIN_PRIMER_LENGTH}–${MAX_PRIMER_LENGTH} nt입니다.`;return;}openEdit(P.editTarget,{start:s.start,end:s.end});});
  // Tm conditions
@@ -247,5 +267,5 @@ export function setupPrimers(host){
   P.legacy=!!P.binding&&(saved.binding.method??1)<BINDING_METHOD;if(P.legacy)P.stale=true;P.relocate=(saved.placementMethod??1)<PLACEMENT_METHOD;}
  // Sites found under the old shape no longer hold, so chosen positions are searched again.
  function onTopology(){P.list=P.list.map(p=>p.manual&&p.site.end<=host.reference().length?p:{...p,locked:false,manual:false});changed({rerun:false});}
- return {handle,onRange,exportText,snapshot,restore,onTopology,edit:id=>openEdit(id),onData(){if(P.restored){P.restored=false;if(P.relocate){P.relocate=false;P.list=P.list.map(place);}refreshViewer();renderList();renderBinding();$('binding-state').textContent=P.binding?(P.legacy?'이전 버전 기준으로 계산한 결과입니다. 재분석이 필요합니다.':P.stale?'조건이 바뀌었습니다. 재분석이 필요합니다.':'저장된 결과입니다.'):'';$('binding-state').classList.toggle('stale',!!P.binding&&P.stale);return;}P.includeReference=host.referenceInList();P.binding=null;P.list=P.list.map(place);refreshViewer();renderList();},onConsensus(){if(P.list.some(p=>!p.manual&&p.site?.source!=='reference'))changed({rerun:false});},onFilter(){if(P.list.length){markStale();maybeAuto();}},onPrimerClick:focus,clearActive,state:P,search,renderBinding};
+ return {handle,onRange,exportText,snapshot,restore,onTopology,edit:id=>openEdit(id),onData(){if(P.restored){P.restored=false;if(P.relocate){P.relocate=false;P.list=P.list.map(place);}refreshViewer();renderList();renderBinding();$('binding-state').textContent=P.binding?(P.legacy?'이전 버전 기준으로 계산한 결과입니다. 재분석이 필요합니다.':P.stale?'조건이 바뀌었습니다. 재분석이 필요합니다.':'저장된 결과입니다.'):'';$('binding-state').classList.toggle('stale',!!P.binding&&P.stale);return;}P.includeReference=host.referenceInList();P.binding=null;P.list=P.list.map(place);refreshViewer();renderList();},onConsensus(){if(P.list.some(p=>!p.manual&&p.site?.source!=='reference'))changed({rerun:false});else refresh();},refresh,onFilter(){if(P.list.length){markStale();maybeAuto();}},onPrimerClick:focus,clearActive,clearRange:()=>clearSelection(),state:P,search,renderBinding};
 }

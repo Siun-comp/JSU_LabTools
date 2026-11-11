@@ -9,7 +9,7 @@ const $=id=>document.getElementById(id);
 
 export function setupFind(host){
  const F={scope:'consensus',data:new Int32Array(HIT_STRIDE*256),count:0,index:-1,labels:[]},input=$('find-seq');
- let key='',runId=0,running=null,pending=0,progress=0,outside=0,capped=false;
+ let key='',runId=0,running=null,pending=0,progress=0,outside=0,capped=false,released=false;
  const options=()=>({bothStrands:$('find-both').checked,queryAmbiguity:$('find-ambiguity-query').checked,sequenceAmbiguity:$('find-ambiguity-sequence').checked,maxMismatch:Number($('find-mismatch').value)||0});
  const scope=()=>$('find-scope').value;
  const keyNow=()=>JSON.stringify([input.value.trim(),scope(),options(),scope()==='names'?host.primers().length:0]);
@@ -18,7 +18,8 @@ export function setupFind(host){
  const hit=i=>{const d=F.data,o=i*HIT_STRIDE;return {row:d[o],c0:d[o+1],c1:d[o+2],strand:d[o+3],mismatches:d[o+4],label:F.labels[i]};};
  function stop(){if(running){host.analysis()?.postMessage({type:'find-cancel'});running=null;}pending=0;}
  function blank(){F.count=0;F.index=-1;F.labels=[];progress=0;outside=0;capped=false;}
- function paint(){host.viewer.setFound(key&&F.count?F:null);render();}
+ const marks=()=>key&&F.count&&!released?F:null;
+ function paint(){host.viewer.setFound(marks());render();}
  function refPosition(c,dir){const {refOfCol,total}=host.cols();for(;c>=0&&c<total;c+=dir)if(refOfCol[c]>=0)return toDisplay(refOfCol[c]);return null;}
  function where(h){
   if(h.label)return h.label;
@@ -39,9 +40,17 @@ export function setupFind(host){
  }
  const hasRows=()=>{for(let i=0;i<F.count;i++)if(F.data[i*HIT_STRIDE]>=0)return true;return false;};
  function show(){
-  const h=hit(F.index);host.showTab('viewer');host.viewer.setFoundIndex(F.index);host.viewer.setActivePrimer(h.primer??null);
+  const h=hit(F.index);host.showTab('viewer');released=false;host.viewer.setFound(F);host.viewer.setFoundIndex(F.index);host.viewer.setActivePrimer(h.primer??null);
   if(F.scope==='names')host.viewer.setSelected(h.row);
-  if(h.row>=0)host.viewer.scrollToRow(h.row);if(h.c0>=0)host.viewer.scrollToColumn((h.c0+h.c1)/2);render();
+  if(h.row>=0)host.viewer.scrollToRow(h.row);if(h.c0>=0)host.viewer.scrollToColumn((h.c0+h.c1)/2);render();if(F.scope!=='names')selectHit(h);
+ }
+ // The shown hit becomes the drawn range, so it can be copied or registered as a primer at once.
+ // A hit on the minus strand opens the primer dialog on the reverse complement.
+ function selectHit(h){
+  if(h.c0<0||h.c1<=h.c0)return;const strand=h.strand<0?'-':'+';
+  if(host.single()){if(h.c1>host.reference().length){$('find-state').textContent+=' · 원점을 넘는 결과는 구간으로 선택할 수 없습니다.';return;}host.viewer.selectRange({c0:h.c0,c1:h.c1,source:'reference',row:-1,strand});return;}
+  const lane=F.scope==='consensus'?-2:F.scope==='reference'?-1:h.row;if(lane<-2)return;
+  host.viewer.selectRange({c0:h.c0,c1:h.c1,from:lane,to:lane,source:lane===-2?'consensus':lane===-1?'reference':'row',row:lane>=0?lane:-1,strand});
  }
  function step(dir){
   if(!F.count){if(running)pending=dir;return;}
@@ -49,7 +58,7 @@ export function setupFind(host){
   F.index=F.index<0?(dir>0?0:F.count-1):(F.index+dir+F.count)%F.count;show();
  }
  function start({jump}){
-  stop();blank();key='';F.scope=scope();const raw=input.value.trim();
+  stop();blank();key='';released=false;F.scope=scope();const raw=input.value.trim();
   if(!raw||!host.ready()){paint();return;}
   if(F.scope==='names')searchNames(raw);
   else{const o=options(),q=parseQuery(raw,o.maxMismatch);
@@ -69,7 +78,7 @@ export function setupFind(host){
  }
  function go(dir){if(keyNow()!==key){start({jump:true});return;}step(dir);}
  function afterBatch(){
-  host.viewer.setFound(F.count?F:null);
+  host.viewer.setFound(marks());
   if(pending&&(F.index+1<F.count||(!running&&F.count))){const d=pending;pending=0;step(d);return;}
   if(!running)pending=0;render();
  }
@@ -81,7 +90,9 @@ export function setupFind(host){
  $('find-only').addEventListener('click',()=>{const order=host.order(),rows=new Set();for(let i=0;i<F.count;i++){const r=F.data[i*HIT_STRIDE];if(r>=0)rows.add(order[r]);}host.forceRecords([...rows],'찾은 서열');});
  // The canvas is invisible to the browser's own find, so Ctrl+F comes here. A second press in the box gives the browser find back.
  addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.shiftKey||e.altKey||e.key.toLowerCase()!=='f'||!host.ready()||document.querySelector('dialog[open]')||document.activeElement===input)return;e.preventDefault();host.showTab('viewer');input.focus();input.select();});
+ // Clearing the selection (a press elsewhere, Esc) also hides the hit marks. The query, count and place stay, and the arrows go on from there.
  return {reset,
+  release(){if(!key||released)return;released=true;host.viewer.setFound(null);},
   // One sequence has no consensus and no rows.
   setSingle(on){for(const o of $('find-scope').options)o.hidden=on&&['consensus','rows'].includes(o.value);$('find-scope').value=on?'reference':'consensus';$('find-options').hidden=false;},
   // Columns and rows change with the filter, so old hits are dropped before the new view is drawn.

@@ -1,5 +1,5 @@
 {
-  "version": "1.8.5",
+  "version": "1.8.6",
   "files": [
     {
       "source": "portal/index.html",
@@ -1026,6 +1026,10 @@
       "target": "tools/sequence-mapper/core/xlsx-read.mjs"
     },
     {
+      "source": "tools/sequence-mapper/core/zip.mjs",
+      "target": "tools/sequence-mapper/core/zip.mjs"
+    },
+    {
       "source": "tools/sequence-mapper/engine/engine.mjs",
       "target": "tools/sequence-mapper/engine/engine.mjs"
     },
@@ -1080,6 +1084,10 @@
     {
       "source": "tools/sequence-mapper/tool.css",
       "target": "tools/sequence-mapper/tool.css"
+    },
+    {
+      "source": "tools/sequence-mapper/view/primer-cells.mjs",
+      "target": "tools/sequence-mapper/view/primer-cells.mjs"
     },
     {
       "source": "tools/sequence-mapper/view/sequence-view.mjs",

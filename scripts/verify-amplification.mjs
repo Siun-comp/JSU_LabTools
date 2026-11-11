@@ -17,27 +17,45 @@ const oligo=contract.oligoDimerRelease;
 const methodPatch=contract.methodComparisonPatchRelease;
 assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,'1.5.1');assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
 const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+const mapperBeta3=contract.sequenceMapperBeta3Release;
+assert.equal(mapperBeta3.previousSHA,'f79135dba53f97316986bc4716e06446d9821fe3');
+assert.equal(mapperBeta3.portalVersion,manifest.version);assert.equal(mapperBeta3.previousPortalVersion,'1.8.5');assert.equal(mapperBeta3.toolVersion,T['sequence-mapper'].version);
+const beta3Added=['tools/sequence-mapper/core/zip.mjs','tools/sequence-mapper/view/primer-cells.mjs'];
+assert.equal(mapperBeta3.previousPublic.length,276);assert.deepEqual(mapperBeta3.addedTargets,beta3Added);
+assert.deepEqual(mapperBeta3.previousPublic.map(({source,target})=>({source,target})),manifest.files.filter(e=>!beta3Added.includes(e.target)),'Sequence Mapper 0.1.0-beta.3 keeps every public path and adds two modules');
+assert.deepEqual(manifest.files.filter(e=>beta3Added.includes(e.target)),beta3Added.map(target=>({source:target,target})));
+assert.deepEqual(mapperBeta3.selected.map(e=>e.target).sort(),['index.html','contact.html',...mapperBeta3.previousPublic.filter(e=>/^info\/.*\.html$/.test(e.target)).map(e=>e.target),...['app.mjs','core/annotation-export.mjs','core/primer.mjs','core/stats.mjs','find-ui.mjs','index.html','primer-ui.mjs','tool.css','view/sequence-view.mjs','view/viewer.mjs'].map(p=>'tools/sequence-mapper/'+p)].sort(),'Only portal version text and the reviewed Sequence Mapper files change');
+const beforeBeta3=new Map();
+for(const entry of mapperBeta3.previousPublic){
+ const current=await readFile(resolve(dist,entry.target));
+ const changed=mapperBeta3.selected.find(e=>e.target===entry.target);
+ if(changed)assert.equal(hash(current),changed.sha256,'Reviewed Sequence Mapper 0.1.0-beta.3 change: '+entry.target);
+ const previous=changed?execFileSync('git',['-C',gitRoot,'show',mapperBeta3.previousSHA+':'+entry.source]):current;
+ assert.equal(hash(previous),entry.sha256,'Portal bytes before Sequence Mapper 0.1.0-beta.3: '+entry.target);
+ beforeBeta3.set(entry.target,previous);
+}
+for(const e of mapperBeta3.selected.filter(e=>/^info\/.*\.html$/.test(e.target))){let t=beforeBeta3.get(e.target).toString().replace('포털 v1.8.5','포털 v1.8.6');if(e.target==='info/sequence-mapper.html')t=t.replace('<dd>v0.1.0-beta.2</dd>','<dd>v0.1.0-beta.3</dd>').replace('<dt>확인일</dt><dd>2026-11-11</dd>','<dt>확인일</dt><dd>2026-11-12</dd>');assert.equal(t,(await readFile(resolve(dist,e.target))).toString(),'Information pages change only version text: '+e.target);}
 const mapperPatch=contract.sequenceMapperPatchRelease;
 assert.equal(mapperPatch.previousSHA,'36990d1879e3a058f4e31889017108703372f6cd');
-assert.equal(mapperPatch.portalVersion,manifest.version);assert.equal(mapperPatch.previousPortalVersion,'1.8.4');assert.equal(mapperPatch.toolVersion,T['sequence-mapper'].version);
+assert.equal(mapperPatch.portalVersion,mapperBeta3.previousPortalVersion);assert.equal(mapperPatch.previousPortalVersion,'1.8.4');assert.equal(mapperPatch.toolVersion,'0.1.0-beta.2');
 assert.equal(mapperPatch.previousPublic.length,276);assert.deepEqual(mapperPatch.addedTargets,[]);
-assert.deepEqual(mapperPatch.previousPublic.map(({source,target})=>({source,target})),manifest.files,'Sequence Mapper 0.1.0-beta.2 keeps every public path');
+assert.deepEqual(mapperPatch.previousPublic.map(({source,target})=>({source,target})),mapperBeta3.previousPublic.map(({source,target})=>({source,target})),'Sequence Mapper 0.1.0-beta.2 keeps every public path');
 assert.deepEqual(mapperPatch.selected.map(e=>e.target).sort(),['index.html','contact.html',...mapperPatch.previousPublic.filter(e=>/^info\/.*\.html$/.test(e.target)).map(e=>e.target),...['app.mjs','core/stats.mjs','index.html','list-ui.mjs','primer-ui.mjs','view/sequence-view.mjs','view/viewer.mjs'].map(p=>'tools/sequence-mapper/'+p)].sort(),'Only portal version text and the reviewed Sequence Mapper files change');
 const beforePatch=new Map();
 for(const entry of mapperPatch.previousPublic){
- const current=await readFile(resolve(dist,entry.target));
+ const current=beforeBeta3.get(entry.target);
  const changed=mapperPatch.selected.find(e=>e.target===entry.target);
  if(changed)assert.equal(hash(current),changed.sha256,'Reviewed Sequence Mapper patch change: '+entry.target);
  const previous=changed?execFileSync('git',['-C',gitRoot,'show',mapperPatch.previousSHA+':'+entry.source]):current;
  assert.equal(hash(previous),entry.sha256,'Portal bytes before the Sequence Mapper patch: '+entry.target);
  beforePatch.set(entry.target,previous);
 }
-for(const e of mapperPatch.selected.filter(e=>/^info\/.*\.html$/.test(e.target))){let t=beforePatch.get(e.target).toString().replace('포털 v1.8.4','포털 v1.8.5');if(e.target==='info/sequence-mapper.html')t=t.replace('<dd>v0.1.0-beta.1</dd>','<dd>v0.1.0-beta.2</dd>');assert.equal(t,(await readFile(resolve(dist,e.target))).toString(),'Information pages change only version text: '+e.target);}
+for(const e of mapperPatch.selected.filter(e=>/^info\/.*\.html$/.test(e.target))){let t=beforePatch.get(e.target).toString().replace('포털 v1.8.4','포털 v1.8.5');if(e.target==='info/sequence-mapper.html')t=t.replace('<dd>v0.1.0-beta.1</dd>','<dd>v0.1.0-beta.2</dd>');assert.equal(t,beforeBeta3.get(e.target).toString(),'Information pages change only version text: '+e.target);}
 const mapperRelease=contract.sequenceMapperRelease;
 assert.equal(mapperRelease.previousSHA,'b0d50ca7f942d58c1354586644500251a77c37ee');
 assert.equal(mapperRelease.portalVersion,mapperPatch.previousPortalVersion);assert.equal(mapperRelease.previousPortalVersion,'1.8.3');assert.equal(mapperRelease.toolVersion,'0.1.0-beta.1');
 assert.equal(mapperRelease.previousPublic.length,234);assert.equal(mapperRelease.addedTargets.length,42);
-assert.deepEqual(manifest.files,[
+assert.deepEqual(mapperBeta3.previousPublic.map(({source,target})=>({source,target})),[
  ...mapperRelease.previousPublic.map(({source,target})=>({source,target})),
  ...mapperRelease.addedTargets.map(target=>({source:target.startsWith('info/')?'portal/'+target:target,target})),
 ],'Sequence Mapper release only appends its files and information page');
