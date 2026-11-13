@@ -17,22 +17,51 @@ const oligo=contract.oligoDimerRelease;
 const methodPatch=contract.methodComparisonPatchRelease;
 assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,'1.5.1');assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
 const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+const layout=contract.portalLayoutRelease;
+assert.equal(layout.previousSHA,'7f76085535f4708ef74d3a9cf6744ddc612c3e99');
+assert.equal(layout.portalVersion,manifest.version);assert.equal(layout.previousPortalVersion,'1.8.8');
+assert.equal(layout.previousPublic.length,280);assert.deepEqual(layout.addedTargets,[]);
+assert.deepEqual(layout.previousPublic.map(({source,target})=>({source,target})),manifest.files,'Portal 1.9.0 keeps every public path');
+assert.deepEqual(layout.selected.map(e=>e.target).sort(),['index.html','assets/portal.css','contact.html',...layout.previousPublic.filter(e=>/^info\/.*\.html$/.test(e.target)).map(e=>e.target)].sort(),'Only the portal list, its stylesheet and portal version text change');
+const beforeLayout=new Map();
+for(const entry of layout.previousPublic){
+ const current=await readFile(resolve(dist,entry.target));
+ const changed=layout.selected.find(e=>e.target===entry.target);
+ if(changed)assert.equal(hash(current),changed.sha256,'Reviewed portal 1.9.0 change: '+entry.target);
+ const previous=changed?execFileSync('git',['-C',gitRoot,'show',layout.previousSHA+':'+entry.source]):current;
+ assert.equal(hash(previous),entry.sha256,'Portal bytes before portal 1.9.0: '+entry.target);
+ beforeLayout.set(entry.target,previous);
+}
+for(const e of layout.selected.filter(e=>/^info\/.*\.html$/.test(e.target)||e.target==='contact.html'))assert.equal(beforeLayout.get(e.target).toString().replace('포털 v1.8.8','포털 v1.9.0'),(await readFile(resolve(dist,e.target))).toString(),'Information and contact pages change only portal version text: '+e.target);
+{
+ // Portal 1.9.0 moves the same tool rows into four stage groups; only the stage cell and two text arrows (now the shared icons) differ.
+ const rowsOf=h=>[...h.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].map(m=>m[0]);
+ const oldRows=rowsOf(beforeLayout.get('index.html').toString()),newRows=rowsOf(await readFile(resolve(dist,'index.html'),'utf8'));
+ const ext=oldRows[0].match(/열기 (<svg[\s\S]*?<\/svg>)/)[1],more=oldRows[0].match(/정보 (<svg[\s\S]*?<\/svg>)/)[1];
+ const expected=oldRows.map(r=>r.replace(/>열기 ↗</,()=>'>열기 '+ext+'<').replace(/>정보 →</,()=>'>정보 '+more+'<'));
+ const stages=newRows.map(r=>r.match(/^<tr class="available"><th class="stage-cell" rowspan="(\d)" scope="rowgroup"><span class="stage-label">([^<]+)<\/span>/)).filter(Boolean);
+ assert.deepEqual(stages.map(m=>m[2]),['① 설계','② 준비','③ 반응 분석','④ 성능 평가']);assert.deepEqual(stages.map(m=>+m[1]),[4,3,2,2]);
+ const plain=newRows.map(r=>r.replace(/<th class="stage-cell"[\s\S]*?<\/th>/,''));
+ assert.deepEqual([...plain].sort(),[...expected].sort(),'Same tool rows, regrouped');
+ assert.deepEqual(plain.map(r=>r.match(/<h2>([^<]+)<\/h2>/)[1]),['Sequence Mapper','Sequence','Oligo Thermodynamics','Oligo-dimer analysis','핵산 농도·Copy 수','Oligo Mix','시약·버퍼 조제','Amplification Analysis','IsoAmplar Plot Analysis T','LoB · LoD · LoQ 분석','검사법 비교 분석']);
+ assert(!/>(?:열기 ↗|정보 →)</.test(newRows.join('')),'Shared action icons');
+}
 const mapperBeta5=contract.sequenceMapperBeta5Release;
 assert.equal(mapperBeta5.previousSHA,'e6af735825727ed72fc2d64604603ab7b9a48159');
-assert.equal(mapperBeta5.portalVersion,manifest.version);assert.equal(mapperBeta5.previousPortalVersion,'1.8.7');assert.equal(mapperBeta5.toolVersion,T['sequence-mapper'].version);
+assert.equal(mapperBeta5.portalVersion,layout.previousPortalVersion);assert.equal(mapperBeta5.previousPortalVersion,'1.8.7');assert.equal(mapperBeta5.toolVersion,T['sequence-mapper'].version);
 assert.equal(mapperBeta5.previousPublic.length,280);assert.deepEqual(mapperBeta5.addedTargets,[]);
-assert.deepEqual(mapperBeta5.previousPublic.map(({source,target})=>({source,target})),manifest.files,'Sequence Mapper 0.1.0-beta.5 keeps every public path');
+assert.deepEqual(mapperBeta5.previousPublic.map(({source,target})=>({source,target})),layout.previousPublic.map(({source,target})=>({source,target})),'Sequence Mapper 0.1.0-beta.5 keeps every public path');
 assert.deepEqual(mapperBeta5.selected.map(e=>e.target).sort(),['index.html','contact.html',...mapperBeta5.previousPublic.filter(e=>/^info\/.*\.html$/.test(e.target)).map(e=>e.target),...['annotation-ui.mjs','app.mjs','core/features.mjs','index.html','tool.css','view/viewer.mjs'].map(p=>'tools/sequence-mapper/'+p)].sort(),'Only portal version text and the reviewed Sequence Mapper files change');
 const beforeBeta5=new Map();
 for(const entry of mapperBeta5.previousPublic){
- const current=await readFile(resolve(dist,entry.target));
+ const current=beforeLayout.get(entry.target);
  const changed=mapperBeta5.selected.find(e=>e.target===entry.target);
  if(changed)assert.equal(hash(current),changed.sha256,'Reviewed Sequence Mapper 0.1.0-beta.5 change: '+entry.target);
  const previous=changed?execFileSync('git',['-C',gitRoot,'show',mapperBeta5.previousSHA+':'+entry.source]):current;
  assert.equal(hash(previous),entry.sha256,'Portal bytes before Sequence Mapper 0.1.0-beta.5: '+entry.target);
  beforeBeta5.set(entry.target,previous);
 }
-for(const e of mapperBeta5.selected.filter(e=>/^info\/.*\.html$/.test(e.target))){let t=beforeBeta5.get(e.target).toString().replace('포털 v1.8.7','포털 v1.8.8');if(e.target==='info/sequence-mapper.html')t=t.replace('<dd>v0.1.0-beta.4</dd>','<dd>v0.1.0-beta.5</dd>');assert.equal(t,(await readFile(resolve(dist,e.target))).toString(),'Information pages change only version text: '+e.target);}
+for(const e of mapperBeta5.selected.filter(e=>/^info\/.*\.html$/.test(e.target))){let t=beforeBeta5.get(e.target).toString().replace('포털 v1.8.7','포털 v1.8.8');if(e.target==='info/sequence-mapper.html')t=t.replace('<dd>v0.1.0-beta.4</dd>','<dd>v0.1.0-beta.5</dd>');assert.equal(t,beforeLayout.get(e.target).toString(),'Information pages change only version text: '+e.target);}
 const mapperBeta4=contract.sequenceMapperBeta4Release;
 assert.equal(mapperBeta4.previousSHA,'610328b6249ffa374fadeec01e2ad3411b25236e');
 assert.equal(mapperBeta4.portalVersion,mapperBeta5.previousPortalVersion);assert.equal(mapperBeta4.previousPortalVersion,'1.8.6');assert.equal(mapperBeta4.toolVersion,'0.1.0-beta.4');
@@ -285,7 +314,7 @@ for(const e of buffer.previousPublic){
  const bytes=await historicBytes(e.target);const original=/^info\/.*\.html$/.test(e.target)?Buffer.from(bytes.toString().replaceAll('포털 v1.3.0','포털 v1.2.1')):bytes;
  assert.equal(hash(original),e.sha256,'AP148 tool bytes preserved: '+e.target);
 }
-const canonical=priorHome.replace(nucRows[0][0],update.oldRow).replaceAll('포털 v1.2.1','포털 v1.2.0');
+const canonical=priorHome.replace(nucRows[0][0].replace(/<th class="stage-cell"[\s\S]*?<\/th>/,''),update.oldRow).replaceAll('포털 v1.2.1','포털 v1.2.0');
 assert.equal(hash(canonical),update.previousPublic.find(e=>e.target==='index.html').sha256,'Only selected nucleic row and portal version changed');
 for(const e of update.previousPublic.filter(e=>e.target!=='index.html'&&!update.selectedTargets.includes(e.target)&&!buffer.selectedTargets.includes(e.target))){
  const bytes=await historicBytes(e.target);const original=/^info\/.*\.html$/.test(e.target)?Buffer.from(bytes.toString().replaceAll('포털 v1.3.0','포털 v1.2.1').replaceAll('포털 v1.2.1','포털 v1.2.0')):bytes;
