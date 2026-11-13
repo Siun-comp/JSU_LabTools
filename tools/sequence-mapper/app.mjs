@@ -13,17 +13,18 @@ import {setupPrimers} from './primer-ui.mjs';
 import {setupFind} from './find-ui.mjs';
 import {setupList} from './list-ui.mjs';
 import {SequenceView} from './view/sequence-view.mjs';
-import {parseFeatures,featureTypes} from './core/features.mjs';
+import {setupAnnotations} from './annotation-ui.mjs';
 import {gatherChunk,subsetData,MAX_LIST_BASES,mergeRecords,recordFacts} from './core/list.mjs';
-export const TOOL_VERSION='0.1.0-beta.3';
+export const TOOL_VERSION='0.1.0-beta.4';
 const $=id=>document.getElementById(id),dec=new TextDecoder();
 const state={files:{reference:null,queries:[],aligned:null},loaded:null,S:null,R:null,order:null,workers:[],busy:false,analysis:null,statsId:0,cols:null,stats:null,navIndex:-1,selectedRecord:-1,dropped:new Set(),picked:new Set(),anchor:-1};
 const viewer=new Viewer($('viewer'),{onZoom:i=>{$('zoom').value=i;},onHover:hover,onSelect:selectRow,onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id),onPrimerClear:()=>primers.clearActive(),onRangeClear:()=>primers.clearRange()});
 const sequenceView=new SequenceView($('sequence-view'),{onHover:t=>{$('hover-line').textContent=t??'';},onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id),onPrimerClear:()=>primers.clearActive(),onRangeClear:()=>primers.clearRange()});
 const activeView=()=>state.single?sequenceView:viewer,circular=()=>!!state.single&&state.loaded?.reference?.topology==='circular';
-const primers=setupPrimers({get viewer(){return activeView();},onClear:()=>find.release(),circular,reference:()=>state.ref,consensus:()=>state.single?null:state.stats?.consensus??null,cols:()=>state.cols,ready:()=>!!state.stats,baseOrder:()=>state.baseOrder,analysis:()=>state.analysis,showTab,referenceInfo:()=>state.loaded.reference,referenceId:()=>state.refName,referenceInList:()=>!!state.refFromList,scopeText:bindingScope,saveText,hoverText:t=>{$('hover-line').textContent=t;},forceRecords(list,label){state.forced=new Set(list);$('forced-text').textContent=`${label} ${list.length.toLocaleString()}건만 표시`;$('forced-chip').hidden=false;applyFilter(true);},project:(row,buf,c0,c1)=>projectRow(state.S,state.order[row],state.cols,buf,c0,c1),rowName:row=>accessionOf(state.names[state.order[row]])});
+const annotations=setupAnnotations({views:()=>[viewer,sequenceView]});
+const primers=setupPrimers({get viewer(){return activeView();},importedAnnotations:()=>annotations.imported(),onClear:()=>find.release(),circular,reference:()=>state.ref,consensus:()=>state.single?null:state.stats?.consensus??null,cols:()=>state.cols,ready:()=>!!state.stats,baseOrder:()=>state.baseOrder,analysis:()=>state.analysis,showTab,referenceInfo:()=>state.loaded.reference,referenceId:()=>state.refName,referenceInList:()=>!!state.refFromList,scopeText:bindingScope,saveText,hoverText:t=>{$('hover-line').textContent=t;},forceRecords(list,label){state.forced=new Set(list);$('forced-text').textContent=`${label} ${list.length.toLocaleString()}건만 표시`;$('forced-chip').hidden=false;applyFilter(true);},project:(row,buf,c0,c1)=>projectRow(state.S,state.order[row],state.cols,buf,c0,c1),rowName:row=>accessionOf(state.names[state.order[row]])});
 viewer.onPrimerEdit=sequenceView.onPrimerEdit=id=>primers.edit(id);
-const find=setupFind({get viewer(){return activeView();},circular,single:()=>!!state.single,annotations:()=>state.annotations??[],analysis:()=>state.analysis,ready:()=>!!state.stats&&!$('result').hidden,cols:()=>state.cols,order:()=>state.order,reference:()=>state.ref,consensus:()=>state.stats.consensus,primers:()=>primers.state.list,nameOf:i=>state.names[i],rowName:row=>state.names[state.order[row]],showTab,forceRecords(list,label){state.forced=new Set(list);$('forced-text').textContent=`${label} ${list.length.toLocaleString()}건만 표시`;$('forced-chip').hidden=false;applyFilter(true);}});
+const find=setupFind({get viewer(){return activeView();},circular,single:()=>!!state.single,annotations:()=>annotations.visible(),analysis:()=>state.analysis,ready:()=>!!state.stats&&!$('result').hidden,cols:()=>state.cols,order:()=>state.order,reference:()=>state.ref,consensus:()=>state.stats.consensus,primers:()=>primers.state.list,nameOf:i=>state.names[i],rowName:row=>state.names[state.order[row]],showTab,forceRecords(list,label){state.forced=new Set(list);$('forced-text').textContent=`${label} ${list.length.toLocaleString()}건만 표시`;$('forced-chip').hidden=false;applyFilter(true);}});
 const list=setupList({changed:updateJudge,view:openSingle});
 function showTab(name){for(const n of ['viewer','primers','binding']){$('pane-'+n).hidden=n!==name;$('tab-'+n).setAttribute('aria-selected',n===name);}fitHeights();}
 // The viewer ends inside the window so its horizontal scrollbar is on the first screen.
@@ -59,6 +60,11 @@ $('file-aligned').addEventListener('change',e=>{state.files.aligned=e.target.fil
 for(const [id,kind] of [['drop-reference','reference'],['drop-queries','queries']]){const el=$(id);
  el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('is-over');});el.addEventListener('dragleave',()=>el.classList.remove('is-over'));
  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('is-over');if(!state.busy)pick(kind,e.dataTransfer.files);});}
+// Opening files: where the browser offers its own file window (Chrome, Edge), each use remembers its own folder.
+// The chosen files go back into the same input, so the existing change handlers do the rest (AP-275).
+const OPEN_ID={'file-new-reference':'sm-sequences','annotation-file':'sm-sequences','file-queries':'sm-sequences','file-reference':'sm-sequences','file-aligned':'sm-sequences','file-add':'sm-sequences','primer-file':'sm-sequences','file-project':'sm-project'};
+for(const [id,pickerId] of Object.entries(OPEN_ID)){const input=$(id);input.addEventListener('click',e=>{if(!window.showOpenFilePicker)return;e.preventDefault();
+ showOpenFilePicker({id:pickerId,multiple:input.multiple}).then(hs=>Promise.all(hs.map(h=>h.getFile()))).then(files=>{const dt=new DataTransfer();for(const f of files)dt.items.add(f);input.files=dt.files;input.dispatchEvent(new Event('change',{bubbles:true}));},err=>{if(err.name!=='AbortError')setError(err.message);});});}
 addEventListener('beforeunload',e=>{if(state.S||state.loaded||state.busy)e.preventDefault();});
 
 // Reading
@@ -73,6 +79,7 @@ function report(r){
  const total=r.data.pool.length,n=r.data.names.length;
  for(const p of r.reports)li(`${p.file}: ${p.records.toLocaleString()}개 레코드 · ${formatBases(p.bases)} (${p.format??'형식 미확인'})`+(p.errors.length?` · ${p.errors[0]}`:''),p.errors.length?'bad':'');
  li(`총 ${n.toLocaleString()}개 · ${formatBases(total)}`);
+ if(r.newReference)li(r.newReference,'warn');
  if(r.added!==undefined)li(`현재 결과에 새 서열 ${r.added.toLocaleString()}개를 더했습니다. Reference는 그대로이고, 매핑을 실행하면 전체를 다시 매핑합니다. Primer 목록은 유지되며 결합 현황은 다시 분석해야 합니다.`,'warn');
  const c=r.counts;
  if(c.invalid)li(`지원하지 않는 문자가 있는 서열 ${c.invalid.toLocaleString()}개는 매핑에서 제외합니다.`,'bad');
@@ -154,15 +161,38 @@ $('run').addEventListener('click',runMapping);
 // Add sequences to a mapped result: the current records and the new ones go back to the list with the same reference,
 // and the whole set is mapped again. Primers stay; the binding table is recalculated after mapping.
 const canAdd=()=>!!state.S&&!state.single&&!state.loaded?.columns&&!state.busy;
-function refreshAdd(){$('add-sequences').disabled=!canAdd();$('add-sequences').title=state.loaded?.columns?'정렬 파일로 연 결과에는 서열을 추가할 수 없습니다. 원래 서열 파일로 매핑해 주세요.':'';}
+function refreshAdd(){$('add-sequences').disabled=!canAdd();$('ref-file').disabled=!canAdd();$('ref-picked').disabled=!canAdd()||(state.picked?.size??0)!==1;$('add-sequences').title=state.loaded?.columns?'정렬 파일로 연 결과에는 서열을 추가할 수 없습니다. 원래 서열 파일로 매핑해 주세요.':'';}
+// A list waiting to be mapped again after "서열 추가" or "Reference 바꾸기"; later changes build on it.
+const pendingList=()=>state.list&&(state.list.added!==undefined||state.list.newReference)?state.list:null;
+// Additions made before the next mapping pile up on the pending list; the same file twice counts once (AP-275).
 async function addSequences(files){
- if(!canAdd()||!files.length)return;let nr;
- try{nr=await load({mode:'mapping',reference:null,queries:[...files]});}catch(e){if(e.message!=='cancelled')setError(e.message);return;}
- const cur=state.loaded,curFiles=cur.files??[];let data;try{data=mergeRecords(cur.data,nr.data,curFiles.length);}catch(e){setError(e.message);return;}
- const r={reference:cur.reference,data,facts:recordFacts(data),reports:[{file:'현재 결과',records:cur.data.names.length,bases:cur.data.offs[cur.data.names.length],format:'매핑한 서열',errors:[]},...nr.reports],counts:summarizeFlags(data.flags),duplicates:duplicateIds(data.names),files:[...curFiles,...nr.files],keepRefFromList:!!state.refFromList,added:nr.data.names.length,preExcluded:[...state.dropped]};
+ if(!canAdd()||!files.length)return;
+ const pending=pendingList(),keys=new Set(pending?.addedKeys??[]),fresh=[...files].filter(f=>!keys.has(fileKey(f)));
+ if(!fresh.length){$('input-panel').open=true;report(pending);return;}
+ let nr;try{nr=await load({mode:'mapping',reference:null,queries:fresh});}catch(e){if(e.message!=='cancelled')setError(e.message);return;}
+ const cur=pending??state.loaded,curFiles=cur.files??[];let data;try{data=mergeRecords(cur.data,nr.data,curFiles.length);}catch(e){setError(e.message);return;}
+ const base=pending?pending.reports:[{file:'현재 결과',records:cur.data.names.length,bases:cur.data.offs[cur.data.names.length],format:'매핑한 서열',errors:[]}];
+ for(const f of fresh)keys.add(fileKey(f));
+ const r={reference:cur.reference,data,facts:recordFacts(data),reports:[...base,...nr.reports],counts:summarizeFlags(data.flags),duplicates:duplicateIds(data.names),files:[...curFiles,...nr.files],keepRefFromList:pending?.newReference?false:!!state.refFromList,added:(pending?.added??0)+nr.data.names.length,addedKeys:[...keys],preExcluded:pending?.preExcluded??[...state.dropped],...(pending?.newReference?{newReference:pending.newReference}:{})};
  state.list=r;$('input-panel').open=true;report(r);$('input-report').scrollIntoView({block:'start'});
 }
 $('add-sequences').addEventListener('click',()=>$('file-add').click());
+// Reference change after mapping (AP-275): the current records (with additions still waiting) and the exclusions carry
+// over, primers are searched again on the new reference, and the set is mapped again from the input report.
+function changeReference(reference,removeRecord=-1){
+ const pending=pendingList(),cur=pending??state.loaded;let data=cur.data,pre=pending?.preExcluded??[...state.dropped];
+ if(removeRecord>=0){const keep=[];for(let i=0;i<data.names.length;i++)if(i!==removeRecord)keep.push(i);data=subsetData(data,Uint32Array.from(keep));pre=pre.filter(i=>i!==removeRecord).map(i=>i>removeRecord?i-1:i);}
+ const r={reference,data,facts:recordFacts(data),reports:[{file:'현재 결과',records:data.names.length,bases:data.offs[data.names.length],format:'매핑할 서열',errors:[]}],counts:summarizeFlags(data.flags),duplicates:duplicateIds(data.names),files:cur.files??[],keepRefFromList:false,...(pending?.added!==undefined?{added:pending.added,addedKeys:pending.addedKeys}:{}),preExcluded:pre,newReference:`Reference를 ${accessionOf(reference.name)} (${reference.sequence.length.toLocaleString()} nt)로 바꿉니다. 매핑을 실행하면 지금 서열 전체를 새 Reference에 다시 매핑합니다. Primer는 새 Reference에서 서열로 다시 찾고, 결합 현황은 다시 분석해야 합니다.`};
+ state.list=r;$('input-panel').open=true;report(r);$('input-report').scrollIntoView({block:'start'});
+}
+$('ref-file').addEventListener('click',()=>$('file-new-reference').click());
+$('file-new-reference').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f||!canAdd())return;let nr;try{nr=await load({mode:'mapping',reference:f,queries:[]});}catch(err){if(err.message!=='cancelled')setError(err.message);return;}changeReference(nr.reference);});
+// A picked record as the new reference: it leaves the record set. Its GenBank annotations come along only when its file
+// is still the one it was read from (no additions since).
+$('ref-picked').addEventListener('click',async()=>{if(state.picked.size!==1||!canAdd())return;const i=[...state.picked][0],d=state.loaded.data;let reference=null;
+ if(state.loaded.added===undefined&&!state.loaded.newReference){try{reference=await recordReference(state.loaded,i);}catch{reference=null;}}
+ reference??={name:d.names[i],sequence:d.pool.slice(d.offs[i],d.offs[i+1]),format:'FASTA',file:'',flags:d.flags[i],features:null,source:null};
+ const pending=pendingList();changeReference(reference,pending?pending.data.names.indexOf(d.names[i]):i);});
 $('file-add').addEventListener('change',e=>{const f=[...e.target.files];e.target.value='';addSequences(f);});
 
 // Results
@@ -170,8 +200,8 @@ async function showResult(r,m,parameters,seconds){
  state.parameters=parameters;state.fileNames=r.files;state.single=!!r.single;state.loaded=r;$('result').classList.toggle('is-single',state.single);for(const e of document.querySelectorAll('.single-only'))e.hidden=!state.single;$('back-to-list').hidden=!state.list;const S={pool:r.data.pool,offs:r.data.offs,flags:r.data.flags,fileIdx:r.data.fileIdx,inputOrder:r.data.inputOrder,meta:m.meta,cig:m.cig,extra:m.extra};
  state.S=S;state.names=r.data.names;state.ref=r.reference.sequence;state.refName=accessionOf(r.reference.name);
  state.dropped=new Set(state.pendingDropped??[]);state.pendingDropped=null;state.picked=new Set();state.anchor=-1;refreshRecords();
- state.primersReady=false;state.baseOrder=null;state.forced=null;$('forced-chip').hidden=true;state.selectedRecord=-1;viewer.clearRange();sequenceView.clearRange();$('selection').hidden=true;
- const parsed=parseFeatures(r.reference.features,state.ref.length);state.annotations=parsed.list;find.setSingle(state.single);$('tab-viewer').textContent=state.single?'서열 화면':'정렬 화면';if(state.single)openSequenceView(r,parsed);
+ if(r.newReference)primers.unlockForNewReference();state.primersReady=false;state.baseOrder=null;state.forced=null;$('forced-chip').hidden=true;state.selectedRecord=-1;viewer.clearRange();sequenceView.clearRange();$('selection').hidden=true;
+ annotations.open({features:r.reference.features,length:state.ref.length,refId:state.refName,saved:state.pendingAnnotations});state.pendingAnnotations=null;find.setSingle(state.single);$('tab-viewer').textContent=state.single?'서열 화면':'정렬 화면';if(state.single)openSequenceView(r);
  find.reset();state.analysis?.terminate();const a=new Worker('workers/analysis-worker.mjs',{type:'module'});state.analysis=a;
  progress(true,0,'위치별 통계 계산 중…');$('cancel').onclick=null;
  await new Promise((res,rej)=>{a.onmessage=({data:d})=>{if(d.type==='init-done'){state.R=d.R;res();}else if(d.type==='error')rej(Error(d.message));};a.onerror=e=>rej(Error(e.message));
@@ -180,15 +210,12 @@ async function showResult(r,m,parameters,seconds){
  if(state.single){progress(false);singleSummary();refreshAdd();$('result').hidden=false;$('input-panel').open=false;applyFilter(true);return;}
  const c=summarize(S),total=r.data.names.length;
  const stat=(label,value,alert)=>{const d=document.createElement('div'),b=document.createElement('b');d.className='stat'+(alert?' alert':'');b.textContent=value;d.append(label+' ',b);return d;};
- $('summary-line').replaceChildren(stat('Reference',`${state.refName} · ${state.ref.length.toLocaleString()} nt`),stat('서열',total.toLocaleString()),stat('정렬됨',c.mapped.toLocaleString()),stat('일부만 정렬',c.partial.toLocaleString()),stat('정렬 안 됨',c.unmapped.toLocaleString(),c.unmapped>0),stat('입력 오류',c.skipped.toLocaleString(),c.skipped>0),stat('역방향',c.reverse.toLocaleString()),stat('복수 위치',c.multi.toLocaleString()),...(r.excluded?[stat('목록에서 제외',r.excluded.toLocaleString())]:[]),...(seconds?[stat('매핑 시간',formatDuration(seconds))]:[]));
+ $('summary-line').replaceChildren(stat('Reference',`${state.refName} · ${state.ref.length.toLocaleString()} nt`),stat('서열',total.toLocaleString()),stat('정렬됨',c.mapped.toLocaleString()),stat('일부만 정렬',c.partial.toLocaleString()),stat('정렬 안 됨',c.unmapped.toLocaleString(),c.unmapped>0),stat('입력 오류',c.skipped.toLocaleString(),c.skipped>0),stat('역방향',c.reverse.toLocaleString()),stat('복수 위치',c.multi.toLocaleString()),...(r.excluded?[stat('목록에서 제외',r.excluded.toLocaleString())]:[]),...(seconds?[stat('매핑 시간',formatDuration(seconds))]:[]),annotations.statItem());
  refreshAdd();$('result').hidden=false;$('input-panel').open=false;applyFilter(true);
 }
-function singleSummary(){const r=state.loaded.reference,d=document.createElement('div'),b=document.createElement('b');d.className='stat';b.textContent=`${displayName(r.name).slice(0,100)} · ${r.sequence.length.toLocaleString()} nt · ${r.topology==='circular'?'원형':'선형'}`;d.append('서열 ',b);$('summary-line').replaceChildren(d);}
-function drawAnnotations(){const off=state.hiddenTypes;sequenceView.setAnnotations(state.annotations.filter(f=>!off.has(f.type)));}
-function openSequenceView(r,parsed){
- const types=featureTypes(parsed.list),box=$('annotation-types');state.hiddenTypes=new Set(types.filter(t=>!t.visible).map(t=>t.type));box.replaceChildren(...types.map(t=>{const l=document.createElement('label'),c=document.createElement('input');l.className='check';c.type='checkbox';c.checked=t.visible;c.addEventListener('change',()=>{c.checked?state.hiddenTypes.delete(t.type):state.hiddenTypes.add(t.type);drawAnnotations();});l.append(c,` ${t.type} (${t.count})`);return l;}));
- $('annotation-panel').hidden=!types.length;$('annotation-note').textContent=parsed.skipped?`위치를 해석하지 못한 annotation ${parsed.skipped}개는 표시하지 않습니다. 내보낼 때는 그대로 유지합니다.`:'';
- $('topology').value=r.reference.topology??'linear';$('show-complement').checked=false;sequenceView.setComplement(false);sequenceView.setData(r.reference.sequence);drawAnnotations();
+function singleSummary(){const r=state.loaded.reference,d=document.createElement('div'),b=document.createElement('b');d.className='stat';b.textContent=`${displayName(r.name).slice(0,100)} · ${r.sequence.length.toLocaleString()} nt · ${r.topology==='circular'?'원형':'선형'}`;d.append('서열 ',b);$('summary-line').replaceChildren(d,annotations.statItem());}
+function openSequenceView(r){
+ $('topology').value=r.reference.topology??'linear';$('show-complement').checked=false;sequenceView.setComplement(false);sequenceView.setData(r.reference.sequence);
 }
 $('topology').addEventListener('change',e=>{state.loaded.reference.topology=e.target.value;singleSummary();find.reset();primers.onTopology();});
 $('show-complement').addEventListener('change',e=>sequenceView.setComplement(e.target.checked));
@@ -215,7 +242,7 @@ function consensusChanged(){$('consensus-custom').hidden=$('consensus-percent').
 $('consensus-percent').addEventListener('change',consensusChanged);$('consensus-custom').addEventListener('change',consensusChanged);
 function applyFilter(now=false){clearTimeout(filterTimer);filterTimer=setTimeout(()=>{
  find.hold();const base=currentOrder(),same=state.baseOrder&&sameOrder(state.baseOrder,base);state.baseOrder=base;const order=state.forced?base.filter(i=>state.forced.has(i)):base;state.order=order;state.baseChanged=!same;state.statsId++;state.selectedRecord=-1;viewer.setSelected(-1);state.picked=new Set();state.anchor=-1;viewer.setPicked(state.picked);refreshRecords();$('detail').hidden=true;$('filter-line').textContent=`표시 ${order.length.toLocaleString()} / 전체 ${state.names.length.toLocaleString()} · Consensus 계산 중…`;
- viewer.clearRange();$('selection').hidden=true;state.analysis.postMessage({type:'stats',id:state.statsId,order,percent:consensusPercent()});
+ viewer.clearRange();$('selection').hidden=true;state.analysis.postMessage({type:'stats',id:state.statsId,order,percent:consensusPercent(),overhang:$('show-overhang').checked});
 },now?0:200);}
 function analysisMessage({data:d}){
  if(primers.handle(d)||find.handle(d))return;
@@ -233,6 +260,8 @@ function analysisMessage({data:d}){
  if(d.type==='error'){$('export-state').textContent='';$('project-state').textContent='';$('save-project').disabled=false;state.projectSave=null;if(d.message!=='저장을 중단했습니다.')setError(d.message);state.exportSink?.abort();}
 }
 for(const id of ['search','min-identity'])$(id).addEventListener('input',()=>applyFilter());
+// Overhang columns are built with the statistics, so switching them asks for the columns again (no new mapping).
+$('show-overhang').addEventListener('change',()=>applyFilter(true));
 $('sort').addEventListener('change',()=>applyFilter());
 document.querySelectorAll('[data-status]').forEach(x=>x.addEventListener('change',()=>applyFilter()));
 $('zoom').addEventListener('input',e=>viewer.setZoom(+e.target.value));
@@ -258,10 +287,12 @@ $('next-diff').addEventListener('click',()=>step(1));$('prev-diff').addEventList
 // Hover and row detail
 function hover(p){
  const line=$('hover-line');if(!p||p.col<0||!state.stats){line.textContent='';return;}
- const r=state.cols.refOfCol[p.col];let t=r<0?'insertion 열':`위치 ${toDisplay(r).toLocaleString()} · ref ${String.fromCharCode(state.ref[r])}`;
- if(r>=0){const s=state.stats;t+=` · consensus ${s.consensus[r]?String.fromCharCode(s.consensus[r]):'없음'} · coverage ${s.coverage[r].toLocaleString()}${s.counts[r*6+5]?` (deletion ${s.counts[r*6+5].toLocaleString()})`:''} · A/C/G/T 판독 ${s.called[r].toLocaleString()} · Identity ${Number.isNaN(s.identity[r])?(s.coverage[r]?'비교 서열 2개 미만':'–'):(s.identity[r]*100).toFixed(1)+'%'}`;}
- else{let q=p.col;while(q<state.cols.total&&state.cols.refOfCol[q]<0)q++;const at=state.cols.refOfCol[q];if(at>=0)t+=` · 위치 ${toDisplay(at).toLocaleString()} 앞 · 해당 서열 ${state.stats.insRows[at].toLocaleString()}개`;else t+=` · Reference 끝 뒤 · 해당 서열 ${state.stats.insRows[state.ref.length].toLocaleString()}개`;}
+ const r=state.cols.refOfCol[p.col],{lead,tail,total}=state.cols,over=r<0&&(p.col<lead?'Reference 앞으로 연장된 부분':p.col>=total-tail?'Reference 뒤로 연장된 부분':'');let t=r<0?(over?`${over} (매핑에서 잘린 부분 · 통계 제외)`:'insertion 열'):`위치 ${toDisplay(r).toLocaleString()} · ref ${String.fromCharCode(state.ref[r])}`;
+ if(r>=0){const s=state.stats;t+=` · consensus ${s.consensus[r]?String.fromCharCode(s.consensus[r])+(s.coverage[r]?'':' (서열 없음 · Reference로 채움)'):'없음'} · coverage ${s.coverage[r].toLocaleString()}${s.counts[r*6+5]?` (deletion ${s.counts[r*6+5].toLocaleString()})`:''} · A/C/G/T 판독 ${s.called[r].toLocaleString()} · Identity ${Number.isNaN(s.identity[r])?(s.coverage[r]?'비교 서열 2개 미만':'–'):(s.identity[r]*100).toFixed(1)+'%'}`;}
+ else if(!over){let q=p.col;while(q<state.cols.total&&state.cols.refOfCol[q]<0)q++;const at=state.cols.refOfCol[q];if(at>=0)t+=` · 위치 ${toDisplay(at).toLocaleString()} 앞 · 해당 서열 ${state.stats.insRows[at].toLocaleString()}개`;else t+=` · Reference 끝 뒤 · 해당 서열 ${state.stats.insRows[state.ref.length].toLocaleString()}개`;}
  if(p.row>=0){const i=state.order[p.row],b=new Uint8Array(1);projectRow(state.S,i,state.cols,b,p.col,p.col+1);t+=` · ${accessionOf(state.names[i])}: ${b[0]?String.fromCharCode(b[0]):'정렬 밖'}`;}
+ // Over an annotation: what it is comes first (AP-275).
+ if(p.annotation){const f=p.annotation;t=`${f.type} ${f.label}${f.product&&f.product!==f.label?' · '+f.product:''} · ${f.ranges.map(x=>`${(x.start+1).toLocaleString()}–${x.end.toLocaleString()}`).join(', ')} ${f.strand<0?'−':f.strand>0?'+':''} · ${f.source??'Reference GenBank'} | `+t;}
  line.textContent=t;
 }
 // Ctrl adds or removes one record, Shift takes the rows between the last click and this one. The clicked row shows its details.
@@ -272,7 +303,7 @@ function pickRows(row,mods={}){
  viewer.setPicked(state.picked);refreshRecords();
 }
 function refreshRecords(){
- const n=state.picked?.size??0,d=state.dropped?.size??0;$('drop-records').disabled=!n||state.busy;$('drop-records').textContent=n?`선택 서열 제외 (${n.toLocaleString()})`:'선택 서열 제외';$('restore-records').disabled=!d||state.busy;
+ const n=state.picked?.size??0,d=state.dropped?.size??0;$('drop-records').disabled=!n||state.busy;if(typeof canAdd==='function')$('ref-picked').disabled=!canAdd()||n!==1;$('drop-records').textContent=n?`선택 서열 제외 (${n.toLocaleString()})`:'선택 서열 제외';$('restore-records').disabled=!d||state.busy;
  $('records-state').textContent=d?`제외 ${d.toLocaleString()}개. 제외 취소를 누르면 모두 되돌립니다.`:'';
 }
 $('drop-records').addEventListener('click',()=>{if(!state.picked.size)return;for(const i of state.picked)state.dropped.add(i);applyFilter(true);});
@@ -290,8 +321,9 @@ $('copy-original').addEventListener('click',()=>copyRecord(false));$('copy-orien
 
 // Export: stream to a chosen file when the browser allows it, otherwise build a Blob from parts.
 const EXPORT={sam:['mapping.sam','text/plain'],summary:['mapping_summary.csv','text/csv'],aligned:['aligned.fasta','text/plain'],fasta:['selected_sequences.fasta','text/plain']};
-async function sinkFor(name,type){
- if(window.showSaveFilePicker){const h=await showSaveFilePicker({suggestedName:name});const w=await h.createWritable();return {write:b=>w.write(b),close:()=>w.close(),abort:()=>w.abort()};}
+// The id makes Chrome and Edge remember a folder per use: exports and the project each keep their own (AP-275).
+async function sinkFor(name,type,id='sm-export'){
+ if(window.showSaveFilePicker){const h=await showSaveFilePicker({suggestedName:name,id});const w=await h.createWritable();return {write:b=>w.write(b),close:()=>w.close(),abort:()=>w.abort()};}
  const parts=[];return {write:b=>parts.push(b),close:n=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(parts,{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),10000);},abort(){parts.length=0;}};
 }
 document.querySelectorAll('[data-export]').forEach(b=>b.addEventListener('click',async()=>{
@@ -314,10 +346,10 @@ $('export-geneious').addEventListener('click',async()=>{
  $('export-state').textContent='내보내는 중…';state.analysis.postMessage({type:'export',kind:'sam',id:Date.now(),order:state.order,options:{includeConsensus:false}});
 });
 // Project file
-function viewState(){return {search:$('search').value,sort:$('sort').value,minIdentity:$('min-identity').value,status:Object.fromEntries([...document.querySelectorAll('[data-status]')].map(x=>[x.dataset.status,x.checked])),zoom:$('zoom').value,consensusPercent:$('consensus-percent').value,consensusCustom:$('consensus-custom').value,nameWidth:viewer.nameW,nameMode:$('name-mode').value,compare:$('compare').value,diffOnly:$('diff-only').checked,scrollLeft:viewer.scroller.scrollLeft,scrollTop:viewer.scroller.scrollTop,dropped:[...state.dropped]};}
-function applyView(v){$('consensus-percent').value=v.consensusPercent??'0';$('consensus-custom').value=v.consensusCustom??'';$('consensus-custom').hidden=$('consensus-percent').value!=='custom';$('search').value=v.search;$('sort').value=v.sort;$('min-identity').value=v.minIdentity;document.querySelectorAll('[data-status]').forEach(x=>{x.checked=!!v.status[x.dataset.status];});$('zoom').value=v.zoom;viewer.setZoom(+v.zoom);if(v.nameWidth)viewer.setNameWidth(v.nameWidth);$('name-mode').value=v.nameMode??'both';viewer.setNameMode($('name-mode').value);$('compare').value=v.compare;viewer.setCompare(v.compare);$('diff-only').checked=v.diffOnly;viewer.setMode(v.diffOnly?'diff':'all');state.restoreScroll={left:v.scrollLeft,top:v.scrollTop};state.pendingDropped=v.dropped??[];}
+function viewState(){return {search:$('search').value,sort:$('sort').value,minIdentity:$('min-identity').value,status:Object.fromEntries([...document.querySelectorAll('[data-status]')].map(x=>[x.dataset.status,x.checked])),zoom:$('zoom').value,consensusPercent:$('consensus-percent').value,consensusCustom:$('consensus-custom').value,nameWidth:viewer.nameW,nameMode:$('name-mode').value,compare:$('compare').value,diffOnly:$('diff-only').checked,overhang:$('show-overhang').checked,annotations:annotations.snapshot(),scrollLeft:viewer.scroller.scrollLeft,scrollTop:viewer.scroller.scrollTop,dropped:[...state.dropped]};}
+function applyView(v){$('consensus-percent').value=v.consensusPercent??'0';$('consensus-custom').value=v.consensusCustom??'';$('consensus-custom').hidden=$('consensus-percent').value!=='custom';$('search').value=v.search;$('sort').value=v.sort;$('min-identity').value=v.minIdentity;document.querySelectorAll('[data-status]').forEach(x=>{x.checked=!!v.status[x.dataset.status];});$('zoom').value=v.zoom;viewer.setZoom(+v.zoom);if(v.nameWidth)viewer.setNameWidth(v.nameWidth);$('name-mode').value=v.nameMode??'both';viewer.setNameMode($('name-mode').value);$('compare').value=v.compare;viewer.setCompare(v.compare);$('diff-only').checked=v.diffOnly;viewer.setMode(v.diffOnly?'diff':'all');state.restoreScroll={left:v.scrollLeft,top:v.scrollTop};state.pendingDropped=v.dropped??[];state.pendingAnnotations=v.annotations??null;$('show-overhang').checked=v.overhang??true;}
 async function saveProject(){
- const name=(state.refName||'mapping').replace(/[^\w.-]+/g,'_')+'.jsumap';let sink;try{sink=await sinkFor(name,'application/octet-stream');}catch(e){if(e.name!=='AbortError')setError(e.message);return;}
+ const name=(state.refName||'mapping').replace(/[^\w.-]+/g,'_')+'.jsumap';let sink;try{sink=await sinkFor(name,'application/octet-stream','sm-project');}catch(e){if(e.name!=='AbortError')setError(e.message);return;}
  const p=primers.snapshot(),ref=state.loaded.reference;state.exportSink=sink;state.projectSave={name,started:performance.now()};$('save-project').disabled=true;$('project-state').textContent='저장 중…';
  state.analysis.postMessage({type:'project-save',id:0,extra:p.cats?{bindingCats:p.cats,bindingOrder:p.order}:{},info:{tool:TOOL_VERSION,engine:ENGINE.version,parameters:state.parameters,createdAt:new Date().toISOString(),reference:{name:ref.name,features:ref.features,format:ref.format,source:ref.source,file:ref.file,flags:ref.flags,topology:ref.topology},files:state.fileNames,columns:state.loaded.columns??null,excluded:state.loaded.excluded??0,single:!!state.single,state:{primers:p.state,view:viewState()}}});
 }

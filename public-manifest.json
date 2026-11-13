@@ -1,5 +1,5 @@
 {
-  "version": "1.8.6",
+  "version": "1.8.7",
   "files": [
     {
       "source": "portal/index.html",
@@ -950,6 +950,10 @@
       "target": "tools/sequence-mapper/NOTICE.md"
     },
     {
+      "source": "tools/sequence-mapper/annotation-ui.mjs",
+      "target": "tools/sequence-mapper/annotation-ui.mjs"
+    },
+    {
       "source": "tools/sequence-mapper/app.mjs",
       "target": "tools/sequence-mapper/app.mjs"
     },
@@ -968,6 +972,10 @@
     {
       "source": "tools/sequence-mapper/core/annotation-export.mjs",
       "target": "tools/sequence-mapper/core/annotation-export.mjs"
+    },
+    {
+      "source": "tools/sequence-mapper/core/annotation-import.mjs",
+      "target": "tools/sequence-mapper/core/annotation-import.mjs"
     },
     {
       "source": "tools/sequence-mapper/core/binding.mjs",

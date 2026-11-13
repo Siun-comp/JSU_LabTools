@@ -36,13 +36,20 @@ export function expandRow(S,i,row,ins){
 }
 // Display column of a query position counted along the reference direction. -1 outside the aligned part.
 export function columnOfQuery(S,i,cols,pos){
- const b=i*STRIDE;if(S.meta[b+REF]<0)return -1;let q=queryStart(S,i),r=S.meta[b+REF];if(pos<q)return -1;
+ const b=i*STRIDE;if(S.meta[b+REF]<0)return -1;let q=queryStart(S,i),r=S.meta[b+REF];if(pos<q)return overhangColumn(S,i,cols,pos);
  const {colOf,insMax}=cols,c0=S.meta[b+COFF],c1=c0+S.meta[b+CN];
  for(let c=c0;c<c1;c++){const v=S.cig[c],l=v>>>4,op=v&15;
   if(op===OP.EQ||op===OP.X||op===OP.M){if(pos<q+l)return colOf[r+pos-q];r+=l;q+=l;}
   else if(op===OP.I){if(pos<q+l)return colOf[r]-(insMax[r]|0)+pos-q;q+=l;}
   else if(op===OP.D)r+=l;
  }
+ return overhangColumn(S,i,cols,pos);
+}
+// Column of a clipped query position in the overhang columns, or -1.
+function overhangColumn(S,i,cols,pos){
+ if(!cols.lead&&!cols.tail)return -1;const L=cols.colOf.length-1,[l,r]=overhang(S,i,L),q=queryStart(S,i),qe=q+S.meta[i*STRIDE+QE]-S.meta[i*STRIDE+QS];
+ if(pos<q)return q-pos<=Math.min(l,cols.lead)?cols.lead-(q-pos):-1;
+ if(pos>=qe)return pos-qe<Math.min(r,cols.tail)?cols.colOf[L]+(pos-qe):-1;
  return -1;
 }
 export function refEnd(S,i){const b=i*STRIDE;let r=S.meta[b+REF];const c0=S.meta[b+COFF],c1=c0+S.meta[b+CN];for(let c=c0;c<c1;c++){const v=S.cig[c],op=v&15;if(op===OP.EQ||op===OP.X||op===OP.M||op===OP.D)r+=v>>>4;}return r;}
@@ -64,11 +71,17 @@ export const identityOf=c=>{const d=c.match+c.mismatch+c.insertion+c.deletion;re
 
 // Display columns: every reference position plus all insertion columns seen in any row.
 // insMax[L], when present, holds columns after the last reference position.
-export function buildColumns(insMax,L=insMax.length){
- const colOf=new Int32Array(L+1);let c=0;for(let r=0;r<L;r++){c+=insMax[r];colOf[r]=c++;}c+=insMax[L]|0;colOf[L]=c;
- const refOfCol=new Int32Array(c).fill(-1);for(let r=0;r<L;r++)refOfCol[colOf[r]]=r;
- return {colOf,refOfCol,insMax,total:c};
+// lead and tail are columns for bases running past the first or last reference position (shown on request, AP-275):
+// lead columns come first, tail columns last, and neither is an insertion.
+export function buildColumns(insMax,L=insMax.length,lead=0,tail=0){
+ const colOf=new Int32Array(L+1);let c=lead;for(let r=0;r<L;r++){c+=insMax[r];colOf[r]=c++;}c+=insMax[L]|0;colOf[L]=c;const total=c+tail;
+ const refOfCol=new Int32Array(total).fill(-1);for(let r=0;r<L;r++)refOfCol[colOf[r]]=r;
+ return {colOf,refOfCol,insMax,total,lead,tail};
 }
+// Bases clipped by the aligner past the reference ends, in reference direction: [before the first position, after the last].
+// Only a record aligned from the first position has a lead, only one aligned to the last position has a tail; a clip
+// inside the reference (a tail that did not match) is not an overhang.
+export function overhang(S,i,L){const b=i*STRIDE;if(S.meta[b+REF]<0)return [0,0];const [l,r]=clips(recordLength(S,i),!!S.meta[b+REV],S.meta[b+QS],S.meta[b+QE]);return [S.meta[b+REF]===0?l:0,r&&refEnd(S,i)===L?r:0];}
 // Fills out for columns [c0,c1): base byte, 0=not covered, 45=gap. Rows without an insertion get gaps in insertion columns inside their span.
 export function projectRow(S,i,cols,out,c0,c1){
  out.fill(0,0,c1-c0);const b=i*STRIDE;if(S.meta[b+REF]<0)return;
@@ -84,6 +97,9 @@ export function projectRow(S,i,cols,out,c0,c1){
   else if(op===OP.I){const first=colOf[r]-insMax[r];for(let k=0;k<l;k++)put(first+k,baseAt(S,i,q+k,rev,len,o));q+=l;}
   else if(op===OP.D){for(let k=0;k<l;k++){padBefore(r+k);put(colOf[r+k],GAP);}r+=l;}
  }
+ if(cols.lead||cols.tail){const L=colOf.length-1,[l,rt]=overhang(S,i,L),q0=queryStart(S,i),qe=q0+S.meta[b+QE]-S.meta[b+QS];
+  for(let k=1;k<=Math.min(l,cols.lead);k++)put(cols.lead-k,baseAt(S,i,q0-k,rev,len,o));
+  for(let k=0;k<Math.min(rt,cols.tail);k++)put(colOf[L]+k,baseAt(S,i,qe+k,rev,len,o));}
 }
 
 // SAM CIGAR with soft clips, reference direction. =/X collapse to M unless exact is requested.

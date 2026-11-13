@@ -44,7 +44,7 @@ function* alignedLines(ctx,order,{includeConsensus=false}={}){
  const {S,names,cols,ref,stats}=ctx,ids=uniqueIds(names),w=cols.total,buf=new Uint8Array(w);
  const row=()=>{for(let c=0;c<w;c++)if(!buf[c])buf[c]=GAP;return dec.decode(buf)+'\n';};
  buf.fill(GAP);for(let r=0;r<ref.length;r++)buf[cols.colOf[r]]=ref[r];yield `>${ctx.refId} reference\n`+row();
- if(includeConsensus){buf.fill(GAP);for(let r=0;r<ref.length;r++)buf[cols.colOf[r]]=stats.consensus[r]||GAP;yield `>consensus\n`+row();}
+ if(includeConsensus){buf.fill(GAP);for(let r=0;r<ref.length;r++){const v=stats.consensus[r];buf[cols.colOf[r]]=!v?GAP:stats.coverage[r]?v:v|32;}yield `>consensus\n`+row();}
  for(const i of order){if(S.meta[i*STRIDE+REF]<0)continue;projectRow(S,i,cols,buf,0,w);yield `>${ids[i]}\n`+row();}
 }
 export const alignedFasta=(ctx,order,options)=>chunked(alignedLines(ctx,order,options));

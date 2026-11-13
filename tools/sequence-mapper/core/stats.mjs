@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Position statistics over a chosen set of records. The reference itself is never counted.
-import {expandRow,countRow,identityOf,recordLength,coversBase,STRIDE,REF,QS,QE,HITS,GAP} from './alignment.mjs';
+import {expandRow,countRow,identityOf,recordLength,coversBase,overhang,STRIDE,REF,QS,QE,HITS,GAP} from './alignment.mjs';
 const SLOT=new Uint8Array(256).fill(4);SLOT[65]=0;SLOT[67]=1;SLOT[71]=2;SLOT[84]=3;SLOT[GAP]=5; // A C G T other deletion
 const IUPAC={1:'A',2:'C',4:'G',8:'T',3:'M',5:'R',9:'W',6:'S',10:'Y',12:'K',7:'V',11:'H',13:'D',14:'B',15:'N'};
 export const POSITION_DEFINITIONS=Object.freeze({
@@ -9,7 +9,7 @@ export const POSITION_DEFINITIONS=Object.freeze({
  identity:'위치별 평균 pairwise identity: 서열 두 개씩 짝지었을 때 같은 염기(또는 둘 다 deletion)인 짝의 비율. Geneious의 Identity 그래프와 같은 방식입니다(예: A 7 · C 3 → 53.3%). 막대 높이가 값이고, 100%는 초록, 30% 이상은 황록, 30% 미만은 빨강입니다. 비교 서열끼리의 값이며 Reference 일치율이 아닙니다(왼쪽 "최소 identity %"는 서열별 Reference 일치율로 다른 값). N 등 혼합염기는 빼고 셉니다. 비교할 서열이 2개 미만이면 계산하지 않습니다(바닥 회색 선). 덮는 서열이 모두 deletion인 위치는 따로 표시합니다(청회색).',
  variant:'Reference와 다른 판독(치환, deletion)이 1개 이상인 위치. N 등 혼합염기는 세지 않고, insertion은 따로 셉니다. Reference 자신은 세지 않습니다.',
  alignment:'각 서열을 Reference 좌표에 배치한 결과입니다. insertion끼리는 서로 다시 정렬하지 않습니다. 역위나 원점이 다른 서열은 주 정렬 구간만 표시합니다.',
- consensus:'기본은 현재 표시 서열의 최다 염기입니다. 기준 %를 정하면 많은 염기부터 더해 A/C/G/T 판독의 그 비율에 도달할 때까지의 염기를 IUPAC 코드로 표시합니다. 같은 수의 염기는 함께 포함합니다. deletion이 최다이면 -, 덮는 서열이 없으면 표시하지 않습니다. Reference는 포함하지 않습니다.'});
+ consensus:'기본은 현재 표시 서열의 최다 염기입니다. 기준 %를 정하면 많은 염기부터 더해 A/C/G/T 판독의 그 비율에 도달할 때까지의 염기를 IUPAC 코드로 표시합니다. 같은 수의 염기는 함께 포함합니다. deletion이 최다이면 -, 덮는 서열이 없는 위치는 Reference 염기로 채웁니다(회색 글자, Aligned FASTA에서는 소문자). Consensus 찾기와 Primer 설계에서 빠지는 위치가 없게 하기 위해서이며, Coverage·Identity·변이 위치 수에는 영향이 없습니다. 서열이 덮는 위치에는 Reference를 포함하지 않습니다.'});
 
 const BASES=[1,2,4,8];
 // percent 0 keeps only the most frequent base. Bases with equal counts always enter together, so the result never depends on input order.
@@ -20,12 +20,17 @@ function codeAt(counts,b,percent){
  for(;;){let next=0;for(let k=0;k<4;k++){const v=counts[b+k];if(v===level){mask|=BASES[k];sum+=v;}else if(v<level&&v>next)next=v;}if(!next||sum*100>=percent*total)break;level=next;}
  return IUPAC[mask].charCodeAt(0);
 }
-export function buildConsensus(counts,coverage,percent=0){const L=coverage.length,out=new Uint8Array(L);for(let r=0;r<L;r++)if(coverage[r])out[r]=codeAt(counts,r*6,percent);return out;}
-export function computeStats(S,order,refLength,percent=0){
- const L=refLength,row=new Uint8Array(L),ins=new Uint32Array(L+1),counts=new Uint32Array(L*6),insMax=new Uint32Array(L+1),insRows=new Uint32Array(L+1);
+// Positions no sequence covers take the reference base, so consensus find and primer work never skip them (AP-275).
+// A filled position is one with coverage 0; screens and exports tell them apart by that.
+const upper=v=>v>=97&&v<=122?v-32:v;
+export function buildConsensus(counts,coverage,percent=0,ref=null){const L=coverage.length,out=new Uint8Array(L);for(let r=0;r<L;r++){if(coverage[r])out[r]=codeAt(counts,r*6,percent);else if(ref)out[r]=upper(ref[r]);}return out;}
+// withOverhang: also measure the longest bases past each reference end (columns only; no statistic counts them).
+export function computeStats(S,order,refLength,percent=0,ref=null,withOverhang=false){
+ let lead=0,trail=0;const L=refLength,row=new Uint8Array(L),ins=new Uint32Array(L+1),counts=new Uint32Array(L*6),insMax=new Uint32Array(L+1),insRows=new Uint32Array(L+1);
  for(let n=0;n<order.length;n++){const i=order[n];if(!expandRow(S,i,row,ins))continue;
   for(let r=0;r<L;r++){const x=row[r];if(x)counts[r*6+SLOT[x]]++;const m=ins[r];if(m){insRows[r]++;if(m>insMax[r])insMax[r]=m;}}
-  const tail=ins[L];if(tail){insRows[L]++;if(tail>insMax[L])insMax[L]=tail;}}
+  const tail=ins[L];if(tail){insRows[L]++;if(tail>insMax[L])insMax[L]=tail;}
+  if(withOverhang){const [a,z]=overhang(S,i,L);if(a>lead)lead=a;if(z>trail)trail=z;}}
  const coverage=new Uint32Array(L),called=new Uint32Array(L),identity=new Float32Array(L),consensus=new Uint8Array(L);
  for(let r=0;r<L;r++){const b=r*6,a=counts[b],c=counts[b+1],g=counts[b+2],t=counts[b+3],o=counts[b+4],d=counts[b+5];
   const acgt=a+c+g+t;coverage[r]=acgt+o+d;called[r]=acgt;
@@ -34,8 +39,8 @@ export function computeStats(S,order,refLength,percent=0){
   // 53%, 4 A + 3 C + 3 G shows red). How Geneious counts deletions is not checked; here a deletion is one more state.
   // One sequence has nothing to be compared with.
   const n=acgt+d;identity[r]=n>=2?(a*(a-1)+c*(c-1)+g*(g-1)+t*(t-1)+d*(d-1))/(n*(n-1)):NaN;
-  if(coverage[r])consensus[r]=codeAt(counts,b,percent);}
- return {coverage,called,identity,consensus,counts,insMax,insRows};
+  if(coverage[r])consensus[r]=codeAt(counts,b,percent);else if(ref)consensus[r]=upper(ref[r]);}
+ return {coverage,called,identity,consensus,counts,insMax,insRows,lead,tail:trail};
 }
 // True when a read at this position disagrees with the code it is compared to. Ambiguous reads stay out, and an N position says nothing.
 const READ_BASES=[65,67,71,84];

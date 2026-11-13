@@ -36,10 +36,12 @@
 
 <section id="result" hidden aria-label="결과">
 <div class="summary-bar"><div id="summary-line" class="stats"></div><p id="filter-line" class="hint" role="status"></p></div>
+<div id="annotation-pop" class="annotation-pop" popover aria-label="Annotation 표시"><p class="pop-title">Reference annotation (CDS · gene · mRNA)</p><div id="annotation-types" class="annotation-types"></div><p id="annotation-source" class="hint"></p><div class="button-row"><button id="annotation-add" type="button">파일에서 추가 (GFF3 · CSV)</button><button id="annotation-clear" type="button" hidden>가져온 annotation 지우기</button></div><input id="annotation-file" class="file-input" type="file" accept=".gff,.gff3,.csv,.tsv,.txt" hidden><p id="annotation-note" class="hint annotation-note" role="status"></p><p class="hint">파일 형식: GFF3, 또는 머리글이 Name, Type, Start, End, Strand(Product 선택)인 CSV·탭 표. 위치는 Reference 기준 1부터, 끝 포함.</p></div>
 <div class="workspace">
  <aside class="side">
   <details open class="mapped-only" id="records-panel"><summary>서열</summary>
    <div class="button-row"><button type="button" id="add-sequences">서열 추가</button><input class="file-input" id="file-add" type="file" multiple accept=".fasta,.fa,.fna,.fas,.gb,.gbk,.txt" hidden></div>
+   <div class="button-row"><button type="button" id="ref-file" title="지금 결과의 서열·제외 목록·Primer를 유지하고 새 Reference로 다시 매핑합니다">Reference 파일로 바꾸기</button><button type="button" id="ref-picked" disabled title="정렬 화면에서 이름을 눌러 고른 서열 1개를 Reference로 씁니다">선택한 서열을 Reference로</button><input class="file-input" id="file-new-reference" type="file" accept=".fasta,.fa,.fna,.fas,.gb,.gbk,.txt" hidden></div>
    <div class="button-row"><button type="button" id="drop-records" disabled>선택 서열 제외</button><button type="button" id="restore-records" disabled>제외 취소</button></div>
    <p class="hint">정렬 화면에서 서열 이름을 누르면 선택됩니다. Ctrl을 누른 채 누르면 하나씩 더하거나 빼고, Shift는 사이의 서열을 함께 고릅니다. 제외한 서열은 통계·Consensus·Primer 결합·내보내기에서 빠집니다. 다시 매핑하지 않으며 원본은 지우지 않습니다.</p>
    <p id="records-state" class="hint" role="status"></p>
@@ -49,7 +51,7 @@
    <div class="two"><div><label for="sort">정렬</label><select id="sort"><option value="input">입력 순서</option><option value="name">이름</option><option value="identity-asc">identity 낮은 순</option><option value="identity-desc">identity 높은 순</option><option value="coverage-asc" title="Reference 길이 중 서열이 덮는 비율이 낮은 순">coverage 낮은 순</option></select></div><div><label for="min-identity">최소 identity %</label><input id="min-identity" type="number" min="0" max="100" step="any" placeholder="제한 없음"></div></div>
    <fieldset class="status-filter"><legend>표시할 상태</legend><label><input type="checkbox" data-status="mapped" checked>정렬됨</label><label><input type="checkbox" data-status="partial" checked>일부만 정렬</label><label><input type="checkbox" data-status="unmapped">정렬 안 됨</label><label><input type="checkbox" data-status="skipped">입력 오류</label></fieldset>
   </details>
-  <details open id="annotation-panel" class="single-only" hidden><summary>Annotation</summary><div id="annotation-types" class="annotation-types"></div><p id="annotation-note" class="hint"></p></details>
+  
   <details open><summary>Primer</summary><div class="button-row"><button id="open-primer" type="button">Primer 등록</button></div><p class="hint">정렬 화면에서 구간을 끌면 Tm·Self-dimer를 보고 바로 등록할 수 있습니다. 여러 줄을 끌면 범위로 선택되고 Ctrl+C로 복사합니다.</p>
    <details id="tm-panel"><summary>Tm 조건</summary><p class="hint">Oligo Thermodynamics와 같은 모델·기본값입니다.</p><div class="tm-grid"><label>온도 °C<input id="tm-temperature" type="number" step="any"></label><label>Na mM<input id="tm-na" type="number" step="any" min="0"></label><label>K mM<input id="tm-k" type="number" step="any" min="0"></label><label>NH₄ mM<input id="tm-nh4" type="number" step="any" min="0"></label><label>Mg mM<input id="tm-mg" type="number" step="any" min="0"></label><label>dNTP mM<input id="tm-dntp" type="number" step="any" min="0"></label><label>A nM<input id="tm-a" type="number" step="any" min="0"></label><label>B nM<input id="tm-b" type="number" step="any" min="0"></label></div></details>
   </details>
@@ -79,7 +81,7 @@
    <label class="tool">이름<select id="name-mode"><option value="both">Accession (Description)</option><option value="accession">Accession만</option><option value="description">Description만</option></select></label>
    <label class="tool">Consensus 기준<select id="consensus-percent"><option value="0">최다 염기</option><option value="100">100%</option><option value="98">98%</option><option value="95">95%</option><option value="90">90%</option><option value="75">75%</option><option value="custom">직접 입력</option></select><input id="consensus-custom" type="number" min="1" max="100" step="any" aria-label="Consensus 기준 %" hidden></label>
    <label class="tool">비교<select id="compare"><option value="reference">Reference</option><option value="consensus">Consensus</option></select></label>
-   <label class="tool check"><input id="diff-only" type="checkbox">일치는 점으로</label>
+   <label class="tool check"><input id="diff-only" type="checkbox">일치는 점으로</label><label class="tool check" title="매핑에서 잘린, Reference 앞뒤로 더 긴 부분을 옅은 배경으로 보입니다. 통계에는 들어가지 않습니다."><input id="show-overhang" type="checkbox" checked>Reference 밖 연장 부분</label>
    <span class="tool-gap"></span>
    <label class="tool">위치<input id="goto" type="number" min="1" step="1"></label><button id="goto-button" type="button">이동</button>
    <span class="tool-sep"></span>
@@ -87,7 +89,7 @@
   </div>
   <div class="toolbar find-bar" role="search">
    <label class="tool">찾기<input id="find-seq" type="text" maxlength="200" spellcheck="false" autocomplete="off" placeholder="서열 입력 후 Enter (Ctrl+F)"></label>
-   <label class="tool">범위<select id="find-scope"><option value="consensus">Consensus</option><option value="reference">Reference</option><option value="rows">모든 서열 (표시 순서)</option><option value="names">이름 (서열·primer)</option></select></label>
+   <label class="tool">범위<select id="find-scope"><option value="consensus">Consensus</option><option value="reference">Reference</option><option value="rows">모든 서열 (표시 순서)</option><option value="names">이름 (서열·primer)</option><option value="annotation">Annotation</option></select></label>
    <button id="find-prev" type="button" aria-label="이전 찾기">◀</button><button id="find-next" type="button" aria-label="다음 찾기">▶</button>
    <details id="find-options" class="find-options"><summary>옵션</summary><div class="find-panel"><label class="check"><input id="find-both" type="checkbox" checked>역상보도 찾기</label><label class="check"><input id="find-ambiguity-query" type="checkbox" checked>입력의 혼합염기 해석 (R, Y, N…)</label><label class="check"><input id="find-ambiguity-sequence" type="checkbox" checked>서열의 혼합염기 해석 (N 구간도 일치로 잡힘)</label><label class="tool">허용 mismatch<input id="find-mismatch" type="number" min="0" max="3" step="1" value="0"></label></div></details>
    <span id="find-state" class="hint find-state" role="status"></span><button id="find-only" type="button" hidden>찾은 서열만 보기</button><button id="find-clear" type="button" hidden>지우기</button>

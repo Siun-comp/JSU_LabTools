@@ -7,9 +7,9 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),dist=resolve(ro
 const manifest=JSON.parse(await readFile(resolve(root,'public-manifest.json'),'utf8'));
 const R=JSON.parse(await readFile(new URL('./release-versions.json',import.meta.url),'utf8')),M=R.tools['sequence-mapper'];
 const sha=b=>createHash('sha256').update(b).digest('hex'),read=p=>readFile(resolve(dist,p),'utf8');
-// Exactly the reviewed 43 tool files (41 until 0.1.0-beta.2; core/zip.mjs and view/primer-cells.mjs added in beta.3), published byte for byte from their sources.
+// Exactly the reviewed 45 tool files (41 until 0.1.0-beta.2; core/zip.mjs and view/primer-cells.mjs added in beta.3; annotation-ui.mjs and core/annotation-import.mjs in beta.4), published byte for byte from their sources.
 const entries=manifest.files.filter(e=>e.target.startsWith(prefix));
-assert.equal(entries.length,43);
+assert.equal(entries.length,45);
 for(const name of ['index.html','app.mjs','tool.css','icon.svg','brand.svg','LICENSE.txt','NOTICE.md','engine/engine.mjs','engine/mm2.wasm','engine/source/build.sh','engine/source/wrapper.c','engine/source/MINIMAP2-LICENSE.txt','engine/source/SIMDE-LICENSE.txt','workers/map-worker.mjs','workers/load-worker.mjs','workers/analysis-worker.mjs','workers/selection-worker.mjs'])assert(entries.some(e=>e.target===prefix+name),'Published: '+name);
 for(const e of entries){
  assert.equal(e.source,e.target);
@@ -45,4 +45,4 @@ for(const attr of ['href="tools/sequence-mapper/index.html"','target="_blank"','
 const info=await read('info/sequence-mapper.html');
 for(const text of ['v'+M.version,M.infoDate,'포털 v'+R.portal.version,'minimap2 '+M.engine,'증폭 성공이나 검출 성능을 뜻하지 않습니다','합성 서열','외부 전송·자동 저장 없음','href="../contact.html#sequence-mapper"'])assert(info.includes(text),'Information page: '+text);
 assert(!/<(?:script|input|textarea|form|iframe)\b/.test(info));
-console.log(`PASS: Sequence Mapper ${M.version} source43, beta label, e2e-only test access, engine-only network read and recorded hash, portal row and information page.`);
+console.log(`PASS: Sequence Mapper ${M.version} source45, beta label, e2e-only test access, engine-only network read and recorded hash, portal row and information page.`);

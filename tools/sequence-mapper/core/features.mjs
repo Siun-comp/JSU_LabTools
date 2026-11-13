@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Reads the FEATURES block of a GenBank record for display. The original text stays untouched for export.
 export const HIDDEN_BY_DEFAULT=new Set(['source']);
+// Only these annotation types are read for display and search; others stay in the original text for export (AP-275).
+export const ANNOTATION_TYPES=Object.freeze(['CDS','gene','mRNA']);
+export const shownTypes=list=>list.filter(f=>ANNOTATION_TYPES.includes(f.type));
 const LABEL_KEYS=['label','gene','product','locus_tag','standard_name','note'];
 
 function splitTop(s){const out=[];let depth=0,from=0;for(let i=0;i<s.length;i++){const c=s[i];if(c==='(')depth++;else if(c===')')depth--;else if(c===','&&!depth){out.push(s.slice(from,i));from=i+1;}}out.push(s.slice(from));return out;}
@@ -25,7 +28,8 @@ export function parseFeatures(text,length){
  let cur=null,key=null;
  const close=()=>{if(!cur)return;const place=parseLocation(cur.location,length);if(!place){skipped++;cur=null;return;}
   let label=cur.type;for(const k of LABEL_KEYS)if(cur.q[k]){label=cur.q[k].replace(/\s+/g,' ').trim();break;}
-  list.push({id:'f'+list.length,type:cur.type,label:label.length>60?label.slice(0,60)+'…':label,...place});cur=null;};
+  const clean=s=>s?s.replace(/\s+/g,' ').trim():'';
+  list.push({id:'f'+list.length,type:cur.type,label:label.length>60?label.slice(0,60)+'…':label,gene:clean(cur.q.gene),product:clean(cur.q.product),...place});cur=null;};
  for(const line of text.split('\n')){
   if(line.startsWith('FEATURES'))continue;
   if(/^ {5}\S/.test(line)){close();cur={type:line.slice(5,21).trim(),location:line.slice(21).trim(),q:{}};key=null;continue;}

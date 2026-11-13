@@ -7,8 +7,10 @@ import {diffCells,label,CELL_MIN} from './primer-cells.mjs';
 export const ZOOMS=Object.freeze([14,10,7,5,4,3.5,2,1,.5,.35]);
 // Letters fit down to 4 px per base. Below that each base is still its own coloured cell, until bases share pixels.
 const GLYPH_MIN=4,PAINT_MIN=3,WHEEL_STEP=40;
-const DEFAULT_NAME_W=260,MIN_NAME_W=120,MAX_NAME_W=640,ROW=16,LANE=18,MAX_LANES=8,H={overview:20,ruler:24,consensus:16,coverage:36,identity:28,reference:16};
+const DEFAULT_NAME_W=260,MIN_NAME_W=120,MAX_NAME_W=640,ROW=16,LANE=18,MAX_LANES=8,ALANE=16,MAX_ALANES=6,H={overview:20,ruler:24,consensus:16,coverage:36,identity:28,reference:16};
 const BASE_TOP=H.overview+H.ruler+H.consensus+H.coverage+H.identity+H.reference;
+// Reference annotations under the reference row (AP-275); same colours as the single-sequence view.
+const ANNOTATION_COLOR={CDS:'#d9a441',gene:'#7a9cc6',mRNA:'#8fb86f'};
 const COLOR={A:'#c2453f',C:'#2f6fb3',G:'#b8831f',T:'#2f8f5b',other:'#7a6aa8',gap:'#59697b'};
 const TINT={A:'#efc9c6',C:'#c6d9ec',G:'#ecdcb9',T:'#c3e3d1'};
 const baseColor=c=>COLOR[String.fromCharCode(c)]??COLOR.other,baseTint=c=>TINT[String.fromCharCode(c)]??'#d8d2e6';
@@ -16,17 +18,20 @@ const FONT='"Cascadia Mono",Consolas,"Liberation Mono","Courier New",monospace',
 export class Viewer{
  constructor(host,{onHover,onSelect,onRange,onRangeClear,onPrimer,onPrimerClear,onZoom}={}){
   Object.assign(this,{onHover,onSelect,onRange,onRangeClear,onPrimer,onPrimerClear,onZoom,host});this.wheelSum=0;this.scroller=host.querySelector('.viewer-scroll');this.spacer=host.querySelector('.viewer-spacer');this.canvas=host.querySelector('canvas');this.ctx=this.canvas.getContext('2d',{alpha:false});
-  this.nameW=DEFAULT_NAME_W;this.cell=ZOOMS[0];this.mode='all';this.nameMode='both';this.compare='reference';this.selected=-1;this.mark=-1;this.data=null;this.queued=false;this.lastFrameMs=0;this.primers=[];this.lanes=0;this.top=BASE_TOP;this.range=null;this.drag=null;this.pointer=null;this.activePrimer=null;this.found=null;this.consLabel='Consensus';
+  this.nameW=DEFAULT_NAME_W;this.cell=ZOOMS[0];this.mode='all';this.nameMode='both';this.compare='reference';this.selected=-1;this.mark=-1;this.data=null;this.queued=false;this.lastFrameMs=0;this.primers=[];this.lanes=0;this.top=BASE_TOP;this.range=null;this.drag=null;this.pointer=null;this.activePrimer=null;this.found=null;this.annotations=[];this.annShown=[];this.annLanes=0;this.consLabel='Consensus';
   this.scroller.addEventListener('scroll',()=>this.request(),{passive:true});this.scroller.addEventListener('wheel',e=>this.wheel(e),{passive:false});
   new ResizeObserver(()=>this.resize()).observe(this.scroller);
   this.canvas.addEventListener('mousemove',e=>this.move(e));this.canvas.addEventListener('mouseleave',()=>this.onHover?.(null));this.canvas.addEventListener('mousedown',e=>this.down(e));this.canvas.addEventListener('dblclick',()=>{const q=this.lastPrimer;if(q&&performance.now()-q.t<800)this.onPrimerEdit?.(q.id);});addEventListener('mouseup',e=>this.up(e));addEventListener('mousemove',e=>{if(this.drag&&!this.drag.resize){this.pointer=e;this.follow();}});
   this.scroller.addEventListener('keydown',e=>this.key(e));this.resize();
  }
  setData(d){this.data=d;this.buf=new Uint8Array(d.cols.total+1);this.refRow=new Uint8Array(d.cols.total);this.consRow=new Uint8Array(d.cols.total);
+  // Overhang columns (past the reference ends): drawn plain on a pale band, never as differences (AP-275).
+  this.over=new Uint8Array(d.cols.total);this.over.fill(1,0,d.cols.lead|0);this.over.fill(1,d.cols.total-(d.cols.tail|0));
   for(let r=0;r<d.ref.length;r++){this.refRow[d.cols.colOf[r]]=d.ref[r];this.consRow[d.cols.colOf[r]]=d.stats.consensus[r];}
   this.layoutPrimers();this.updateSize();this.request();}
  setConsensus(values,label){for(let r=0;r<values.length;r++)this.consRow[this.data.cols.colOf[r]]=values[r];this.consLabel=label;this.request();}
  setPrimers(list){this.primers=list;this.layoutPrimers();this.updateSize();this.request();}
+ setAnnotations(list){this.annotations=list;this.layoutPrimers();this.updateSize();this.request();}
  setActivePrimer(id){this.activePrimer=id;this.request();}
  setFound(f){this.found=f;this.request();}
  setFoundIndex(i){if(this.found)this.found.index=i;this.request();}
@@ -52,10 +57,14 @@ export class Viewer{
  request(){if(this.queued)return;this.queued=true;requestAnimationFrame(()=>{this.queued=false;const t=performance.now();this.draw();this.lastFrameMs=performance.now()-t;});}
  // Overlapping arrows go to separate lanes; a lane also keeps room for the name.
  layoutPrimers(){
-  const d=this.data;if(!d){this.lanes=0;this.top=BASE_TOP;return;}
+  const d=this.data;if(!d){this.lanes=0;this.annLanes=0;this.top=BASE_TOP;return;}
   const x=this.ctx;x.font=`11px ${UI}`;const ends=[],shown=this.primers.filter(p=>p.visible).map(p=>({...p,c0:d.cols.colOf[p.start],c1:d.cols.colOf[p.end-1]+1})).sort((a,b)=>a.c0-b.c0||a.c1-b.c1);
   for(const p of shown){const room=Math.max(p.c1,p.c0+(x.measureText(p.name).width+14)/this.cell);let lane=ends.findIndex(e=>e<=p.c0);if(lane<0)lane=ends.length<MAX_LANES?ends.length:MAX_LANES-1;ends[lane]=room;p.lane=lane;}
-  this.shown=shown;this.lanes=ends.length;this.top=BASE_TOP+this.lanes*LANE;
+  this.shown=shown;this.lanes=ends.length;
+  // Annotations: each piece on the columns, packed in lanes by their whole span (pieces of one CDS stay on one lane).
+  const {colOf}=d.cols,ann=this.annotations.map(f=>{const pieces=f.ranges.map(r=>({c0:colOf[r.start],c1:colOf[r.end-1]+1}));return {...f,pieces,c0:Math.min(...pieces.map(p=>p.c0)),c1:Math.max(...pieces.map(p=>p.c1))};}).sort((a,b)=>a.c0-b.c0||b.c1-a.c1),aends=[];
+  for(const f of ann){const room=Math.max(f.c1,f.c0+(x.measureText(f.label).width+14)/this.cell);let lane=aends.findIndex(e=>e<=f.c0);if(lane<0)lane=aends.length<MAX_ALANES?aends.length:MAX_ALANES-1;aends[lane]=room;f.lane=lane;}
+  this.annShown=ann;this.annLanes=aends.length;this.top=BASE_TOP+this.lanes*LANE+this.annLanes*ALANE;
  }
  glyphs(){
   if(this.atlas&&this.atlasCell===this.cell)return this.atlas;
@@ -100,17 +109,17 @@ export class Viewer{
   const f=this.found;if(!f||f.scope==='rows'||f.scope==='names')return;const d=f.data,y=H.overview+H.ruler+this.lanes*LANE+(f.scope==='consensus'?0:H.consensus+H.coverage+H.identity),hh=f.scope==='consensus'?H.consensus:H.reference;
   for(let k=0;k<f.count;k++){const o=k*5;if(d[o+2]<=c0||d[o+1]>=c1)continue;if(k===f.index)band(d[o+1],d[o+2],'rgba(255,190,0,.14)');this.foundBox(x,d[o+1],d[o+2],c0,off,y,hh,k===f.index);}
  }
- insertionBands(x,c0,c1,off,y,hh){const {refOfCol}=this.data.cols,cell=this.cell;x.fillStyle='#fff6da';for(let c=c0;c<c1;c++)if(refOfCol[c]<0)x.fillRect(this.nameW+off+(c-c0)*cell,y,Math.max(cell,1),hh);}
+ insertionBands(x,c0,c1,off,y,hh){const {refOfCol}=this.data.cols,cell=this.cell,ov=this.over;for(let c=c0;c<c1;c++)if(refOfCol[c]<0){x.fillStyle=ov[c]?'#eef1f5':'#fff6da';x.fillRect(this.nameW+off+(c-c0)*cell,y,Math.max(cell,1),hh);}}
  rowCells(x,b,c0,c1,off,y,cmp){
-  const cell=this.cell,n=c1-c0,loose=this.compare==='consensus';
+  const cell=this.cell,n=c1-c0,loose=this.compare==='consensus',ov=this.over;
   if(cell>=GLYPH_MIN){const a=this.glyphs(),d=this.dpr,cw=Math.ceil(cell*d),rh=ROW*d,idx=this.atlasIndex,dots=this.mode==='diff';
-   for(let k=0;k<n;k++){const v=b[k];if(!v)continue;const same=v===cmp[c0+k]||(v===GAP&&!cmp[c0+k])||(loose&&coversBase(cmp[c0+k],v)),px=this.nameW+off+k*cell;
+   for(let k=0;k<n;k++){const v=b[k];if(!v)continue;const same=ov[c0+k]||v===cmp[c0+k]||(v===GAP&&!cmp[c0+k])||(loose&&coversBase(cmp[c0+k],v)),px=this.nameW+off+k*cell;
     if(same&&dots){x.fillStyle='#b9c4cf';x.fillRect(px+cell/2-.75,y+ROW/2,1.5,1.5);continue;}
     const g=idx[v];if(g<0)continue;x.drawImage(a,g*cw,same?0:rh,cw,rh,px,y,cell,ROW);}
    return;}
-  if(cell>=PAINT_MIN){const dots=this.mode==='diff';for(let k=0;k<n;k++){const v=b[k];if(!v)continue;const c=cmp[c0+k],same=v===c||(v===GAP&&!c)||(loose&&coversBase(c,v));if(v===GAP&&same)continue;x.fillStyle=v===GAP?'#59697b':same?(dots?'#dbe2e9':baseTint(v)):baseColor(v);x.fillRect(Math.floor(this.nameW+off+k*cell),y+1,Math.ceil(cell),ROW-2);}return;}
+  if(cell>=PAINT_MIN){const dots=this.mode==='diff';for(let k=0;k<n;k++){const v=b[k];if(!v)continue;const c=cmp[c0+k],same=ov[c0+k]||v===c||(v===GAP&&!c)||(loose&&coversBase(c,v));if(v===GAP&&same)continue;x.fillStyle=v===GAP?'#59697b':same?(dots?'#dbe2e9':baseTint(v)):baseColor(v);x.fillRect(Math.floor(this.nameW+off+k*cell),y+1,Math.ceil(cell),ROW-2);}return;}
   const step=Math.max(1,Math.floor(1/cell)),hgt=ROW-2;
-  for(let k=0;k<n;k+=step){let cov=0,diff=0,gap=0,base=0;for(let j=k;j<k+step&&j<n;j++){const v=b[j];if(!v)continue;cov=1;if(v===GAP){if(cmp[c0+j])gap=1;}else if(v!==cmp[c0+j]&&!(loose&&coversBase(cmp[c0+j],v))){diff=1;base=v;}}
+  for(let k=0;k<n;k+=step){let cov=0,diff=0,gap=0,base=0;for(let j=k;j<k+step&&j<n;j++){const v=b[j];if(!v)continue;cov=1;if(v===GAP){if(cmp[c0+j])gap=1;}else if(!ov[c0+j]&&v!==cmp[c0+j]&&!(loose&&coversBase(cmp[c0+j],v))){diff=1;base=v;}}
    if(!cov)continue;const px=this.nameW+off+k*cell,wd=Math.max(cell*step,1);
    x.fillStyle=diff?baseColor(base):gap?'#59697b':'#dbe2e9';x.fillRect(px,y+1,wd,hgt);}
  }
@@ -140,9 +149,12 @@ export class Viewer{
   x.strokeStyle='#344e6b';x.lineWidth=1;x.strokeRect(this.nameW+1+c0/total*ow+.5,3.5,Math.max(3,(c1-c0)/total*ow),13);y+=H.overview;
   x.save();x.beginPath();x.rect(this.nameW,0,this.width-this.nameW,TOP);x.clip();
   const unit=[1,2,5,10,20,50,100,200,500,1000,2000,5000,10000].find(u=>u*cell>=70)||20000;x.fillStyle='#23364d';x.font=`11px ${UI}`;
-  for(let c=c0;c<c1;c++){const r=refOfCol[c],px=this.nameW+off+(c-c0)*cell;if(r<0){x.fillStyle='#b8831f';x.fillRect(px,y+H.ruler-7,Math.max(cell,1),6);x.fillStyle='#23364d';continue;}const pos=r+1;if(pos%unit===0||pos===1){x.fillRect(px,y+H.ruler-6,1,5);x.fillText(pos.toLocaleString(),px+2,y+9);}}
+  for(let c=c0;c<c1;c++){const r=refOfCol[c],px=this.nameW+off+(c-c0)*cell;if(r<0){if(!this.over[c]){x.fillStyle='#b8831f';x.fillRect(px,y+H.ruler-7,Math.max(cell,1),6);x.fillStyle='#23364d';}continue;}const pos=r+1;if(pos%unit===0||pos===1){x.fillRect(px,y+H.ruler-6,1,5);x.fillText(pos.toLocaleString(),px+2,y+9);}}
   y+=H.ruler;this.arrows(x,y,c0,c1,off);y+=this.lanes*LANE;
-  this.seqTrack(x,this.consRow,y,H.consensus,c0,c1,off,this.refRow);y+=H.consensus;
+  this.seqTrack(x,this.consRow,y,H.consensus,c0,c1,off,this.refRow);
+   // Consensus filled from the reference where no sequence covers it is washed out, so it reads as borrowed (AP-275).
+   x.fillStyle='rgba(255,255,255,.6)';for(let c=c0;c<c1;){const r=refOfCol[c];if(r<0||cov[r]){c++;continue;}let e=c+1;while(e<c1&&refOfCol[e]>=0&&!cov[refOfCol[e]])e++;x.fillRect(this.nameW+off+(c-c0)*cell,y,(e-c)*cell,H.consensus);c=e;}
+   y+=H.consensus;
   // Coverage: dark = sequences with a base here, light on top = sequences with a deletion here.
   const step=Math.max(1,Math.floor(1/cell)),full=H.coverage-4;for(let c=c0;c<c1;c+=step){const r=refOfCol[c];if(r<0)continue;const del=cnt[r*6+5],hb=full*(cov[r]-del)/maxCov,hd=full*del/maxCov,px=this.nameW+off+(c-c0)*cell,w=Math.max(cell*step,1);x.fillStyle='#8fa8bf';x.fillRect(px,y+H.coverage-2-hb,w,hb);if(del){x.fillStyle='#dfe6ee';x.fillRect(px,y+H.coverage-2-hb-hd,w,hd);}}y+=H.coverage;
   // Identity: bar height is the value, coloured as Geneious does (green 100%, olive from 30%, red below). Slate where every
@@ -150,20 +162,35 @@ export class Viewer{
   const delOnly=r=>cnt[r*6+5]>0&&cov[r]===cnt[r*6+5];
   for(let c=c0;c<c1;c+=step){const r=refOfCol[c];if(r<0)continue;let v=1;for(let j=c;j<c+step&&j<c1;j++){const q=refOfCol[j];if(q>=0&&idn[q]<v)v=idn[q];}const px=this.nameW+off+(c-c0)*cell,w=Math.max(cell*step,1),full=H.identity-3,base=y+H.identity-1;
    if(delOnly(r)){x.fillStyle='#8796a8';x.fillRect(px,base-full,w,full);}else if(Number.isNaN(idn[r])){x.fillStyle='#c9d2db';x.fillRect(px,base-1,w,1);}else{const h=Math.max(1,full*v);x.fillStyle=v>=1?'#3f9a63':v<.3?'#c2453f':'#b5a93a';x.fillRect(px,base-h,w,h);}}y+=H.identity;
-  this.seqTrack(x,this.refRow,y,H.reference,c0,c1,off,this.consRow);
+  this.seqTrack(x,this.refRow,y,H.reference,c0,c1,off,this.consRow);this.annotationLanes(x,y+H.reference,c0,c1,off);
   x.restore();
   y=H.overview;x.font=`12px ${UI}`;x.textBaseline='middle';x.textAlign='left';x.fillStyle='#f8fafc';x.fillRect(0,y,this.nameW,TOP-y);
   for(const [t,hh] of [['좌표 (reference)',H.ruler],...(this.lanes?[['Primer',this.lanes*LANE]]:[]),[this.consLabel,H.consensus],[`Coverage (최대 ${maxCov.toLocaleString()})`,H.coverage],['Identity',H.identity]]){label(t,hh);y+=hh;}
   x.fillStyle='#fdf8e6';x.fillRect(0,y,this.nameW,H.reference);x.fillStyle='#23364d';x.fillText(this.fit(x,'Reference: '+displayName(d.refFull??d.refName,this.nameMode),this.nameW-10),6,y+H.reference/2+.5);
+   if(this.annLanes){x.fillStyle='#59697b';x.fillText('Annotation',6,y+H.reference+ALANE/2+.5);}
+ }
+ // Annotation arrows: one shape per piece, a thin line across the gaps between pieces (introns), the head on the last piece.
+ annotationLanes(x,y,c0,c1,off){
+  const cell=this.cell,X=c=>this.nameW+off+(c-c0)*cell;x.font=`11px ${UI}`;x.textBaseline='middle';x.textAlign='left';
+  for(const f of this.annShown){if(f.c1<c0||f.c0>c1)continue;const top=y+f.lane*ALANE+2,hh=ALANE-4,mid=top+hh/2,color=ANNOTATION_COLOR[f.type]??'#9aa7b4';
+   if(f.pieces.length>1){x.strokeStyle=color;x.lineWidth=1;x.beginPath();x.moveTo(X(f.c0),Math.round(mid)+.5);x.lineTo(X(f.c1),Math.round(mid)+.5);x.stroke();}
+   const last=f.strand<0?f.pieces.reduce((a,p)=>p.c0<a.c0?p:a):f.pieces.reduce((a,p)=>p.c1>a.c1?p:a);
+   for(const p of f.pieces){const l=X(p.c0),r=X(p.c1),head=p===last&&f.strand?Math.min(7,Math.max(2,(r-l)/2)):0;x.beginPath();
+    if(f.strand>=0){x.moveTo(l,top);x.lineTo(r-head,top);x.lineTo(r,mid);x.lineTo(r-head,top+hh);x.lineTo(l,top+hh);}else{x.moveTo(r,top);x.lineTo(l+head,top);x.lineTo(l,mid);x.lineTo(l+head,top+hh);x.lineTo(r,top+hh);}
+    x.closePath();x.fillStyle=color;x.fill();}
+   // The name stays in sight: inside the widest piece, moved right when that piece starts left of the screen.
+   const wide=f.pieces.reduce((a,p)=>p.c1-p.c0>a.c1-a.c0?p:a),wl=Math.max(X(wide.c0),this.nameW+2),wr=X(wide.c1),tw=x.measureText(f.label).width;x.fillStyle='#1f2d3a';
+   if(tw+14<wr-wl)x.fillText(f.label,wl+(f.strand<0?9:4),mid+.5);else x.fillText(f.label,X(f.c1)+3,mid+.5);}
  }
  seqTrack(x,seq,y,hh,c0,c1,off,other){const cell=this.cell;
   if(cell>=GLYPH_MIN){const a=this.glyphs(),d=this.dpr,cw=Math.ceil(cell*d),rh=ROW*d;for(let c=c0;c<c1;c++){const v=seq[c];if(!v)continue;const g=this.atlasIndex[v];if(g<0)continue;x.drawImage(a,g*cw,v===other[c]?0:rh,cw,rh,this.nameW+off+(c-c0)*cell,y,cell,hh);}return;}
   if(cell>=PAINT_MIN){for(let c=c0;c<c1;c++){const v=seq[c];if(!v||v===GAP)continue;x.fillStyle=v===other[c]?baseTint(v):baseColor(v);x.fillRect(Math.floor(this.nameW+off+(c-c0)*cell),y+1,Math.ceil(cell),hh-2);}return;}
   const step=Math.max(1,Math.floor(1/cell));for(let c=c0;c<c1;c+=step){let diff=0,has=0;for(let j=c;j<c+step&&j<c1;j++){if(seq[j]){has=1;if(seq[j]!==other[j])diff=seq[j];}}if(!has)continue;x.fillStyle=diff?baseColor(diff):'#dbe2e9';x.fillRect(this.nameW+off+(c-c0)*cell,y+1,Math.max(cell*step,1),hh-2);}}
  locate(e){const b=this.canvas.getBoundingClientRect(),px=e.clientX-b.left,py=e.clientY-b.top,v=this.view;if(!v||!this.data)return null;
-  const TOP=this.top,col=px>=this.nameW?v.c0+Math.floor((px-this.nameW-v.off)/this.cell):-1,row=py>=TOP?v.r0+Math.floor((py-TOP-v.yoff)/ROW):-1,laneTop=H.overview+H.ruler,inLanes=py>=laneTop&&py<laneTop+this.lanes*LANE,consTop=laneTop+this.lanes*LANE,refTop=consTop+H.consensus+H.coverage+H.identity;
+  const TOP=this.top,col=px>=this.nameW?v.c0+Math.floor((px-this.nameW-v.off)/this.cell):-1,row=py>=TOP?v.r0+Math.floor((py-TOP-v.yoff)/ROW):-1,laneTop=H.overview+H.ruler,inLanes=py>=laneTop&&py<laneTop+this.lanes*LANE,consTop=laneTop+this.lanes*LANE,refTop=consTop+H.consensus+H.coverage+H.identity,annTop=refTop+H.reference,inAnn=py>=annTop&&py<annTop+this.annLanes*ALANE;
   let primer=null;if(inLanes&&col>=0){const lane=Math.floor((py-laneTop)/LANE);primer=this.shown?.find(p=>p.lane===lane&&col>=p.c0&&col<p.c1)??null;}
-  return {px,py,col:col<this.data.cols.total?col:-1,row:row<this.data.order.length?row:-1,primer,track:py<H.overview?'overview':py>=consTop&&py<consTop+H.consensus?'consensus':py>=TOP?'row':py>=refTop?'reference':'other'};}
+  let annotation=null;if(inAnn&&col>=0){const lane=Math.floor((py-annTop)/ALANE),on=this.annShown.filter(f=>f.lane===lane);annotation=on.find(f=>f.pieces.some(q=>col>=q.c0&&col<q.c1))??on.find(f=>col>=f.c0&&col<f.c1)??null;}
+  return {px,py,col:col<this.data.cols.total?col:-1,row:row<this.data.order.length?row:-1,primer,annotation,track:py<H.overview?'overview':py>=consTop&&py<consTop+H.consensus?'consensus':py>=TOP?'row':inAnn?'annotation':py>=refTop?'reference':'other'};}
  nearSplit(p){return p&&Math.abs(p.px-this.nameW)<=4;}
  move(e){const p=this.locate(e);if(this.drag?.resize){if(p)this.setNameWidth(p.px);return;}this.canvas.style.cursor=this.nearSplit(p)?'col-resize':'';if(this.drag)return;this.onHover?.(p);}
  down(e){if(e.button)return;const p=this.locate(e);if(!p)return;if(this.nearSplit(p)){e.preventDefault();this.drag={resize:true};this.request();return;}if(p.track==='overview'&&p.px>=this.nameW){this.scrollToColumn((p.px-this.nameW)/(this.width-this.nameW)*this.data.cols.total);return;}
@@ -172,7 +199,7 @@ export class Viewer{
   if(this.activePrimer!=null)this.onPrimerClear?.(); // a click anywhere but a primer drops the primer highlight
   const mods={add:e.ctrlKey||e.metaKey,span:e.shiftKey};
   if(p.col<0){if(p.row>=0)this.onSelect?.(p.row,mods);return;}
-  if(p.track==='other')return;
+  if(p.track==='other'||p.track==='annotation')return;
   e.preventDefault();this.drag={start:p.col,lane:p.track==='consensus'?-2:p.track==='reference'?-1:p.row,moved:false,row:p.row,mods};this.pointer=e;this.scroller.focus({preventScroll:true});}
  // Screen point to column and lane, held inside the data. Lanes in screen order: -2 consensus, -1 reference, 0.. shown rows.
  pointAt(e){const b=this.canvas.getBoundingClientRect(),v=this.view,d=this.data,px=Math.max(this.nameW,Math.min(this.width-1,e.clientX-b.left)),py=e.clientY-b.top,cons=H.overview+H.ruler+this.lanes*LANE,ref=cons+H.consensus+H.coverage+H.identity,col=Math.max(0,Math.min(d.cols.total-1,v.c0+Math.floor((px-this.nameW-v.off)/this.cell)));let lane=py<ref?-2:-1;if(py>=this.top&&d.order.length)lane=Math.max(0,Math.min(d.order.length-1,v.r0+Math.floor((py-this.top-v.yoff)/ROW)));return {col,lane,px,py};}

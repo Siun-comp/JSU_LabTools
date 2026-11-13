@@ -46,3 +46,8 @@ footer{padding-top:2px}
 @media(max-width:900px){.workspace,.drop-grid,.aligned-grid{grid-template-columns:1fr}.side{position:static;max-height:none}.viewer-row{flex-wrap:wrap}.viewer-main{flex:1 1 calc(100% - 30px)}.info-panel{flex:1 1 100%;width:auto}header,main,footer{padding-left:10px;padding-right:10px}.masthead>p{display:none}}
 #variant-rows .var-mm,#variant-rows .var-del,#variant-rows .var-ins{background:#f6d4d1;color:#9b3530;font-weight:700}#variant-rows .var-uk{background:#efe3b8;color:#6d5410}#variant-rows tr.variant-ref td{color:var(--muted);background:#f8fafc}#variant-rows .var-whole{font:600 12px "Segoe UI","Malgun Gothic",sans-serif;padding:0 3px}
 .query-files{list-style:none;margin:4px 0;padding:0;font-size:12px;max-height:120px;overflow:auto}.query-files li{display:flex;align-items:center;gap:6px;justify-content:space-between;padding:1px 0}.query-files button{min-height:20px;padding:0 6px;font-size:12px}
+
+/* Annotation item in the summary line and its small window (AP-275) */
+.stat-button{font:inherit;color:inherit;background:#fff;border:0;border-right:1px solid var(--line);text-align:left;cursor:pointer}.stat-button:hover{background:#f3f7fb}.stat-button b{color:var(--accent)}
+.annotation-pop{position:fixed;inset:auto;margin:0;width:min(360px,calc(100vw - 16px));padding:10px 12px;border:1px solid var(--line);border-radius:6px;box-shadow:0 6px 18px rgba(35,54,77,.18);background:#fff;font-size:12px}
+.annotation-pop .pop-title{margin:0 0 6px;font-weight:600}.annotation-pop .annotation-types{display:flex;flex-wrap:wrap;gap:4px 14px;margin-bottom:6px}.annotation-pop .button-row{margin:6px 0}.annotation-note{white-space:pre-line}.annotation-note.bad{color:#9b3530}

@@ -4,7 +4,7 @@ import {diffCells,label,CELL_MIN} from './primer-cells.mjs';
 // One sequence in wrapped lines with annotations and primers above it. Offers the calls the primer and find code make on the alignment viewer.
 const MARGIN=66,RIGHT=16,LANE=17,BASE_H=18,TICK_H=16,GAP=14,TOP_PAD=6;
 const COLOR={A:'#c2453f',C:'#2f6fb3',G:'#b8831f',T:'#2f8f5b'},OTHER='#7a6aa8';
-const TYPE_COLOR={CDS:'#d9a441',gene:'#7a9cc6',promoter:'#6fb08b',terminator:'#c77d7d',rep_origin:'#a98cc9',primer_bind:'#6fae8a',misc_feature:'#9aa7b4',regulatory:'#6fb08b'};
+const TYPE_COLOR={CDS:'#d9a441',gene:'#7a9cc6',mRNA:'#8fb86f',promoter:'#6fb08b',terminator:'#c77d7d',rep_origin:'#a98cc9',primer_bind:'#6fae8a',misc_feature:'#9aa7b4',regulatory:'#6fb08b'};
 const FONT='13px "Cascadia Mono",Consolas,"Liberation Mono","Courier New",monospace',UI='11px "Segoe UI","Malgun Gothic",sans-serif',COMPLEMENT={65:84,67:71,71:67,84:65};
 const pieces=(start,end,L)=>end>L?[{start,end:L},{start:0,end:end-L}]:[{start,end}];
 

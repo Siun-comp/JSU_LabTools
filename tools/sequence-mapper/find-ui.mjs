@@ -12,7 +12,7 @@ export function setupFind(host){
  let key='',runId=0,running=null,pending=0,progress=0,outside=0,capped=false,released=false;
  const options=()=>({bothStrands:$('find-both').checked,queryAmbiguity:$('find-ambiguity-query').checked,sequenceAmbiguity:$('find-ambiguity-sequence').checked,maxMismatch:Number($('find-mismatch').value)||0});
  const scope=()=>$('find-scope').value;
- const keyNow=()=>JSON.stringify([input.value.trim(),scope(),options(),scope()==='names'?host.primers().length:0]);
+ const keyNow=()=>JSON.stringify([input.value.trim(),scope(),options(),scope()==='names'?host.primers().length:scope()==='annotation'?host.annotations().length:0]);
  function put(row,c0,c1,strand,mismatches){const need=(F.count+1)*HIT_STRIDE;if(need>F.data.length){const d=new Int32Array(F.data.length*2);d.set(F.data);F.data=d;}F.data.set([row,c0,c1,strand,mismatches],F.count*HIT_STRIDE);F.count++;}
  function append(flat){const n=flat.length/HIT_STRIDE;for(let k=0;k<n;k++){const o=k*HIT_STRIDE;put(flat[o],flat[o+1],flat[o+2],flat[o+3],flat[o+4]);}}
  const hit=i=>{const d=F.data,o=i*HIT_STRIDE;return {row:d[o],c0:d[o+1],c1:d[o+2],strand:d[o+3],mismatches:d[o+4],label:F.labels[i]};};
@@ -49,7 +49,7 @@ export function setupFind(host){
  function selectHit(h){
   if(h.c0<0||h.c1<=h.c0)return;const strand=h.strand<0?'-':'+';
   if(host.single()){if(h.c1>host.reference().length){$('find-state').textContent+=' · 원점을 넘는 결과는 구간으로 선택할 수 없습니다.';return;}host.viewer.selectRange({c0:h.c0,c1:h.c1,source:'reference',row:-1,strand});return;}
-  const lane=F.scope==='consensus'?-2:F.scope==='reference'?-1:h.row;if(lane<-2)return;
+  const lane=F.scope==='consensus'?-2:F.scope==='reference'||F.scope==='annotation'?-1:h.row;if(lane<-2)return;
   host.viewer.selectRange({c0:h.c0,c1:h.c1,from:lane,to:lane,source:lane===-2?'consensus':lane===-1?'reference':'row',row:lane>=0?lane:-1,strand});
  }
  function step(dir){
@@ -61,6 +61,7 @@ export function setupFind(host){
   stop();blank();key='';released=false;F.scope=scope();const raw=input.value.trim();
   if(!raw||!host.ready()){paint();return;}
   if(F.scope==='names')searchNames(raw);
+  else if(F.scope==='annotation')searchAnnotations(raw);
   else{const o=options(),q=parseQuery(raw,o.maxMismatch);
    if(q.error){paint();$('find-state').textContent=q.error;$('find-state').classList.add('alert');return;}
    if(F.scope==='rows'){key=keyNow();running=`find-${++runId}`;pending=jump?1:0;host.analysis().postMessage({type:'find',id:running,sequence:q.sequence,order:host.order(),options:o});paint();return;}
@@ -73,8 +74,12 @@ export function setupFind(host){
   const q=raw.toLowerCase(),order=host.order();
   const {colOf}=host.cols(),n0=host.reference().length,last=e=>e>n0?e:colOf[e-1]+1;
   for(const p of host.primers()){if(p.site&&p.name.toLowerCase().includes(q)){put(-1,colOf[p.site.start],last(p.site.end),p.site.strand,p.site.mismatches);F.labels[F.count-1]=`Primer ${p.name}`;}}
-  for(const f of host.annotations()){if(`${f.type} ${f.label}`.toLowerCase().includes(q)){const r=f.ranges[0];put(-1,colOf[r.start],last(r.end),f.strand,0);F.labels[F.count-1]=`${f.type} ${f.label}`;}}
   for(let n=0;n<order.length&&F.count<FIND_LIMITS.maxHits;n++){const name=host.nameOf(order[n]);if(name.toLowerCase().includes(q)){put(n,-1,-1,0,0);F.labels[F.count-1]=`${(n+1).toLocaleString()}번 ${accessionOf(name)}`;}}
+ }
+ // Annotations shown in the view, by type, name, gene or product. The hit is the first piece, read on the + strand (AP-275).
+ function searchAnnotations(raw){
+  const q=raw.toLowerCase(),{colOf}=host.cols(),n0=host.reference().length,last=e=>e>n0?e:colOf[e-1]+1;
+  for(const f of host.annotations()){if([f.type,f.label,f.gene,f.product].filter(Boolean).join(' ').toLowerCase().includes(q)){const r=f.ranges[0];put(-1,colOf[r.start],last(r.end),1,0);F.labels[F.count-1]=`${f.type} ${f.label}${f.ranges.length>1?` (조각 ${f.ranges.length}개 중 첫 조각)`:''}`;}}
  }
  function go(dir){if(keyNow()!==key){start({jump:true});return;}step(dir);}
  function afterBatch(){
@@ -86,7 +91,7 @@ export function setupFind(host){
  // Keys that confirm or cancel an IME (e.g. Korean) composition belong to the IME, not to search.
  input.addEventListener('keydown',e=>{if(e.isComposing||e.keyCode===229)return;if(e.key==='Enter'){e.preventDefault();go(e.shiftKey?-1:1);}else if(e.key==='Escape'){e.preventDefault();reset();host.viewer.scroller.focus({preventScroll:true});}});
  $('find-next').addEventListener('click',()=>go(1));$('find-prev').addEventListener('click',()=>go(-1));$('find-clear').addEventListener('click',()=>{input.value='';reset();input.focus();});
- for(const id of ['find-scope','find-both','find-ambiguity-query','find-ambiguity-sequence','find-mismatch'])$(id).addEventListener('change',()=>{$('find-options').hidden=scope()==='names';if(input.value.trim())start({jump:true});else reset();});
+ for(const id of ['find-scope','find-both','find-ambiguity-query','find-ambiguity-sequence','find-mismatch'])$(id).addEventListener('change',()=>{$('find-options').hidden=['names','annotation'].includes(scope());if(input.value.trim())start({jump:true});else reset();});
  $('find-only').addEventListener('click',()=>{const order=host.order(),rows=new Set();for(let i=0;i<F.count;i++){const r=F.data[i*HIT_STRIDE];if(r>=0)rows.add(order[r]);}host.forceRecords([...rows],'찾은 서열');});
  // The canvas is invisible to the browser's own find, so Ctrl+F comes here. A second press in the box gives the browser find back.
  addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.shiftKey||e.altKey||e.key.toLowerCase()!=='f'||!host.ready()||document.querySelector('dialog[open]')||document.activeElement===input)return;e.preventDefault();host.showTab('viewer');input.focus();input.select();});

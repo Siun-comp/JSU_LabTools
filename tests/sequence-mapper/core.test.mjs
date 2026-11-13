@@ -78,6 +78,11 @@ assert.equal(samCigar(S.cig,0,S.cig.length,0,0),'3M1D2M1I2M');assert.equal(samCi
 {const t=rec(['AC','AG','A-'.replace('-','N'),'AC'],[{start:0,cig:[[2,EQ]]},{start:0,cig:[[1,EQ],[1,X]]},{start:0,cig:[[1,EQ],[1,X]]},{start:1,qs:1,qe:2,cig:[[1,EQ]]}]);
  const st=computeStats(t,Uint32Array.from([0,1,2]),4);assert.equal(st.coverage[0],3);assert.equal(st.called[1],2);assert.equal(st.coverage[1],3);assert.equal(st.coverage[2],0);assert(Number.isNaN(st.identity[2]));assert.equal(st.consensus[2],0);assert.equal(String.fromCharCode(st.consensus[1]),'S');assert.equal(st.identity[1],0);/* C and G: the one pair differs (mean pairwise, AP-272; was most-common share .5) */
  const one=computeStats(t,Uint32Array.from([0]),4);assert.equal(String.fromCharCode(one.consensus[1]),'C');assert.equal(one.coverage[0],1);
+ // With the reference given, positions no sequence covers take its base (lower case in the reference becomes upper);
+ // covered positions are untouched and coverage stays 0 where filled (AP-275).
+ {const ref=Uint8Array.from('ACgt',c=>c.charCodeAt(0)),f=computeStats(t,Uint32Array.from([0,1,2]),4,0,ref);
+  assert.equal(String.fromCharCode(...f.consensus),'ASGT');assert.equal(f.coverage[2],0);assert.equal(f.coverage[3],0);
+  const b2=buildConsensus(f.counts,f.coverage,0,ref);assert.equal(String.fromCharCode(...b2),'ASGT');assert.equal(buildConsensus(f.counts,f.coverage,0)[2],0);}
  // One sequence has nothing to be conserved against: no conservation value, coverage still counts it.
  assert(Number.isNaN(one.identity[0]));assert(Number.isNaN(one.identity[1]));}
 // A deletion in the only sequence: covered (counted as deletion), no conservation value
@@ -122,4 +127,18 @@ assert.equal(judge({totalBases:LIMITS.maxBases+1,referenceLength:2000}).level,'b
 assert.equal(judge({totalBases:1000,referenceLength:LIMITS.maxReferenceLength+1}).level,'blocked');
 assert.equal(judge({totalBases:1000,referenceLength:10}).level,'blocked');
 assert.equal(judgeAligned({rows:1e6,columns:2000}).level,'blocked');assert.equal(formatBases(4e8),'400 Mb');
+// Overhang past the reference ends (AP-275). Reference AAAACCCCGG (10). A: TTT + reference + G (lead 3, tail 1).
+// B: aligned from position 3 with 2 clipped bases inside the reference (not an overhang). C: reverse, its clipped bases
+// land on the reference-direction ends after flipping.
+{const {overhang,columnOfQuery}=await import('../../tools/sequence-mapper/core/alignment.mjs');
+ const R='AAAACCCCGG',A='TTT'+R+'G',B='TT'+R.slice(3),C=[...'CA'+R+'GG'].reverse().map(c=>({A:'T',C:'G',G:'C',T:'A'})[c]).join('');
+ const t=rec([A,B,C],[{start:0,qs:3,qe:13,cig:[[10,EQ]]},{start:3,qs:2,qe:9,cig:[[7,EQ]]},{start:0,rev:1,qs:2,qe:12,cig:[[10,EQ]]}]);
+ assert.deepEqual(overhang(t,0,10),[3,1]);assert.deepEqual(overhang(t,1,10),[0,0]);assert.deepEqual(overhang(t,2,10),[2,2]);
+ const off=computeStats(t,Uint32Array.from([0,1,2]),10),on=computeStats(t,Uint32Array.from([0,1,2]),10,0,null,true);
+ assert.deepEqual([off.lead,off.tail,on.lead,on.tail],[0,0,3,2]);assert.deepEqual(on.coverage,off.coverage);assert.deepEqual(on.consensus,off.consensus);
+ const cols=buildColumns(on.insMax,10,on.lead,on.tail);assert.equal(cols.total,15);assert.equal(cols.colOf[0],3);assert.equal(cols.refOfCol[2],-1);assert.equal(cols.refOfCol[3],0);
+ const row=i=>{const o=new Uint8Array(15);projectRow(t,i,cols,o,0,15);return [...o].map(v=>v?String.fromCharCode(v):'.').join('');};
+ assert.equal(row(0),'TTTAAAACCCCGGG.');assert.equal(row(1),'......ACCCCGG..');assert.equal(row(2),'.CAAAAACCCCGGGG');
+ assert.equal(columnOfQuery(t,0,cols,0),0);assert.equal(columnOfQuery(t,0,cols,13),13);assert.equal(columnOfQuery(t,1,cols,0),-1);
+ const plain=buildColumns(off.insMax,10);assert.equal(plain.total,10);assert.equal(columnOfQuery(t,0,plain,0),-1);}
 console.log('PASS: Sequence Mapper parser, coordinates, CIGAR, statistics, aligned import, exports and support range.');

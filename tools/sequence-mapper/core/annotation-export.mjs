@@ -25,12 +25,16 @@ export function mismatchPositions(sequence,site,seq){
  let bound='';for(let i=0;i<n;i++)bound+=seq[(site.start+i)%len].toUpperCase();if(site.strand<0)bound=reverseComplement(bound);
  let s='';for(let i=0;i<n;i++){const t=MASK[bound.charCodeAt(i)],q=MASK[sequence.charCodeAt(i)];s+=t&&q&&!(t&~q)?'=':sequence[i];}return s;}
 const geneiousLines=(p,seq)=>{const pos=mismatchPositions(p.sequence,p.site,seq),out=[' '.repeat(21)+`/Sequence="${p.sequence}"`];if(pos!==null){out.push(' '.repeat(21)+`/Mismatches=${[...pos].filter(c=>c!=='=').length}`,' '.repeat(21)+`/Mismatch Positions="${pos}"`);}return out;};
-export function referenceGenbank({reference,primers,date=new Date()}){
+// Annotations imported from a GFF3/CSV file go into the GenBank as their own features, marked by their source (AP-275).
+function featureLocation(ranges,strand){const parts=ranges.map(r=>`${r.start+1}..${r.end}`),span=parts.length>1?`join(${parts.join(',')})`:parts[0];return strand<0?`complement(${span})`:span;}
+const importedLines=list=>list.flatMap(f=>[`     ${f.type.padEnd(16)}${featureLocation(f.ranges,f.strand)}`,wrapQualifier(`/label="${quoted(f.label)}"`),...(f.gene?[wrapQualifier(`/gene="${quoted(f.gene)}"`)]:[]),...(f.product?[wrapQualifier(`/product="${quoted(f.product)}"`)]:[]),wrapQualifier(`/note="JSU Sequence Mapper: imported from ${quoted(String(f.source??'file').replace(/[^\x20-\x7e]/g,'_'))}"`)]);
+export function referenceGenbank({reference,primers,annotations=[],date=new Date()}){
  const seq=dec.decode(reference.sequence),len=seq.length,src=reference.source,id=src?.version||reference.name.split(/\s+/,1)[0]||'reference',locus=(src?.locus||id).replace(/\s+/g,'_'),when=`${String(date.getUTCDate()).padStart(2,'0')}-${MONTHS[date.getUTCMonth()]}-${date.getUTCFullYear()}`,definition=src?.definition||reference.name.slice(id.length).trim()||id;
  const topology=reference.topology??src?.topology??'linear',out=[`LOCUS       ${locus.padEnd(16)} ${String(len).padStart(11)} bp    DNA     ${topology.padEnd(8)} UNA ${when}`];
  definition.match(/.{1,67}/g)?.forEach((l,i)=>out.push((i?' '.repeat(12):'DEFINITION  ')+l));
  out.push(`ACCESSION   ${id.split('.')[0]}`,`VERSION     ${id}`,'KEYWORDS    .','SOURCE      .','  ORGANISM  .');
  if(reference.features)out.push(reference.features);else out.push('FEATURES             Location/Qualifiers',`     source          1..${len}`);
+ out.push(...importedLines(annotations));
  for(const p of placed(primers)){out.push(`     primer_bind     ${location(p.site,len)}`,wrapQualifier(`/label="${quoted(p.name)}"`),wrapQualifier(`/note="JSU Sequence Mapper user annotation; set=${quoted(p.set||'-')}; sequence=${p.sequence}; mismatches=${p.site.mismatches}; ${p.site.unresolved?`unresolved=${p.site.unresolved}; `:''}${sourceTag(p)}"`),...geneiousLines(p,seq));}
  out.push('ORIGIN');
  for(let p=0;p<len;p+=60){const parts=[];for(let k=p;k<Math.min(p+60,len);k+=10)parts.push(seq.slice(k,k+10).toLowerCase());out.push(String(p+1).padStart(9)+' '+parts.join(' '));}
