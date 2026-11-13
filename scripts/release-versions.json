@@ -1,6 +1,6 @@
 {
   "note": "Current public versions and dates read by scripts/verify*.mjs. Historical release records stay fixed in amplification-release-contract.json and the scripts.",
-  "portal": { "version": "1.8.7", "homeDate": "2026-11-13", "files": 280, "available": 11 },
+  "portal": { "version": "1.8.8", "homeDate": "2026-11-13", "files": 280, "available": 11 },
   "tools": {
     "plot": { "version": "2.3.0", "infoDate": "2026-11-06" },
     "oligo-mix": { "version": "1.1.0", "algorithm": "0.5.0", "infoDate": "2026-10-12" },
@@ -12,6 +12,6 @@
     "method-comparison": { "version": "0.4.1", "infoDate": "2026-10-13" },
     "oligo-analysis": { "version": "0.2.3", "infoDate": "2026-11-06" },
     "oligo-thermodynamics": { "version": "0.2.0-beta.1", "infoDate": "2026-10-30" },
-    "sequence-mapper": { "version": "0.1.0-beta.4", "engine": "2.31", "infoDate": "2026-11-13" }
+    "sequence-mapper": { "version": "0.1.0-beta.5", "engine": "2.31", "infoDate": "2026-11-13" }
   }
 }

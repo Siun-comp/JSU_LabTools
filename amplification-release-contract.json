@@ -4,7 +4,7 @@
       "source": "portal/index.html",
       "target": "index.html",
       "bytes": 22253,
-      "sha256": "f50fae2b12edac55b016c531b9d54282872575df33a7a413b0b0113157c0cbe7"
+      "sha256": "7c227a6a1c553db2aeef030c45498cf28bf490bedf69000499f37da1bb9662d2"
     },
     {
       "source": "portal/assets/portal.css",
@@ -22,7 +22,7 @@
       "source": "portal/info/plot.html",
       "target": "info/plot.html",
       "bytes": 4664,
-      "sha256": "9f173d0158e16008c0f748af22e8b0e0ec83c2db309e08164dd3e89333954dcc"
+      "sha256": "436d640402ee736e063b121d3e62b09197dfc055adff22ce0efcc479c242499e"
     },
     {
       "source": "portal/.nojekyll",
@@ -64,7 +64,7 @@
       "source": "portal/info/oligo-mix.html",
       "target": "info/oligo-mix.html",
       "bytes": 8203,
-      "sha256": "1f712121c4245a16b034a2b49c79cce978c7bfc4f9c3dd246ca73abc1a617ce2"
+      "sha256": "0fc4aa9ba524fcb7c54e054756582cd0ab9697f82f8938cb233ece2a7a7232d7"
     },
     {
       "source": "tools/oligo-mix/paste.mjs",
@@ -94,7 +94,7 @@
       "source": "portal/info/sequence.html",
       "target": "info/sequence.html",
       "bytes": 5658,
-      "sha256": "e63097e97954c9396c0a3b966e8aefe1917eb8eb83d43d74fed3a92fd2db4711"
+      "sha256": "17f284759fd4c2122db68896124041293260b34484be50a2dc26146e5fe4ab78"
     },
     {
       "source": "tools/dilution-calculator/index.html",
@@ -130,7 +130,7 @@
       "source": "portal/info/dilution.html",
       "target": "info/dilution.html",
       "bytes": 7963,
-      "sha256": "2628375b25e071f73a860cef3709b39082bab28fe30a0d746c340f6b6b114dd8"
+      "sha256": "e36ba230bbac232b836ce4a2de2fb12b51a173056787d2770f4f1392ff78b726"
     },
     {
       "source": "tools/nucleic-acid-calculator/index.html",
@@ -172,7 +172,7 @@
       "source": "portal/info/nucleic-acid.html",
       "target": "info/nucleic-acid.html",
       "bytes": 13532,
-      "sha256": "85a1d405b475cc1469ecc3cd30e76e3b405a07efc545e7b2109d815d90965167"
+      "sha256": "08b3738533b982e1ee58fdb55069a37a12f8d2eb4c1b471e3d483a87805b9d60"
     },
     {
       "source": "tools/nucleic-acid-calculator/vectors.mjs",
@@ -460,7 +460,7 @@
       "source": "portal/info/detection-capability.html",
       "target": "info/detection-capability.html",
       "bytes": 9068,
-      "sha256": "e0c8981c7880c02489a99b53f0dd3ae7c603fb1961513847b2a17e830689ffde"
+      "sha256": "8220985bbe2737f6ad0a07689cdf40ba77bbd5c38a2e24ada07b5118e5a16126"
     },
     {
       "source": "tools/detection-capability/input-ux.js",
@@ -478,7 +478,7 @@
       "source": "portal/info/amplification-analysis.html",
       "target": "info/amplification-analysis.html",
       "bytes": 5251,
-      "sha256": "ad714c0d7fb8d27af2c5997195fe14fa54c4555384f37b51b578da51ede406fe"
+      "sha256": "4ac5397ffc6d1b7a96e53315d534a0f05f9138201d8db42eb9bbe89a1fda8cbd"
     },
     {
       "source": "tools/amplification-analysis/runtime/apple-touch-icon.png",
@@ -808,7 +808,7 @@
       "source": "portal/info/method-comparison.html",
       "target": "info/method-comparison.html",
       "bytes": 7446,
-      "sha256": "423bf685a1351db573e1cf3e77b10a7e3390a7bf9fb331006de7dbee1e93c043"
+      "sha256": "024442cd7b337d8b650fa7072da8201485b8f0dffc16899707fc4de44f5d7e9b"
     },
     {
       "source": "tools/oligo-analysis/app.mjs",
@@ -850,7 +850,7 @@
       "source": "portal/info/oligo-analysis.html",
       "target": "info/oligo-analysis.html",
       "bytes": 6174,
-      "sha256": "cd78d721d7681ff83b1a5b454bb10ef196bd122f448223f8ba452f5853a95645"
+      "sha256": "17519aaac3adf23c3f9875bd089faaf28aae046290b70ac442a6911e6d95332c"
     },
     {
       "source": "tools/method-comparison/ba-observation.mjs",
@@ -1120,7 +1120,7 @@
       "source": "portal/info/oligo-thermodynamics.html",
       "target": "info/oligo-thermodynamics.html",
       "bytes": 5377,
-      "sha256": "84041fbc6fc6cd084cbd600419f14ee408bbd4981e9b0fb10a17f222e2e9de79"
+      "sha256": "8353375c44f4d145977333805f6812d895a1720f8c37c4200c4f0ac310861372"
     },
     {
       "source": "portal/404.html",
@@ -1396,7 +1396,7 @@
       "source": "portal/contact.html",
       "target": "contact.html",
       "bytes": 3783,
-      "sha256": "21ffc363f78facf21ff73c1a1ff39511d28897029402ec8b5eace2c995c0993a"
+      "sha256": "c152d877edee700201a9f6cd21ab2654b762785a8a06b8dab3ed1764c9335d8f"
     },
     {
       "source": "portal/assets/contact.mjs",
@@ -1408,7 +1408,7 @@
       "source": "portal/info/sequence-mapper.html",
       "target": "info/sequence-mapper.html",
       "bytes": 3301,
-      "sha256": "94ee7845fbbcb89cc51a32cb5d52cb92c51806e598663966e63822a97fe4dfad"
+      "sha256": "901dc57045afc9abdfeefa919e38445d0344394d6e9fa18280136476a523c70b"
     },
     {
       "source": "tools/sequence-mapper/LICENSE.txt",
@@ -1425,14 +1425,14 @@
     {
       "source": "tools/sequence-mapper/annotation-ui.mjs",
       "target": "tools/sequence-mapper/annotation-ui.mjs",
-      "bytes": 5223,
-      "sha256": "d8de28bd43df308ad02e31bdd7a43adad429b4f120a75cfa77286d7d34ea3845"
+      "bytes": 8792,
+      "sha256": "2188278a193578f7692293b09cbce1b57b4c4d4b6405f0f5642c503b080d1db0"
     },
     {
       "source": "tools/sequence-mapper/app.mjs",
       "target": "tools/sequence-mapper/app.mjs",
-      "bytes": 52194,
-      "sha256": "1a8b6783df5696ef937e098743c5e8846f2503ed68b55f9c2e6593a25d436eca"
+      "bytes": 53010,
+      "sha256": "255a41ec3cb1b6fbd50a5173709d7341257f5d06dd813a9ee8347d905ebd2bf5"
     },
     {
       "source": "tools/sequence-mapper/brand.svg",
@@ -1485,8 +1485,8 @@
     {
       "source": "tools/sequence-mapper/core/features.mjs",
       "target": "tools/sequence-mapper/core/features.mjs",
-      "bytes": 3204,
-      "sha256": "5e8ffc04c77c167faf1dc2f8f8927ee4b7041970f3340ec3c2f4f5d477f71109"
+      "bytes": 4704,
+      "sha256": "36a494d5910a72bb0b0a0147a3528ea1257ebd26acb9b0f6c840e11614c2e879"
     },
     {
       "source": "tools/sequence-mapper/core/find.mjs",
@@ -1617,8 +1617,8 @@
     {
       "source": "tools/sequence-mapper/index.html",
       "target": "tools/sequence-mapper/index.html",
-      "bytes": 29471,
-      "sha256": "519d86f5d3dc7f1b332dac486d902e760f75e2b8c838bdeb2434dc25d0a176f2"
+      "bytes": 30811,
+      "sha256": "18c4124a42011beeea920288e80d833443afdf4ce2c4035829ddd0327836d575"
     },
     {
       "source": "tools/sequence-mapper/list-ui.mjs",
@@ -1635,8 +1635,8 @@
     {
       "source": "tools/sequence-mapper/tool.css",
       "target": "tools/sequence-mapper/tool.css",
-      "bytes": 20169,
-      "sha256": "8a0fc2abd868bd4682830d27d86f9b50beb5ee6ed3da65c52cf232a895cccfc2"
+      "bytes": 20415,
+      "sha256": "071751478367d7a51b9fcb08cd7d753c3be6dedc7c83baaa5055b199b47f2206"
     },
     {
       "source": "tools/sequence-mapper/view/primer-cells.mjs",
@@ -1653,8 +1653,8 @@
     {
       "source": "tools/sequence-mapper/view/viewer.mjs",
       "target": "tools/sequence-mapper/view/viewer.mjs",
-      "bytes": 28193,
-      "sha256": "353268ae24dc94a4356320ebe8a472d7e5c38faa6e3293d4f4ecf4937a26ce44"
+      "bytes": 28468,
+      "sha256": "82aa6ecfe68166d83318bbb8c6386a0cebf08e35b9479444e5fd30437a99d0b4"
     },
     {
       "source": "tools/sequence-mapper/workers/analysis-worker.mjs",
@@ -29727,5 +29727,1811 @@
       "tools/sequence-mapper/annotation-ui.mjs",
       "tools/sequence-mapper/core/annotation-import.mjs"
     ]
+  },
+  "sequenceMapperBeta5Release": {
+    "previousSHA": "e6af735825727ed72fc2d64604603ab7b9a48159",
+    "previousPortalVersion": "1.8.7",
+    "portalVersion": "1.8.8",
+    "toolVersion": "0.1.0-beta.5",
+    "releasedOn": "2026-11-13",
+    "previousPublic": [
+      {
+        "source": "portal/index.html",
+        "target": "index.html",
+        "bytes": 22253,
+        "sha256": "f50fae2b12edac55b016c531b9d54282872575df33a7a413b0b0113157c0cbe7"
+      },
+      {
+        "source": "portal/assets/portal.css",
+        "target": "assets/portal.css",
+        "bytes": 6821,
+        "sha256": "4f952f827d9244614cbf98843dbaed2ae0c94dd9fd8e3e62dbc63110521d61a2"
+      },
+      {
+        "source": "portal/assets/brand.svg",
+        "target": "assets/brand.svg",
+        "bytes": 255,
+        "sha256": "0cf34c8a47536fb30934b3ed5d9df4e804d7344b157897ad2607366876aeab45"
+      },
+      {
+        "source": "portal/info/plot.html",
+        "target": "info/plot.html",
+        "bytes": 4664,
+        "sha256": "9f173d0158e16008c0f748af22e8b0e0ec83c2db309e08164dd3e89333954dcc"
+      },
+      {
+        "source": "portal/.nojekyll",
+        "target": ".nojekyll",
+        "bytes": 1,
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      {
+        "source": "tools/oligo-mix/index.html",
+        "target": "tools/oligo-mix/index.html",
+        "bytes": 14305,
+        "sha256": "bb8f86529c17861d58cc6602519a38c67a71ca383e1019c2ef0d5a512ff396d2"
+      },
+      {
+        "source": "tools/oligo-mix/tool.css",
+        "target": "tools/oligo-mix/tool.css",
+        "bytes": 5847,
+        "sha256": "226965e9b370b3f0f713e3d7b1954b38fe33dbde09f33f4e30e2bb8a897162d1"
+      },
+      {
+        "source": "tools/oligo-mix/core.mjs",
+        "target": "tools/oligo-mix/core.mjs",
+        "bytes": 13081,
+        "sha256": "08cbbe1b605a1c41db34ebe7387fea3bd3a96cb0c6816d31bb23def8dd328dd6"
+      },
+      {
+        "source": "tools/oligo-mix/app.mjs",
+        "target": "tools/oligo-mix/app.mjs",
+        "bytes": 22374,
+        "sha256": "3efbf2d85544c184305f28337622851f4edd4c85ffb2c7b4562c69b72f839b9f"
+      },
+      {
+        "source": "tools/oligo-mix/clipboard.mjs",
+        "target": "tools/oligo-mix/clipboard.mjs",
+        "bytes": 3874,
+        "sha256": "4a4c0088f94e84fbcc6f6d0d4d74390ce1094fe1394a6a62755cab14d70d7299"
+      },
+      {
+        "source": "portal/info/oligo-mix.html",
+        "target": "info/oligo-mix.html",
+        "bytes": 8203,
+        "sha256": "1f712121c4245a16b034a2b49c79cce978c7bfc4f9c3dd246ca73abc1a617ce2"
+      },
+      {
+        "source": "tools/oligo-mix/paste.mjs",
+        "target": "tools/oligo-mix/paste.mjs",
+        "bytes": 1525,
+        "sha256": "6cfea05c547ed39824fcfa4d3347eb661d0c106356d298465cd73bdbb0e6f41b"
+      },
+      {
+        "source": "tools/sequence/core.mjs",
+        "target": "tools/sequence/core.mjs",
+        "bytes": 7614,
+        "sha256": "cda468f1de03778ba63cc48c5ebacea1a37f21c5183cb03313d017bd0acbeb59"
+      },
+      {
+        "source": "tools/sequence/app.mjs",
+        "target": "tools/sequence/app.mjs",
+        "bytes": 5317,
+        "sha256": "216211823b625181e9dab3bb9048231b3ac38d50cfc866989a408a691f4d0189"
+      },
+      {
+        "source": "tools/sequence/dialog.css",
+        "target": "tools/sequence/dialog.css",
+        "bytes": 3622,
+        "sha256": "6f1e224673ec362f35dcc3e5f97486d3fc4cdd6e845c02a4dc70af4c1728afd3"
+      },
+      {
+        "source": "portal/info/sequence.html",
+        "target": "info/sequence.html",
+        "bytes": 5658,
+        "sha256": "e63097e97954c9396c0a3b966e8aefe1917eb8eb83d43d74fed3a92fd2db4711"
+      },
+      {
+        "source": "tools/dilution-calculator/index.html",
+        "target": "tools/dilution-calculator/index.html",
+        "bytes": 14167,
+        "sha256": "3e1521fbca33731b84eb90cf364c41ada78c1032827430da0a7ef8f730aa45cf"
+      },
+      {
+        "source": "tools/dilution-calculator/tool.css",
+        "target": "tools/dilution-calculator/tool.css",
+        "bytes": 5228,
+        "sha256": "7a926307245fcee97620a828d10436fb8df15a327f377006ee2bdd259f273a52"
+      },
+      {
+        "source": "tools/dilution-calculator/core.mjs",
+        "target": "tools/dilution-calculator/core.mjs",
+        "bytes": 7890,
+        "sha256": "c5a880dba8bafaecd0f0530dc419e2f007bbe44b4194213b8ae2297a6581817d"
+      },
+      {
+        "source": "tools/dilution-calculator/app.mjs",
+        "target": "tools/dilution-calculator/app.mjs",
+        "bytes": 12214,
+        "sha256": "8dbf4431fa78fe4dc0232569a0f0fa50982d2eb365b8139a8c9001fd2b8cfb6c"
+      },
+      {
+        "source": "tools/dilution-calculator/clipboard.mjs",
+        "target": "tools/dilution-calculator/clipboard.mjs",
+        "bytes": 3632,
+        "sha256": "f1df073fb06e1e10bba4b773ecd47b930fa253ffb59295dd34a0349ae9b0934d"
+      },
+      {
+        "source": "portal/info/dilution.html",
+        "target": "info/dilution.html",
+        "bytes": 7963,
+        "sha256": "2628375b25e071f73a860cef3709b39082bab28fe30a0d746c340f6b6b114dd8"
+      },
+      {
+        "source": "tools/nucleic-acid-calculator/index.html",
+        "target": "tools/nucleic-acid-calculator/index.html",
+        "bytes": 11486,
+        "sha256": "3805928397ec950a800e88adfcbfeecc42672acbeb73fe7a579b0d2bd0663321"
+      },
+      {
+        "source": "tools/nucleic-acid-calculator/tool.css",
+        "target": "tools/nucleic-acid-calculator/tool.css",
+        "bytes": 3564,
+        "sha256": "2e413677cfe1874caf78021d5ecdecfc607be195b7736f8d7b3dccd7a4f6e72e"
+      },
+      {
+        "source": "tools/nucleic-acid-calculator/core.mjs",
+        "target": "tools/nucleic-acid-calculator/core.mjs",
+        "bytes": 9714,
+        "sha256": "527a4fb0e46eccd152045b3cca6d9159d782ea8be1ebfe80e2676f15c7569a92"
+      },
+      {
+        "source": "tools/nucleic-acid-calculator/math.mjs",
+        "target": "tools/nucleic-acid-calculator/math.mjs",
+        "bytes": 2484,
+        "sha256": "ea6ee3179f01eaf402a98ca2d4105c3153c73dcb5a14a1eecfdc9462c8adcfc1"
+      },
+      {
+        "source": "tools/nucleic-acid-calculator/app.mjs",
+        "target": "tools/nucleic-acid-calculator/app.mjs",
+        "bytes": 12240,
+        "sha256": "a11943129eddea308f45d86d2e302e996c71ec8e22879918dde049cb352b73fd"
+      },
+      {
+        "source": "tools/nucleic-acid-calculator/clipboard.mjs",
+        "target": "tools/nucleic-acid-calculator/clipboard.mjs",
+        "bytes": 2747,
+        "sha256": "7655a28256c777ff04e82b771541a4389aa0395afd6bfabfb2ed34c12dbaaf63"
+      },
+      {
+        "source": "portal/info/nucleic-acid.html",
+        "target": "info/nucleic-acid.html",
+        "bytes": 13532,
+        "sha256": "85a1d405b475cc1469ecc3cd30e76e3b405a07efc545e7b2109d815d90965167"
+      },
+      {
+        "source": "tools/nucleic-acid-calculator/vectors.mjs",
+        "target": "tools/nucleic-acid-calculator/vectors.mjs",
+        "bytes": 31909,
+        "sha256": "ee9aaf8ebf7b10f3f0f78b09a5642d4cfd6c62b66b018dca08d1550dfe3c2b91"
+      },
+      {
+        "source": "tools/detection-capability/vendor/jszip.min.js",
+        "target": "tools/detection-capability/vendor/jszip.min.js",
+        "bytes": 97630,
+        "sha256": "acc7e41455a80765b5fd9c7ee1b8078a6d160bbbca455aeae854de65c947d59e"
+      },
+      {
+        "source": "tools/detection-capability/workbook-v3-schema.js",
+        "target": "tools/detection-capability/workbook-v3-schema.js",
+        "bytes": 1387,
+        "sha256": "28ad14fed8d94a7bdccb99b787a27d5f6d786e929bb63c18caafc01c433a637e"
+      },
+      {
+        "source": "tools/detection-capability/workbook-v3-preview.js",
+        "target": "tools/detection-capability/workbook-v3-preview.js",
+        "bytes": 11171,
+        "sha256": "af865e66ce264b15e1c5b3777fd57c18472f94a6b90fd66e89e1b3209b17a327"
+      },
+      {
+        "source": "tools/detection-capability/minimal-input.js",
+        "target": "tools/detection-capability/minimal-input.js",
+        "bytes": 16290,
+        "sha256": "383916fa606d5798dd8f749134b8662eb2e153c218166acc76f6bd9230a9cd7e"
+      },
+      {
+        "source": "tools/detection-capability/unit-conversion.js",
+        "target": "tools/detection-capability/unit-conversion.js",
+        "bytes": 5145,
+        "sha256": "8af8b8e68db053f7b6482b5749019b880148a59ae6d47c33ee8ab2570f0d268c"
+      },
+      {
+        "source": "tools/detection-capability/workbook-v3-ui.js",
+        "target": "tools/detection-capability/workbook-v3-ui.js",
+        "bytes": 4412,
+        "sha256": "b27d4d587e235b46262ccbe988a5f6f0e1cef99c2ece623a0b02e1406b0cc3c3"
+      },
+      {
+        "source": "tools/detection-capability/lod-ci-contract.js",
+        "target": "tools/detection-capability/lod-ci-contract.js",
+        "bytes": 4772,
+        "sha256": "53230d866d7c5a7b15a4718e78f9ab0dd4eec16cc9e539df76a0ae03743f3230"
+      },
+      {
+        "source": "tools/detection-capability/lod-curve-contract.js",
+        "target": "tools/detection-capability/lod-curve-contract.js",
+        "bytes": 1009,
+        "sha256": "ce1096aa582de368e082fa2e4a6e00c90222497e524b51c1ff2b136a20a9c758"
+      },
+      {
+        "source": "tools/detection-capability/lod-browser-source.js",
+        "target": "tools/detection-capability/lod-browser-source.js",
+        "bytes": 5351,
+        "sha256": "a270a72d2484fd9aca50c375b8900176877e1b89670240a6519909f359a6b549"
+      },
+      {
+        "source": "tools/detection-capability/browser-r-runtime.js",
+        "target": "tools/detection-capability/browser-r-runtime.js",
+        "bytes": 5544,
+        "sha256": "abca27d7cf3e78f0d13dc1b4dbc2be531060ee1a1285829f81e7f1693ccc50e1"
+      },
+      {
+        "source": "tools/detection-capability/lod-browser.js",
+        "target": "tools/detection-capability/lod-browser.js",
+        "bytes": 4253,
+        "sha256": "08430e88289a757b245584dd5ec0807bd1286c0c5750dbb6d42f1ab003980adc"
+      },
+      {
+        "source": "tools/detection-capability/lod-request.js",
+        "target": "tools/detection-capability/lod-request.js",
+        "bytes": 14647,
+        "sha256": "b29815341944364ed86222b7e96812742dcd90adc8999e0b5ee64b99dd7cbfa6"
+      },
+      {
+        "source": "tools/detection-capability/lob-analysis.js",
+        "target": "tools/detection-capability/lob-analysis.js",
+        "bytes": 2313,
+        "sha256": "fc5e4b1a28bf8268f085e483667f501f10b8e334c689a4eaedb79dff554ae49e"
+      },
+      {
+        "source": "tools/detection-capability/lob-ui.js",
+        "target": "tools/detection-capability/lob-ui.js",
+        "bytes": 5362,
+        "sha256": "c9b3a70e2675d584d6cd9c07fa562dcb08f165c46c882f74be7551523446ce97"
+      },
+      {
+        "source": "tools/detection-capability/loq-contract.js",
+        "target": "tools/detection-capability/loq-contract.js",
+        "bytes": 4701,
+        "sha256": "7c3b64054418b9618519b66ce00bac4369f2292aee2a7a16e58369c290a6ac8c"
+      },
+      {
+        "source": "tools/detection-capability/confirmation-contract.js",
+        "target": "tools/detection-capability/confirmation-contract.js",
+        "bytes": 2750,
+        "sha256": "347dcfe805d964d16821e708f9d2a7cd5a7891573f532481d666f6eb86dbd801"
+      },
+      {
+        "source": "tools/detection-capability/continuous-browser-source.js",
+        "target": "tools/detection-capability/continuous-browser-source.js",
+        "bytes": 2895,
+        "sha256": "0f4b10bc99cb1d79f4b7bcb28863655dcc1fcdc0dbd83aa78a32bae8e4552991"
+      },
+      {
+        "source": "tools/detection-capability/continuous-browser.js",
+        "target": "tools/detection-capability/continuous-browser.js",
+        "bytes": 2416,
+        "sha256": "d0ab85e5f577547c85e8ed7e7234fed8459095d3ba81dbac3712163ccd771971"
+      },
+      {
+        "source": "tools/detection-capability/confirmation-ui.js",
+        "target": "tools/detection-capability/confirmation-ui.js",
+        "bytes": 6347,
+        "sha256": "4fab0dee9ec7d6d684f0269545719165f32e269cafc99d6c2ee65fc5db7396a8"
+      },
+      {
+        "source": "tools/detection-capability/loq-ui.js",
+        "target": "tools/detection-capability/loq-ui.js",
+        "bytes": 8406,
+        "sha256": "2a09a4822150678bdb41d11332cbce4d695f75be67b4be5d767ebd7181530f5c"
+      },
+      {
+        "source": "tools/detection-capability/project-file-contract.js",
+        "target": "tools/detection-capability/project-file-contract.js",
+        "bytes": 2683,
+        "sha256": "a3b68c492b8716a176feab699a8f37d2ea6f0848c4b4f9df5c9628b930bf4be8"
+      },
+      {
+        "source": "tools/detection-capability/project-file-ui.js",
+        "target": "tools/detection-capability/project-file-ui.js",
+        "bytes": 4643,
+        "sha256": "ebe04c02cac8b99c487580f5c42ea204f1a91da31c16a3e789880bdec1014ce2"
+      },
+      {
+        "source": "tools/detection-capability/loq-graph.js",
+        "target": "tools/detection-capability/loq-graph.js",
+        "bytes": 3950,
+        "sha256": "bc0e67abba1e39158566e21fc08fca5725a613bd89cf3c00bd3806ad3856c1f7"
+      },
+      {
+        "source": "tools/detection-capability/confirmation-graph.js",
+        "target": "tools/detection-capability/confirmation-graph.js",
+        "bytes": 3487,
+        "sha256": "bd7e1ee24d2c0278be6735765d3351fc0c0d15f13710f85c54ce2738e8dbf626"
+      },
+      {
+        "source": "tools/detection-capability/lob-graph.js",
+        "target": "tools/detection-capability/lob-graph.js",
+        "bytes": 3366,
+        "sha256": "67ee914c4158336535872248312a762c99f14b894a13efb1b0043962a6b2a440"
+      },
+      {
+        "source": "tools/detection-capability/excel-browser.js",
+        "target": "tools/detection-capability/excel-browser.js",
+        "bytes": 14188,
+        "sha256": "51b29fdf523d475480ccacb552c719689d3f335a5a5df1163aaac59f8490a099"
+      },
+      {
+        "source": "tools/detection-capability/result-export.js",
+        "target": "tools/detection-capability/result-export.js",
+        "bytes": 22912,
+        "sha256": "507251326d1fb94f142e4098ecf89b36ad2800ee01ba7b5c582a6ed68bfe0e29"
+      },
+      {
+        "source": "tools/detection-capability/app-release.js",
+        "target": "tools/detection-capability/app-release.js",
+        "bytes": 9927,
+        "sha256": "60fd911e8d024d770d264d9c39de2a0d5156884eec5d158a0c5b762384cfbb6d"
+      },
+      {
+        "source": "tools/detection-capability/index.html",
+        "target": "tools/detection-capability/index.html",
+        "bytes": 12711,
+        "sha256": "cd2677858c44b575318166355a4cb6dc1a8ece947fbc0c12d374c3e813b9f069"
+      },
+      {
+        "source": "tools/detection-capability/downloads/Molecular_Detection_Minimal_Template_v3_layout.xlsx",
+        "target": "tools/detection-capability/downloads/Molecular_Detection_Minimal_Template_v3_layout.xlsx",
+        "bytes": 64120,
+        "sha256": "7f869e0160a7c971fb382a2f1cb1eae55587d62a5f26a416db7cd0a50b8fca46"
+      },
+      {
+        "source": "tools/detection-capability/downloads/LoD_example.xlsx",
+        "target": "tools/detection-capability/downloads/LoD_example.xlsx",
+        "bytes": 64408,
+        "sha256": "cc8023cdad4100c8b31b7a14db91fa3223d3bd7e86201a62679584cce93f908c"
+      },
+      {
+        "source": "tools/detection-capability/downloads/Confirmation_example.xlsx",
+        "target": "tools/detection-capability/downloads/Confirmation_example.xlsx",
+        "bytes": 64392,
+        "sha256": "d4c4ec1997d104b602c48396db394388f6b9a9c72111df20f53e0aa9b1ac12e1"
+      },
+      {
+        "source": "tools/detection-capability/downloads/LoB_example.xlsx",
+        "target": "tools/detection-capability/downloads/LoB_example.xlsx",
+        "bytes": 65090,
+        "sha256": "b66b9b698455c6110e39a375ff9d78c921be83b079da3b6b86a64e4c183dbba5"
+      },
+      {
+        "source": "tools/detection-capability/downloads/LoQ_example.xlsx",
+        "target": "tools/detection-capability/downloads/LoQ_example.xlsx",
+        "bytes": 66041,
+        "sha256": "d4ea5f867e3e93223843583e022cc5be87acd1387178b3230c1b78c52f890c42"
+      },
+      {
+        "source": "tools/detection-capability/licenses/JSZip-LICENSE.markdown",
+        "target": "tools/detection-capability/licenses/JSZip-LICENSE.markdown",
+        "bytes": 33753,
+        "sha256": "566c953c6090b1218ca6217dd7359d45dde46581968586dc607d59a78af6a9c4"
+      },
+      {
+        "source": "tools/detection-capability/licenses/pako-LICENSE.txt",
+        "target": "tools/detection-capability/licenses/pako-LICENSE.txt",
+        "bytes": 1175,
+        "sha256": "a834701995df03b2b8724198de7f96b4086fba62d81474502584371f61e1003d"
+      },
+      {
+        "source": "tools/detection-capability/licenses/pako-zlib-LICENSE.txt",
+        "target": "tools/detection-capability/licenses/pako-zlib-LICENSE.txt",
+        "bytes": 2259,
+        "sha256": "fad301a98a7655936d757065139626aa92bf561edeae7560d8759789b5348f31"
+      },
+      {
+        "source": "tools/detection-capability/licenses/lie-LICENSE.txt",
+        "target": "tools/detection-capability/licenses/lie-LICENSE.txt",
+        "bytes": 1164,
+        "sha256": "fd085737cc97a53cbcc011d329d426c302b492ccf2a2fc751514b44a70982896"
+      },
+      {
+        "source": "tools/detection-capability/licenses/immediate-LICENSE.txt",
+        "target": "tools/detection-capability/licenses/immediate-LICENSE.txt",
+        "bytes": 1238,
+        "sha256": "8e50e08648d42f4cda05d3bbaac7a84372eb06d65704099d109bbb1b86a62f2a"
+      },
+      {
+        "source": "tools/detection-capability/licenses/setimmediate-LICENSE.txt",
+        "target": "tools/detection-capability/licenses/setimmediate-LICENSE.txt",
+        "bytes": 1185,
+        "sha256": "ae7733a1fbb6a2a265d0c71a16ea1e0f193a193f9a7d9e899352420fcba9426a"
+      },
+      {
+        "source": "tools/detection-capability/README.md",
+        "target": "tools/detection-capability/README.md",
+        "bytes": 5025,
+        "sha256": "d10b172eed078341585d347802ddf6d963d5586b0bbd4766b2e0d90e984d681b"
+      },
+      {
+        "source": "tools/detection-capability/THIRD_PARTY_NOTICES.html",
+        "target": "tools/detection-capability/THIRD_PARTY_NOTICES.html",
+        "bytes": 3798,
+        "sha256": "275a13a99fd01ca0de5a8adfc491dce5407eabfb8d495c3c379befc35862efa2"
+      },
+      {
+        "source": "tools/detection-capability/.nojekyll",
+        "target": "tools/detection-capability/.nojekyll",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source": "tools/detection-capability/legacy-ui.css",
+        "target": "tools/detection-capability/legacy-ui.css",
+        "bytes": 5001,
+        "sha256": "f90885704d21dd1d5bffc5d104032e1c65f536c5a7487fbc6b2a89ab13cdd10d"
+      },
+      {
+        "source": "tools/detection-capability/tool.css",
+        "target": "tools/detection-capability/tool.css",
+        "bytes": 10857,
+        "sha256": "94ee35b3847009a68797a4467edf673a55b95571513dfd1f557cfbbda999709c"
+      },
+      {
+        "source": "tools/detection-capability/build-manifest.json",
+        "target": "tools/detection-capability/build-manifest.json",
+        "bytes": 11286,
+        "sha256": "12cbe48b09efeb272b4454e57bf89b96ee867e6afed075d6e27741e81452a11d"
+      },
+      {
+        "source": "portal/info/detection-capability.html",
+        "target": "info/detection-capability.html",
+        "bytes": 9068,
+        "sha256": "e0c8981c7880c02489a99b53f0dd3ae7c603fb1961513847b2a17e830689ffde"
+      },
+      {
+        "source": "tools/detection-capability/input-ux.js",
+        "target": "tools/detection-capability/input-ux.js",
+        "bytes": 12787,
+        "sha256": "7ed89989bc341da69fff4b1d9178f2e72a8164c18528e966da5efd9f86ec74ee"
+      },
+      {
+        "source": "tools/detection-capability/lod-gof-contract.js",
+        "target": "tools/detection-capability/lod-gof-contract.js",
+        "bytes": 2754,
+        "sha256": "c73136dcfeeefcb0995a9ee184dc9af92a879e4307652bcda1e5d34cedfe7ce5"
+      },
+      {
+        "source": "portal/info/amplification-analysis.html",
+        "target": "info/amplification-analysis.html",
+        "bytes": 5251,
+        "sha256": "ad714c0d7fb8d27af2c5997195fe14fa54c4555384f37b51b578da51ede406fe"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/apple-touch-icon.png",
+        "target": "tools/amplification-analysis/apple-touch-icon.png",
+        "bytes": 13450,
+        "sha256": "11e780f6782b2138879ce5516798042f613de354d4b6c06e0f7cd619452298d0"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/Axis-DtDXW_5t.js",
+        "target": "tools/amplification-analysis/assets/Axis-DtDXW_5t.js",
+        "bytes": 241485,
+        "sha256": "a8ea73a6ac4d95b5f826fdb8d6515edebcb4640a81301dbbe23fff15944da29e"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/charts-C1yWzhbc.js",
+        "target": "tools/amplification-analysis/assets/charts-C1yWzhbc.js",
+        "bytes": 238782,
+        "sha256": "f49e6e3f29e87d8f075f5493366ca13b8d5b31804ecd88b2dfb5ca946247de6f"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/ChartView-BiWuklCr.js",
+        "target": "tools/amplification-analysis/assets/ChartView-BiWuklCr.js",
+        "bytes": 8684,
+        "sha256": "b00618b084d735bf23b6c23e16b2f291deb72b4e266bf4d917aa54bf4328672d"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/components-De8aQx5T.js",
+        "target": "tools/amplification-analysis/assets/components-De8aQx5T.js",
+        "bytes": 190524,
+        "sha256": "ddf619f1b3d4c799883bf34f2add841026c41e4ce48fe1cf6383acd1e3ee6ff6"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/core-CHeHsHOm.js",
+        "target": "tools/amplification-analysis/assets/core-CHeHsHOm.js",
+        "bytes": 4981,
+        "sha256": "9840e75c980ee90e7e83f9f347ba911ece1f21864a2aaaa36bbd04aa764021ad"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/createSeriesData-oB_Zu_UR.js",
+        "target": "tools/amplification-analysis/assets/createSeriesData-oB_Zu_UR.js",
+        "bytes": 3208,
+        "sha256": "f615c9dcac1f2fea7d185d5bf0eca981b2ae0e8aed4c86138ef85a3d89382c73"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/curveFit-BX3udwmp.js",
+        "target": "tools/amplification-analysis/assets/curveFit-BX3udwmp.js",
+        "bytes": 4538,
+        "sha256": "7bca2e64dc4e0c502bbd04426ef31d255e021d3b8f7bf9dc3bcc48fd638e447d"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/curveFit5-DbV6KJSV.js",
+        "target": "tools/amplification-analysis/assets/curveFit5-DbV6KJSV.js",
+        "bytes": 6335,
+        "sha256": "d142283e3f4917d0cd5ba499848a8a18b7f2d8d48bbf4ec167c0d623d71ff6ac"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/customGraphicKeyframeAnimation-CcPWVpZH.js",
+        "target": "tools/amplification-analysis/assets/customGraphicKeyframeAnimation-CcPWVpZH.js",
+        "bytes": 66459,
+        "sha256": "2cc67d087d8a7ae5d1aad91dc0c658a570a9b20f5085c3ca8719fda09582b679"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/graphic-BBQJ00JB.js",
+        "target": "tools/amplification-analysis/assets/graphic-BBQJ00JB.js",
+        "bytes": 150439,
+        "sha256": "57f7a5c7f35df0671452d2d474b508140cdd6afb99446473701a0ea2db572704"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/index-BMz3UKwI.js",
+        "target": "tools/amplification-analysis/assets/index-BMz3UKwI.js",
+        "bytes": 591693,
+        "sha256": "af4aa55e8d2f61992e30f2fcccfcbcf45becc59bfbde65ada9f5df15333016d9"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/index-BXl38kwM.css",
+        "target": "tools/amplification-analysis/assets/index-BXl38kwM.css",
+        "bytes": 52601,
+        "sha256": "ecf8903ed93f2124ae4659d72dfc76e5e9755318ed595db126dc12563ac64717"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/install-BXu0TYwC.js",
+        "target": "tools/amplification-analysis/assets/install-BXu0TYwC.js",
+        "bytes": 71793,
+        "sha256": "c8a1b3b31cbe90080414bea08462efb309f7c591854a6be05403c15717e8bc08"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/install-idcfyR9g.js",
+        "target": "tools/amplification-analysis/assets/install-idcfyR9g.js",
+        "bytes": 79220,
+        "sha256": "493f0343bad6b0234f6e27f4f58bf9169730ded1ea16b6e52fefda4793285fc5"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/install-X42mEo9c.js",
+        "target": "tools/amplification-analysis/assets/install-X42mEo9c.js",
+        "bytes": 23055,
+        "sha256": "a37267b7df0f5b01b6034f80fe85362133f35178b710ace429b24fcb04119517"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/installCanvasRenderer-u3c4MenG.js",
+        "target": "tools/amplification-analysis/assets/installCanvasRenderer-u3c4MenG.js",
+        "bytes": 13917,
+        "sha256": "3e90aef9124d3c874a8188c96008f4a507ad457881692ebe1eac3f911c3819ae"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/parseGeoJson-BRELWpDE.js",
+        "target": "tools/amplification-analysis/assets/parseGeoJson-BRELWpDE.js",
+        "bytes": 4313,
+        "sha256": "5baffe9a49975540fede98039bad91c4b48aac82e5bb9efa9235844ffcfd207d"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/renderers-CzT9A_km.js",
+        "target": "tools/amplification-analysis/assets/renderers-CzT9A_km.js",
+        "bytes": 20096,
+        "sha256": "9197d5a13916e6886b9a64256f2bfcd634d0cbed00cf0cd25122842c019a4499"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/assets/xlsx-CKwrMZHi.js",
+        "target": "tools/amplification-analysis/assets/xlsx-CKwrMZHi.js",
+        "bytes": 499549,
+        "sha256": "f895dd67a19c78f7cfa4069482c2f9bd4c754167dc8f9b15f11988e5358ee1ba"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/favicon-16.png",
+        "target": "tools/amplification-analysis/favicon-16.png",
+        "bytes": 583,
+        "sha256": "74bfc46633fe2f0e705b3c1df41ed1e527d864347912c4abe2526ced148cdad9"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/favicon-32.png",
+        "target": "tools/amplification-analysis/favicon-32.png",
+        "bytes": 1352,
+        "sha256": "9cac8c9669f9c1ae50bfa049a551e78dc9181d1a5c730c0271cbb89fc40cc8ea"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/favicon.svg",
+        "target": "tools/amplification-analysis/favicon.svg",
+        "bytes": 1751,
+        "sha256": "75ce31bdb49e86ac60988df15ef1f82145c4cd44d5944b64bb25992784a5d584"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/icon-192.png",
+        "target": "tools/amplification-analysis/icon-192.png",
+        "bytes": 14593,
+        "sha256": "c5da7efd580b2b2f93318f14b509b4efbed17eb5e406538312fcc2aa6d5d33cc"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/icon-512.png",
+        "target": "tools/amplification-analysis/icon-512.png",
+        "bytes": 55845,
+        "sha256": "4a1fc51140b21b8c9378bef6d095d44a3df498e28b44d13b23bd0b64ac436ea6"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/index.html",
+        "target": "tools/amplification-analysis/index.html",
+        "bytes": 823,
+        "sha256": "07d333901e3504cb9a0d32f8c7c611d6227b63c9e9505574d85f09c5db02edb4"
+      },
+      {
+        "source": "tools/amplification-analysis/runtime/manifest.webmanifest",
+        "target": "tools/amplification-analysis/manifest.webmanifest",
+        "bytes": 545,
+        "sha256": "2eb659cf93ca0efea703bb1c6d34f72aeecbf61665238917c917ff64944fa3df"
+      },
+      {
+        "source": "tools/dilution-calculator/composer-core.mjs",
+        "target": "tools/dilution-calculator/composer-core.mjs",
+        "bytes": 4010,
+        "sha256": "768d532a24a910bfd7daf9936f354fa3e67d3b00acfa6354a091b544c8c72d66"
+      },
+      {
+        "source": "tools/dilution-calculator/composer.mjs",
+        "target": "tools/dilution-calculator/composer.mjs",
+        "bytes": 12574,
+        "sha256": "01cc62ab32384251c7a37f571190dee363f38ed2123ae72bfbe8493bc498b0ca"
+      },
+      {
+        "source": "tools/dilution-calculator/composer.css",
+        "target": "tools/dilution-calculator/composer.css",
+        "bytes": 4224,
+        "sha256": "d9fccc1816e3ff84d893520a1558bcb8b8d7714170c5db95f2acd6ad9fdd8036"
+      },
+      {
+        "source": "tools/dilution-calculator/presets.json",
+        "target": "tools/dilution-calculator/presets.json",
+        "bytes": 37520,
+        "sha256": "e6a182ecf7f69830553f48c69744f1ffb51f967a9a9fd23a946971bd9f35d14b"
+      },
+      {
+        "source": "tools/method-comparison/app.mjs",
+        "target": "tools/method-comparison/app.mjs",
+        "bytes": 35817,
+        "sha256": "1e92ab448e44bb15ddc8a86fe267191b1cdba6909b353b102bc8e776ec3dd0ae"
+      },
+      {
+        "source": "tools/method-comparison/bar-chart.mjs",
+        "target": "tools/method-comparison/bar-chart.mjs",
+        "bytes": 3186,
+        "sha256": "1ef76833521f28f04284639487d52ac3e8616e691969aab69315892d514f260f"
+      },
+      {
+        "source": "tools/method-comparison/core.mjs",
+        "target": "tools/method-comparison/core.mjs",
+        "bytes": 13111,
+        "sha256": "e824acf6e2cc530eec77c3a2dc88ff26ba1ea47a48bb801e3c2366f6cad100cc"
+      },
+      {
+        "source": "tools/method-comparison/date-boundaries.mjs",
+        "target": "tools/method-comparison/date-boundaries.mjs",
+        "bytes": 2521,
+        "sha256": "2dac3c6f397d524bba278b69081909336bc6bdca5783f6a627ff0134c2b9faca"
+      },
+      {
+        "source": "tools/method-comparison/example.mjs",
+        "target": "tools/method-comparison/example.mjs",
+        "bytes": 2255,
+        "sha256": "7a7fe1122ba86db5516cb5268c46a5881f7ff98f5c98fd08ce424501a1e931c3"
+      },
+      {
+        "source": "tools/method-comparison/format.mjs",
+        "target": "tools/method-comparison/format.mjs",
+        "bytes": 608,
+        "sha256": "4786ea776cfbdc94c755621fa4d0c7a1ef967f5027e87205818beedb6ef16558"
+      },
+      {
+        "source": "tools/method-comparison/graph-copy.mjs",
+        "target": "tools/method-comparison/graph-copy.mjs",
+        "bytes": 3905,
+        "sha256": "39473576bedf638ffb56a2382110df534f5e829b3b7d46386e2133013ce57914"
+      },
+      {
+        "source": "tools/method-comparison/headers.mjs",
+        "target": "tools/method-comparison/headers.mjs",
+        "bytes": 2112,
+        "sha256": "84c901b7248748f07a69fe65c502db70c6764a2d2b4cb75722e571552486dd7a"
+      },
+      {
+        "source": "tools/method-comparison/import.mjs",
+        "target": "tools/method-comparison/import.mjs",
+        "bytes": 2746,
+        "sha256": "02728d7b703129c7d52d6dcf1421efd1ab28cd3d6dd63a5e49b09c616d8db77e"
+      },
+      {
+        "source": "tools/method-comparison/index.html",
+        "target": "tools/method-comparison/index.html",
+        "bytes": 16238,
+        "sha256": "c4f66be7969b5d72d85f8e3eac75b178655967de66ac37c387b65d70ac5c02ad"
+      },
+      {
+        "source": "tools/method-comparison/math.mjs",
+        "target": "tools/method-comparison/math.mjs",
+        "bytes": 4756,
+        "sha256": "73705a40650c2abae326ae418c9aa9a5b781641d37959fe146334c8fad8fe939"
+      },
+      {
+        "source": "tools/method-comparison/notes.mjs",
+        "target": "tools/method-comparison/notes.mjs",
+        "bytes": 3623,
+        "sha256": "f71ff83beec7a0a130acef507a952d9f7141ea7a5ae21a9c35893a3db2a9e582"
+      },
+      {
+        "source": "tools/method-comparison/notices.html",
+        "target": "tools/method-comparison/notices.html",
+        "bytes": 812,
+        "sha256": "8d80a273378f339ebb88ff954cc7b24c486e1833f9e2db55cbdc4cff826bed58"
+      },
+      {
+        "source": "tools/method-comparison/report-export.mjs",
+        "target": "tools/method-comparison/report-export.mjs",
+        "bytes": 29761,
+        "sha256": "ef5e4214d8fba0325a899d7a8e6e167e3f0ce16161742517df7c9d0a024a3568"
+      },
+      {
+        "source": "tools/method-comparison/report-template.xlsx",
+        "target": "tools/method-comparison/report-template.xlsx",
+        "bytes": 48150,
+        "sha256": "c1327f37d43c16d22289be5a758e14cbd8a66f42e0f44dbbef8d5f822fa86bb9"
+      },
+      {
+        "source": "tools/method-comparison/tool.css",
+        "target": "tools/method-comparison/tool.css",
+        "bytes": 10582,
+        "sha256": "8a8c449d407cc6e8d27aa90472250107c8cd407e82ac3ea7ec47d69d55b75ccf"
+      },
+      {
+        "source": "tools/method-comparison/licenses/immediate-LICENSE.txt",
+        "target": "tools/method-comparison/licenses/immediate-LICENSE.txt",
+        "bytes": 1238,
+        "sha256": "8e50e08648d42f4cda05d3bbaac7a84372eb06d65704099d109bbb1b86a62f2a"
+      },
+      {
+        "source": "tools/method-comparison/licenses/JSZip-LICENSE.markdown",
+        "target": "tools/method-comparison/licenses/JSZip-LICENSE.markdown",
+        "bytes": 33753,
+        "sha256": "566c953c6090b1218ca6217dd7359d45dde46581968586dc607d59a78af6a9c4"
+      },
+      {
+        "source": "tools/method-comparison/licenses/lie-LICENSE.txt",
+        "target": "tools/method-comparison/licenses/lie-LICENSE.txt",
+        "bytes": 1164,
+        "sha256": "fd085737cc97a53cbcc011d329d426c302b492ccf2a2fc751514b44a70982896"
+      },
+      {
+        "source": "tools/method-comparison/licenses/pako-LICENSE.txt",
+        "target": "tools/method-comparison/licenses/pako-LICENSE.txt",
+        "bytes": 1175,
+        "sha256": "a834701995df03b2b8724198de7f96b4086fba62d81474502584371f61e1003d"
+      },
+      {
+        "source": "tools/method-comparison/licenses/pako-zlib-LICENSE.txt",
+        "target": "tools/method-comparison/licenses/pako-zlib-LICENSE.txt",
+        "bytes": 2259,
+        "sha256": "fad301a98a7655936d757065139626aa92bf561edeae7560d8759789b5348f31"
+      },
+      {
+        "source": "tools/method-comparison/licenses/setimmediate-LICENSE.txt",
+        "target": "tools/method-comparison/licenses/setimmediate-LICENSE.txt",
+        "bytes": 1185,
+        "sha256": "ae7733a1fbb6a2a265d0c71a16ea1e0f193a193f9a7d9e899352420fcba9426a"
+      },
+      {
+        "source": "tools/method-comparison/vendor/jszip.min.js",
+        "target": "tools/method-comparison/vendor/jszip.min.js",
+        "bytes": 97630,
+        "sha256": "acc7e41455a80765b5fd9c7ee1b8078a6d160bbbca455aeae854de65c947d59e"
+      },
+      {
+        "source": "portal/info/method-comparison.html",
+        "target": "info/method-comparison.html",
+        "bytes": 7446,
+        "sha256": "423bf685a1351db573e1cf3e77b10a7e3390a7bf9fb331006de7dbee1e93c043"
+      },
+      {
+        "source": "tools/oligo-analysis/app.mjs",
+        "target": "tools/oligo-analysis/app.mjs",
+        "bytes": 19519,
+        "sha256": "dfb81d3519a883f7b9cf65515396c102923966de1da7a2066245e349d8a684df"
+      },
+      {
+        "source": "tools/oligo-analysis/core.mjs",
+        "target": "tools/oligo-analysis/core.mjs",
+        "bytes": 22868,
+        "sha256": "60b8a28eb2ab93e63849b71bff3b6a3fa257b4679c16b75e6d343b7801793325"
+      },
+      {
+        "source": "tools/oligo-analysis/dimer.mjs",
+        "target": "tools/oligo-analysis/dimer.mjs",
+        "bytes": 8389,
+        "sha256": "f3443712abf7116a3c3919d68392ac72f8d148eb935e3f7737066afe0be2460e"
+      },
+      {
+        "source": "tools/oligo-analysis/index.html",
+        "target": "tools/oligo-analysis/index.html",
+        "bytes": 12735,
+        "sha256": "2cb2953b61d2886a712cae409012136b8008e3405396de526244c3a8c9792459"
+      },
+      {
+        "source": "tools/oligo-analysis/tool.css",
+        "target": "tools/oligo-analysis/tool.css",
+        "bytes": 8133,
+        "sha256": "dd33e092004855002edb363e0292b8246e18c731469b0f41bc9f52303deb1437"
+      },
+      {
+        "source": "tools/oligo-analysis/worker.mjs",
+        "target": "tools/oligo-analysis/worker.mjs",
+        "bytes": 325,
+        "sha256": "595ecc0889a984253cfb7f1b7f1c30b0302e2270bc5bda5e138467a93f80a165"
+      },
+      {
+        "source": "portal/info/oligo-analysis.html",
+        "target": "info/oligo-analysis.html",
+        "bytes": 6174,
+        "sha256": "cd78d721d7681ff83b1a5b454bb10ef196bd122f448223f8ba452f5853a95645"
+      },
+      {
+        "source": "tools/method-comparison/ba-observation.mjs",
+        "target": "tools/method-comparison/ba-observation.mjs",
+        "bytes": 1707,
+        "sha256": "55352c044b51d6812f6d8c17f5d8ab476a473db605c2b0961aba1a1877fc1cd9"
+      },
+      {
+        "source": "tools/method-comparison/comparison-view.mjs",
+        "target": "tools/method-comparison/comparison-view.mjs",
+        "bytes": 10261,
+        "sha256": "451a9a5bced52f9507d9b5e714b4e4d48abc8cd97f37a2b80e8b515281a67ab1"
+      },
+      {
+        "source": "tools/method-comparison/comparison.mjs",
+        "target": "tools/method-comparison/comparison.mjs",
+        "bytes": 9308,
+        "sha256": "a300ebb84495697174ea64bea66d447dabea95fbaa9ba12b35fd9571678b876b"
+      },
+      {
+        "source": "tools/method-comparison/help-content.mjs",
+        "target": "tools/method-comparison/help-content.mjs",
+        "bytes": 20047,
+        "sha256": "76c9139546804d9badb425c017ed3cb42946fbd3bfb63c815165ff3168c93f56"
+      },
+      {
+        "source": "tools/method-comparison/help-page.mjs",
+        "target": "tools/method-comparison/help-page.mjs",
+        "bytes": 609,
+        "sha256": "ae79a033359e6e1315117b085dfa5bff604ea6d3a9d4d55c7cd2f69c9a4f8dbf"
+      },
+      {
+        "source": "tools/method-comparison/help-ui.mjs",
+        "target": "tools/method-comparison/help-ui.mjs",
+        "bytes": 5559,
+        "sha256": "6a5f475afa7afc6057e5bdcd6f40575256cbb0f2ddbe03c5242af0dabb0f1201"
+      },
+      {
+        "source": "tools/method-comparison/help.html",
+        "target": "tools/method-comparison/help.html",
+        "bytes": 797,
+        "sha256": "4d81da2f4ccc4f081c94fb36c13ef558c334be2eb8185ec6a3de5b5f67145deb"
+      },
+      {
+        "source": "tools/method-comparison/numeric-screen.mjs",
+        "target": "tools/method-comparison/numeric-screen.mjs",
+        "bytes": 5221,
+        "sha256": "ec209c9fef8b534e488a03ffbaf756bbc198168b407771292f8ea3a699dc79df"
+      },
+      {
+        "source": "tools/method-comparison/plot-legend.mjs",
+        "target": "tools/method-comparison/plot-legend.mjs",
+        "bytes": 754,
+        "sha256": "ce559c253525f9c7a235c4ebff3cf541d6a26243bb8f5e21e82aa0ff2c7e6b76"
+      },
+      {
+        "source": "tools/method-comparison/result-contract.mjs",
+        "target": "tools/method-comparison/result-contract.mjs",
+        "bytes": 9523,
+        "sha256": "69d43ed5824a96871b4a9e3dbe8c6295552e57038c94c116717ea0bd51607401"
+      },
+      {
+        "source": "tools/method-comparison/unified-report.mjs",
+        "target": "tools/method-comparison/unified-report.mjs",
+        "bytes": 11620,
+        "sha256": "32eb6a65c1107b7fdd3e51d5478ba2f8382e99e811124ee012a654b55489c2f3"
+      },
+      {
+        "source": "tools/detection-capability/mass-package.js",
+        "target": "tools/detection-capability/mass-package.js",
+        "bytes": 2918,
+        "sha256": "d6ebad52e74bd5585e6272637083a9c1d3f569e708dc60dfd91123144429ee22"
+      },
+      {
+        "source": "tools/detection-capability/runtime/MASS_7.3-66.tgz",
+        "target": "tools/detection-capability/runtime/MASS_7.3-66.tgz",
+        "bytes": 873258,
+        "sha256": "2abe66de8f442fdc0cd221bdb0e774ea17f56ff963dc0275bcfcd2add27ee3b5"
+      },
+      {
+        "source": "tools/detection-capability/runtime/MASS_7.3-66.metadata.json",
+        "target": "tools/detection-capability/runtime/MASS_7.3-66.metadata.json",
+        "bytes": 2969,
+        "sha256": "c5def108f94855ad32e799c8f868e51363267f0266a215db663fea2f72032116"
+      },
+      {
+        "source": "tools/detection-capability/runtime/MASS_7.3-66.source.tar.gz",
+        "target": "tools/detection-capability/runtime/MASS_7.3-66.source.tar.gz",
+        "bytes": 510345,
+        "sha256": "59c619c70bfca653f1c74aef880e69405daefd0134e716a1862ecc5334b4e155"
+      },
+      {
+        "source": "tools/detection-capability/licenses/GPL-2.txt",
+        "target": "tools/detection-capability/licenses/GPL-2.txt",
+        "bytes": 18092,
+        "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+      },
+      {
+        "source": "tools/detection-capability/licenses/GPL-3.txt",
+        "target": "tools/detection-capability/licenses/GPL-3.txt",
+        "bytes": 35149,
+        "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+      },
+      {
+        "source": "tools/method-comparison/practical-data.mjs",
+        "target": "tools/method-comparison/practical-data.mjs",
+        "bytes": 3273,
+        "sha256": "914f5ab2c2f06baa42f1939bea60bc1e8cf1b56cc9a5fc7e39ab6556cfab9434"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/analysis-core.mjs",
+        "target": "tools/oligo-thermodynamics/analysis-core.mjs",
+        "bytes": 9676,
+        "sha256": "d541a852af947855c736c1de338ffe1289bb391349555c035a10a7eaedaadcfb"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/analysis-ui.mjs",
+        "target": "tools/oligo-thermodynamics/analysis-ui.mjs",
+        "bytes": 37264,
+        "sha256": "1dce24aacb70b1a2f728c6acb7f50682738fe6fe0d6c9d2066a28beade0bc7d1"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/app.mjs",
+        "target": "tools/oligo-thermodynamics/app.mjs",
+        "bytes": 13683,
+        "sha256": "f3fcfdb93e3b7c712efe8ad3e167b7e7a454cc5f4f4ec97ed174904204b50f2e"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/brand.svg",
+        "target": "tools/oligo-thermodynamics/brand.svg",
+        "bytes": 255,
+        "sha256": "0cf34c8a47536fb30934b3ed5d9df4e804d7344b157897ad2607366876aeab45"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/conditions.mjs",
+        "target": "tools/oligo-thermodynamics/conditions.mjs",
+        "bytes": 1109,
+        "sha256": "d55a11b6d94147f22b78aee59c738e00e9cf4e4d06af2b523c8fb9159c074ad5"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/duplex-nn.mjs",
+        "target": "tools/oligo-thermodynamics/duplex-nn.mjs",
+        "bytes": 6092,
+        "sha256": "bad83bc851462a98a42da7c50207bf8899fb7121992389cf046db24b7255e884"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/hairpin.wasm",
+        "target": "tools/oligo-thermodynamics/engine/hairpin.wasm",
+        "bytes": 1057561,
+        "sha256": "41ff0809bde1179cf5810efc31200a766ec410a8b2e5be5ad510580e773a02d8"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/manifest.json",
+        "target": "tools/oligo-thermodynamics/engine/manifest.json",
+        "bytes": 2048,
+        "sha256": "44c1f17023bdc3c2cd86b2ebcfd474d376a887b188122c0c0b16c57ba4cad7cd"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/source/build.py",
+        "target": "tools/oligo-thermodynamics/engine/source/build.py",
+        "bytes": 1046,
+        "sha256": "9e5ec8cff59dc8764b604f88b48f641a4d97a53169d4afbfc7b197bdfff7e376"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/source/gpl-2.0.txt",
+        "target": "tools/oligo-thermodynamics/engine/source/gpl-2.0.txt",
+        "bytes": 17987,
+        "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/source/thal.c",
+        "target": "tools/oligo-thermodynamics/engine/source/thal.c",
+        "bytes": 107516,
+        "sha256": "03e7fe5b39abcf5d78b59e69858154a87876eff584b58db08e2ad500c6c27842"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/source/thal.h",
+        "target": "tools/oligo-thermodynamics/engine/source/thal.h",
+        "bytes": 7658,
+        "sha256": "c0f336509bf4215c6e4d061dcb5f274995d00cc9ee59f3d73d682614386b8065"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/source/thal_parameters.c",
+        "target": "tools/oligo-thermodynamics/engine/source/thal_parameters.c",
+        "bytes": 22247,
+        "sha256": "288c776f1db5f0298e31e9ef0dd871f72177cc1a3296586390c87c36eea2e303"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/source/thal_parameters.h",
+        "target": "tools/oligo-thermodynamics/engine/source/thal_parameters.h",
+        "bytes": 2079,
+        "sha256": "9354380ecc3286d32689dbc874829a5cf586a82c3b2468687d13d8b3b438f86a"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/source/wasi_compat/setjmp.h",
+        "target": "tools/oligo-thermodynamics/engine/source/wasi_compat/setjmp.h",
+        "bytes": 456,
+        "sha256": "c7d0de19fdd3bfa48aa7b772f7cb0427ecfab6744237d39cad1b5415a2e0c5ec"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/source/wrapper.c",
+        "target": "tools/oligo-thermodynamics/engine/source/wrapper.c",
+        "bytes": 2660,
+        "sha256": "aeddfe301d48f02da8d6db2febfeb0de14e76c3e8e954deea39700eff5ab6465"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine-loader.mjs",
+        "target": "tools/oligo-thermodynamics/engine-loader.mjs",
+        "bytes": 1543,
+        "sha256": "6ccef359b5c99151858c34c8fc7b18ef257ece624aa0efa8a69fa7369a8a9858"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/icon.svg",
+        "target": "tools/oligo-thermodynamics/icon.svg",
+        "bytes": 189,
+        "sha256": "6c3a51b2c44cbf749b3326583da3482f338d25ec2ce14565f5fe6f70d13a3820"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/index.html",
+        "target": "tools/oligo-thermodynamics/index.html",
+        "bytes": 37270,
+        "sha256": "3a06439e80732887ad32e320cdc3de6e84c25951587b646bcb88e38ae3e3f66a"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/LICENSE.txt",
+        "target": "tools/oligo-thermodynamics/LICENSE.txt",
+        "bytes": 17987,
+        "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/NOTICE.md",
+        "target": "tools/oligo-thermodynamics/NOTICE.md",
+        "bytes": 12011,
+        "sha256": "d5072fb54ea4a7c694a54969136ab11e84af69ad0802e1214ea2a272b40d4894"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/report.mjs",
+        "target": "tools/oligo-thermodynamics/report.mjs",
+        "bytes": 7942,
+        "sha256": "625d485528ed90516c1687c1fe51e7618571058c9f29d077ecc2e5560d667a98"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/sequence.mjs",
+        "target": "tools/oligo-thermodynamics/sequence.mjs",
+        "bytes": 1944,
+        "sha256": "ee219c8cfcb51aec92b1665dbb80e5fae36bfb78ad46190350decedff5cb9b98"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/tool.css",
+        "target": "tools/oligo-thermodynamics/tool.css",
+        "bytes": 22550,
+        "sha256": "ed854dafae1c0e57142b0279df317c0064194f97758544192d002ecb3d2364cc"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/validation.html",
+        "target": "tools/oligo-thermodynamics/validation.html",
+        "bytes": 17183,
+        "sha256": "4bd9be6d4a0aa77b58686ff6cfb5fe08a3e310b4f71252ddbaffc0bc5b279a4c"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/worker.mjs",
+        "target": "tools/oligo-thermodynamics/worker.mjs",
+        "bytes": 3332,
+        "sha256": "897637bcddefc16caaa58da8eccca789eaca1ea5a55aaa397f8a014a606c5f66"
+      },
+      {
+        "source": "portal/info/oligo-thermodynamics.html",
+        "target": "info/oligo-thermodynamics.html",
+        "bytes": 5377,
+        "sha256": "84041fbc6fc6cd084cbd600419f14ee408bbd4981e9b0fb10a17f222e2e9de79"
+      },
+      {
+        "source": "portal/404.html",
+        "target": "404.html",
+        "bytes": 2153,
+        "sha256": "46413a5c92745cfed595cc672eeb0e9101ee5301a9fb1995f380575dcfcb0e80"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/beacon-core.mjs",
+        "target": "tools/oligo-thermodynamics/beacon-core.mjs",
+        "bytes": 16782,
+        "sha256": "5d92045df8860554d28011685c0fe468d16b84af402cc383c77b23488b6bcb3f"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/beacon-input.mjs",
+        "target": "tools/oligo-thermodynamics/beacon-input.mjs",
+        "bytes": 8963,
+        "sha256": "75707da9b9ffca3f2c4bb5ccbf26f1d553fa38c52c70b4f2cf45f374ca6e396d"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/beacon-report.mjs",
+        "target": "tools/oligo-thermodynamics/beacon-report.mjs",
+        "bytes": 10594,
+        "sha256": "bd092031f09c7d1b8f0751db8f7578eb519d3f950269d5a91a28347e20a70de7"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/beacon-structure.mjs",
+        "target": "tools/oligo-thermodynamics/beacon-structure.mjs",
+        "bytes": 4910,
+        "sha256": "58ecad5eff88fcb7d55b632323cd0e1e23d096d086b225c163397cd84b7220b2"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/beacon-view.mjs",
+        "target": "tools/oligo-thermodynamics/beacon-view.mjs",
+        "bytes": 7223,
+        "sha256": "1a25e8cf06145930df95dbdddf8f49fb1fcf2958b4ae996f91455f9cb91326fd"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/beacon-worker.mjs",
+        "target": "tools/oligo-thermodynamics/beacon-worker.mjs",
+        "bytes": 681,
+        "sha256": "5da0981a03513f16155d6887b835c03ff3ecddc08516165b0fabe0cbd370a70f"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/clipboard.mjs",
+        "target": "tools/oligo-thermodynamics/clipboard.mjs",
+        "bytes": 735,
+        "sha256": "62f68a8495d1660b9946579e234c225cf7b8d289c2d26595c5d061cc9ca70622"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/pair/build.py",
+        "target": "tools/oligo-thermodynamics/engine/pair/build.py",
+        "bytes": 2604,
+        "sha256": "ae6773331df48dd57b97f28699ce274519938480b7ce002a0dc680090651aaee"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/pair/manifest.json",
+        "target": "tools/oligo-thermodynamics/engine/pair/manifest.json",
+        "bytes": 1367,
+        "sha256": "0c9a41e1583a24a3b6ef263960c070f75f69dfb8c577cc194dc2c3b7674f55cc"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/pair/NOTICE.md",
+        "target": "tools/oligo-thermodynamics/engine/pair/NOTICE.md",
+        "bytes": 1285,
+        "sha256": "cf86185287b12b40200355f92a2ec8bfbc9275d430ab74844750a3d8729a4f5b"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/pair/release.mjs",
+        "target": "tools/oligo-thermodynamics/engine/pair/release.mjs",
+        "bytes": 155,
+        "sha256": "50d136db203613ac43ea53db74e90b27d6ab03909a20f9a11ea28031fc41b367"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/pair/thal-pair.wasm",
+        "target": "tools/oligo-thermodynamics/engine/pair/thal-pair.wasm",
+        "bytes": 1059452,
+        "sha256": "11b97cf94040c6f3a40515c1eb3d6f02b30d4263c3f8b824a124063b99cd6aec"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/engine/pair/wrapper.c",
+        "target": "tools/oligo-thermodynamics/engine/pair/wrapper.c",
+        "bytes": 3831,
+        "sha256": "18a1d439bf9089128d8b0588e8b0e31bd01f5ada842b4c985afa9acdc9827852"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/fixed-nn-params.json",
+        "target": "tools/oligo-thermodynamics/fixed-nn-params.json",
+        "bytes": 12342,
+        "sha256": "2c2b287fc31d4e7f454989b7c7de5ad2c2d213095fb7d6144cfd9f0d2e964098"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/fixed-nn-release.mjs",
+        "target": "tools/oligo-thermodynamics/fixed-nn-release.mjs",
+        "bytes": 190,
+        "sha256": "b6339619989acce6b73626f350538f7c3230f0ca2c42b88c777d714f4ac5057c"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/fixed-nn.mjs",
+        "target": "tools/oligo-thermodynamics/fixed-nn.mjs",
+        "bytes": 7102,
+        "sha256": "b2128230c006d254225897fad14a1ef98229dc0fd6919eb799c1ba6f84ae41dd"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/fixed-source/BIOPYTHON_LICENSE.rst",
+        "target": "tools/oligo-thermodynamics/fixed-source/BIOPYTHON_LICENSE.rst",
+        "bytes": 3335,
+        "sha256": "18e727a6042b88f60cb7c53c97478ce007c34cdd474420d51b6404c8f8b64ed3"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/fixed-source/MeltingTemp.py",
+        "target": "tools/oligo-thermodynamics/fixed-source/MeltingTemp.py",
+        "bytes": 44227,
+        "sha256": "65e91b2bcc4d11a6fd04ee34dd942aae42d6c8e969e94afcd378a12306832332"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/fixed-source/PARAMETERS_NOTICE.md",
+        "target": "tools/oligo-thermodynamics/fixed-source/PARAMETERS_NOTICE.md",
+        "bytes": 992,
+        "sha256": "2e3c598fc17b69734fbbf0eb24dc47ad650dd97b6bf37e1b3135b0cbb3a33caa"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/pair-concentration.mjs",
+        "target": "tools/oligo-thermodynamics/pair-concentration.mjs",
+        "bytes": 2695,
+        "sha256": "fbd88e28276a4689d264a6a806cd5dcfdfdae4f93684fe8169f9dd22761a117e"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/pair-core.mjs",
+        "target": "tools/oligo-thermodynamics/pair-core.mjs",
+        "bytes": 2081,
+        "sha256": "97f06944af32da7c5a3a3b3a98984c95d035da3007b731da42fac5068d5d57eb"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/pair-loader.mjs",
+        "target": "tools/oligo-thermodynamics/pair-loader.mjs",
+        "bytes": 5773,
+        "sha256": "4c1037159336d9d6f9a01a662404a177c5204d8401e9a53911aa06df9dbc7692"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/pair-report.mjs",
+        "target": "tools/oligo-thermodynamics/pair-report.mjs",
+        "bytes": 2612,
+        "sha256": "68521c09ded9ea1844d46864897847b20c1b4b129cf1d19219431bf8c3ad6ce0"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/pair-structure.mjs",
+        "target": "tools/oligo-thermodynamics/pair-structure.mjs",
+        "bytes": 3548,
+        "sha256": "e42c4a485fc104a07e1d91c0595532de55f1e3db09f632c88ed19e82f4358d3e"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/pair-workbench-core.mjs",
+        "target": "tools/oligo-thermodynamics/pair-workbench-core.mjs",
+        "bytes": 10637,
+        "sha256": "fd44d18caf8bcbcc7d477de5878986e9d53f65279a16cdd665766ea4d2ea1f29"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/pair-workbench-view.mjs",
+        "target": "tools/oligo-thermodynamics/pair-workbench-view.mjs",
+        "bytes": 6066,
+        "sha256": "535316f3d5fdd342082caf489745b7e5470c7a946060dd2ec29431fd8aaad587"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/pair-workbench-worker.mjs",
+        "target": "tools/oligo-thermodynamics/pair-workbench-worker.mjs",
+        "bytes": 711,
+        "sha256": "dba2b3fa610bb571cdb2f215f51499d54bd48dd47dc121bd2f0098f5b5bf1977"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/pair-worker.mjs",
+        "target": "tools/oligo-thermodynamics/pair-worker.mjs",
+        "bytes": 1323,
+        "sha256": "2131e08a878cb976e6f5f95e8d896dd4806c7bea6183149952ac7f06354769c4"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/pcr-reference.mjs",
+        "target": "tools/oligo-thermodynamics/pcr-reference.mjs",
+        "bytes": 6014,
+        "sha256": "de814457524e3b6cc91c0e28c58a45e9121d7bb804595ffb938896a845366865"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/relationship-core.mjs",
+        "target": "tools/oligo-thermodynamics/relationship-core.mjs",
+        "bytes": 11945,
+        "sha256": "c7029cd71a6f4c768bd854051a740a9b3ea22a925caeb82a4a3bd9f6d790cf9a"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/relationship-report.mjs",
+        "target": "tools/oligo-thermodynamics/relationship-report.mjs",
+        "bytes": 11438,
+        "sha256": "177423b586821fd8cbb53685a7f8b9f66571c85ed1f990950c3147a4f6fd0877"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/relationship-ui.mjs",
+        "target": "tools/oligo-thermodynamics/relationship-ui.mjs",
+        "bytes": 25393,
+        "sha256": "118042b6956a596c171ab20372a5c0566e61635092598e00ef72be7e1cdbb8f9"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/relationship-view.mjs",
+        "target": "tools/oligo-thermodynamics/relationship-view.mjs",
+        "bytes": 5549,
+        "sha256": "99ce1149cc652f15240202baa7c7ea34f61154040ff7aba1a46f243f178a8a6d"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/relationship-worker.mjs",
+        "target": "tools/oligo-thermodynamics/relationship-worker.mjs",
+        "bytes": 909,
+        "sha256": "c7a942d4c9d48a7ee208bb398f80389b218045a360b6664bc7b455b70bb96116"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/review-guide.html",
+        "target": "tools/oligo-thermodynamics/review-guide.html",
+        "bytes": 8939,
+        "sha256": "a68259d784f72aa8078810503e54c9416844f511ce1a839e9a44651a9d2a4c86"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/strand-source.mjs",
+        "target": "tools/oligo-thermodynamics/strand-source.mjs",
+        "bytes": 9426,
+        "sha256": "63bced7c7b385ebc325f7c3ef2f85ac3e2a7ffc82ef0f799c1747394fd359e82"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/structure.mjs",
+        "target": "tools/oligo-thermodynamics/structure.mjs",
+        "bytes": 2869,
+        "sha256": "75911d991c8e28dcb8546f95e35ce22ecbe8f9ed045171e5d8307801d20b044c"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/suite-core.mjs",
+        "target": "tools/oligo-thermodynamics/suite-core.mjs",
+        "bytes": 9928,
+        "sha256": "7001a18c800c93ac3f5dcb66bced955b36394ddaef36415266b3a54a171112ee"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/suite-engine.mjs",
+        "target": "tools/oligo-thermodynamics/suite-engine.mjs",
+        "bytes": 2659,
+        "sha256": "3f66a4af21da6aa951cb8a9759d3c46c8fd04bb62dcb6a2c66608d515bff78f7"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/suite-report.mjs",
+        "target": "tools/oligo-thermodynamics/suite-report.mjs",
+        "bytes": 4360,
+        "sha256": "87d380961aaeb2b10c32894d495efa0eae3e0171ba1469e2afabe434085b1aaa"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/suite-view.mjs",
+        "target": "tools/oligo-thermodynamics/suite-view.mjs",
+        "bytes": 6040,
+        "sha256": "5be0161c6ac8fd60b7bb4c63331efd5357125cf5d7f90c84e13ecf818c81b809"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/suite-worker.mjs",
+        "target": "tools/oligo-thermodynamics/suite-worker.mjs",
+        "bytes": 1718,
+        "sha256": "343fb33c8c4a1f13e4a8858938c9f69ebf1d110a3e2c966bbaceaec0f230f254"
+      },
+      {
+        "source": "tools/oligo-thermodynamics/workbench-report.mjs",
+        "target": "tools/oligo-thermodynamics/workbench-report.mjs",
+        "bytes": 8997,
+        "sha256": "c48947bf78288203d35cc12c47790d96bed161c691496fd89218afb506a8d17c"
+      },
+      {
+        "source": "tools/oligo-analysis/xlsx.mjs",
+        "target": "tools/oligo-analysis/xlsx.mjs",
+        "bytes": 4643,
+        "sha256": "3bfb603d133dac85d944628d65089e779103ecfc57665dc303ec00f6de7451fa"
+      },
+      {
+        "source": "portal/contact.html",
+        "target": "contact.html",
+        "bytes": 3783,
+        "sha256": "21ffc363f78facf21ff73c1a1ff39511d28897029402ec8b5eace2c995c0993a"
+      },
+      {
+        "source": "portal/assets/contact.mjs",
+        "target": "assets/contact.mjs",
+        "bytes": 1095,
+        "sha256": "34f34292f3fe9a5e3105aae544990228795f3f3ffae7c4c540dad51030a74052"
+      },
+      {
+        "source": "portal/info/sequence-mapper.html",
+        "target": "info/sequence-mapper.html",
+        "bytes": 3301,
+        "sha256": "94ee7845fbbcb89cc51a32cb5d52cb92c51806e598663966e63822a97fe4dfad"
+      },
+      {
+        "source": "tools/sequence-mapper/LICENSE.txt",
+        "target": "tools/sequence-mapper/LICENSE.txt",
+        "bytes": 17987,
+        "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6"
+      },
+      {
+        "source": "tools/sequence-mapper/NOTICE.md",
+        "target": "tools/sequence-mapper/NOTICE.md",
+        "bytes": 1368,
+        "sha256": "d5fee9667606d6cb5cc0db868498940c22e9645ffe7642a95a375f98649a7cfb"
+      },
+      {
+        "source": "tools/sequence-mapper/annotation-ui.mjs",
+        "target": "tools/sequence-mapper/annotation-ui.mjs",
+        "bytes": 5223,
+        "sha256": "d8de28bd43df308ad02e31bdd7a43adad429b4f120a75cfa77286d7d34ea3845"
+      },
+      {
+        "source": "tools/sequence-mapper/app.mjs",
+        "target": "tools/sequence-mapper/app.mjs",
+        "bytes": 52194,
+        "sha256": "1a8b6783df5696ef937e098743c5e8846f2503ed68b55f9c2e6593a25d436eca"
+      },
+      {
+        "source": "tools/sequence-mapper/brand.svg",
+        "target": "tools/sequence-mapper/brand.svg",
+        "bytes": 255,
+        "sha256": "0cf34c8a47536fb30934b3ed5d9df4e804d7344b157897ad2607366876aeab45"
+      },
+      {
+        "source": "tools/sequence-mapper/core/aligned-import.mjs",
+        "target": "tools/sequence-mapper/core/aligned-import.mjs",
+        "bytes": 3156,
+        "sha256": "fe13ac40506a6817b2160e6f54e59663757bc111f41651de73d7e21ac41d052d"
+      },
+      {
+        "source": "tools/sequence-mapper/core/alignment.mjs",
+        "target": "tools/sequence-mapper/core/alignment.mjs",
+        "bytes": 7811,
+        "sha256": "6f833b0f0a90d20e842a43a43fa7359a1fcfb369e6eec5a57eede382c6405e09"
+      },
+      {
+        "source": "tools/sequence-mapper/core/annotation-export.mjs",
+        "target": "tools/sequence-mapper/core/annotation-export.mjs",
+        "bytes": 7696,
+        "sha256": "f24a7bcc7022d556686bc13ca01b1cf886cc19cdf927311c888ddc87ea9c40d1"
+      },
+      {
+        "source": "tools/sequence-mapper/core/annotation-import.mjs",
+        "target": "tools/sequence-mapper/core/annotation-import.mjs",
+        "bytes": 6044,
+        "sha256": "b5c7fa152bccecde3ced7a03ac95a707fc7f45e4468a8305ceb8c22c7d42d3d8"
+      },
+      {
+        "source": "tools/sequence-mapper/core/binding.mjs",
+        "target": "tools/sequence-mapper/core/binding.mjs",
+        "bytes": 6174,
+        "sha256": "257a4ee41ed235096c44e582dfdcfebb58f4fed4e9bb8c07c5324fd8667adaba"
+      },
+      {
+        "source": "tools/sequence-mapper/core/example.mjs",
+        "target": "tools/sequence-mapper/core/example.mjs",
+        "bytes": 1471,
+        "sha256": "1d1e6f6ff169d3c1548b7b13926cd9a164954ed45a2cbc3cc1691421879c8c2c"
+      },
+      {
+        "source": "tools/sequence-mapper/core/export.mjs",
+        "target": "tools/sequence-mapper/core/export.mjs",
+        "bytes": 5897,
+        "sha256": "e63b5f83a1a7dc933ba05d1b0fa6bd130748395421c08ad1264316266022e1fe"
+      },
+      {
+        "source": "tools/sequence-mapper/core/features.mjs",
+        "target": "tools/sequence-mapper/core/features.mjs",
+        "bytes": 3204,
+        "sha256": "5e8ffc04c77c167faf1dc2f8f8927ee4b7041970f3340ec3c2f4f5d477f71109"
+      },
+      {
+        "source": "tools/sequence-mapper/core/find.mjs",
+        "target": "tools/sequence-mapper/core/find.mjs",
+        "bytes": 4570,
+        "sha256": "20619a858f8a88e1320f8710a011fa26a434e8cc91cea214290bb0a91c3c9988"
+      },
+      {
+        "source": "tools/sequence-mapper/core/limits.mjs",
+        "target": "tools/sequence-mapper/core/limits.mjs",
+        "bytes": 3651,
+        "sha256": "d19d1dac72200e0d84dc486db613bb12ed368e815afabc094687c9385ead18d7"
+      },
+      {
+        "source": "tools/sequence-mapper/core/list.mjs",
+        "target": "tools/sequence-mapper/core/list.mjs",
+        "bytes": 5748,
+        "sha256": "9170e4f9d4ee5c99e51e6bd47598e84309ec2ecbc4d23989804da4c10724ab7c"
+      },
+      {
+        "source": "tools/sequence-mapper/core/map-chunk.mjs",
+        "target": "tools/sequence-mapper/core/map-chunk.mjs",
+        "bytes": 2192,
+        "sha256": "9277dd71eb7b9a9588f4c3a9f29b0c0d2216a27f19416c73c99cc6b229297ae4"
+      },
+      {
+        "source": "tools/sequence-mapper/core/parse.mjs",
+        "target": "tools/sequence-mapper/core/parse.mjs",
+        "bytes": 8226,
+        "sha256": "84bd6d7c09022f93d21e68241b84cfa9f8c65fa085981143766672ce00853b82"
+      },
+      {
+        "source": "tools/sequence-mapper/core/primer.mjs",
+        "target": "tools/sequence-mapper/core/primer.mjs",
+        "bytes": 8182,
+        "sha256": "6a952322ef02f7bbd42e20f371bbfe6e32dff8f369024e0378a57c21ee131c5d"
+      },
+      {
+        "source": "tools/sequence-mapper/core/project.mjs",
+        "target": "tools/sequence-mapper/core/project.mjs",
+        "bytes": 6199,
+        "sha256": "d0c31c008073d407c7bf107e3c620137dc8b591c9a9a41299826fc35cbd17b7a"
+      },
+      {
+        "source": "tools/sequence-mapper/core/selection.mjs",
+        "target": "tools/sequence-mapper/core/selection.mjs",
+        "bytes": 2742,
+        "sha256": "cd9d322ca25d91101f0fe871b057ca87a7fc44f037b1e49cbf3151d6bbab91a9"
+      },
+      {
+        "source": "tools/sequence-mapper/core/stats.mjs",
+        "target": "tools/sequence-mapper/core/stats.mjs",
+        "bytes": 7324,
+        "sha256": "2abf3cd61f53e1184792c093cecadbc0279ea8d7c661b16319d9f287e277a394"
+      },
+      {
+        "source": "tools/sequence-mapper/core/xlsx-read.mjs",
+        "target": "tools/sequence-mapper/core/xlsx-read.mjs",
+        "bytes": 2077,
+        "sha256": "a1ae488c6b865695ec76619899c7e2dd3a7ed2332cca246d00ef9d680945d9c2"
+      },
+      {
+        "source": "tools/sequence-mapper/core/zip.mjs",
+        "target": "tools/sequence-mapper/core/zip.mjs",
+        "bytes": 2779,
+        "sha256": "44a0a4246de024bcfb2688050c16c708bce9384f37a0c2df67085a9c7349939d"
+      },
+      {
+        "source": "tools/sequence-mapper/engine/engine.mjs",
+        "target": "tools/sequence-mapper/engine/engine.mjs",
+        "bytes": 1964,
+        "sha256": "fbc622d9385ea81241a1b2c4210adeebb35dbf36e866dac02757ae10a7d6ef05"
+      },
+      {
+        "source": "tools/sequence-mapper/engine/mm2.wasm",
+        "target": "tools/sequence-mapper/engine/mm2.wasm",
+        "bytes": 1392137,
+        "sha256": "437f2b93b2f0f2dfaa5eb7482b269f5f2146db8b44497b4f28e7c0a619344fd1"
+      },
+      {
+        "source": "tools/sequence-mapper/engine/source/MINIMAP2-LICENSE.txt",
+        "target": "tools/sequence-mapper/engine/source/MINIMAP2-LICENSE.txt",
+        "bytes": 1140,
+        "sha256": "b68a701dea24796190ef9e860ff56e79d578c96183722cf4ec3738793e8e75f4"
+      },
+      {
+        "source": "tools/sequence-mapper/engine/source/SIMDE-LICENSE.txt",
+        "target": "tools/sequence-mapper/engine/source/SIMDE-LICENSE.txt",
+        "bytes": 1077,
+        "sha256": "75ce0a8c5a7bff42fbd6f8f3b469b518132132c4f4948fb8d02b1ccb5d0df9d8"
+      },
+      {
+        "source": "tools/sequence-mapper/engine/source/build.sh",
+        "target": "tools/sequence-mapper/engine/source/build.sh",
+        "bytes": 949,
+        "sha256": "a11ce180c89183109710762aa40676f7b8a193e92af98c47d3c974e5b16d96fc"
+      },
+      {
+        "source": "tools/sequence-mapper/engine/source/compat/zlib.h",
+        "target": "tools/sequence-mapper/engine/source/compat/zlib.h",
+        "bytes": 514,
+        "sha256": "4798573250ab7273e658de62e426457b25f1facef4cbfdb090fc9de37e0c6b64"
+      },
+      {
+        "source": "tools/sequence-mapper/engine/source/kthread_stub.c",
+        "target": "tools/sequence-mapper/engine/source/kthread_stub.c",
+        "bytes": 559,
+        "sha256": "baa5ee60324a87b31dfa6bb3eae7c3822e65aee79b679354cf5102697c5dc2a6"
+      },
+      {
+        "source": "tools/sequence-mapper/engine/source/wrapper.c",
+        "target": "tools/sequence-mapper/engine/source/wrapper.c",
+        "bytes": 1873,
+        "sha256": "7f737f96147bf8bfa9001a547aeb03a30c5d6302294950bff980638322317023"
+      },
+      {
+        "source": "tools/sequence-mapper/find-ui.mjs",
+        "target": "tools/sequence-mapper/find-ui.mjs",
+        "bytes": 9955,
+        "sha256": "3ea3e581c022f536afaa241122ef9d058ea528fbba5fac80d077d2d91bfd8864"
+      },
+      {
+        "source": "tools/sequence-mapper/icon.svg",
+        "target": "tools/sequence-mapper/icon.svg",
+        "bytes": 189,
+        "sha256": "6c3a51b2c44cbf749b3326583da3482f338d25ec2ce14565f5fe6f70d13a3820"
+      },
+      {
+        "source": "tools/sequence-mapper/index.html",
+        "target": "tools/sequence-mapper/index.html",
+        "bytes": 29471,
+        "sha256": "519d86f5d3dc7f1b332dac486d902e760f75e2b8c838bdeb2434dc25d0a176f2"
+      },
+      {
+        "source": "tools/sequence-mapper/list-ui.mjs",
+        "target": "tools/sequence-mapper/list-ui.mjs",
+        "bytes": 8606,
+        "sha256": "8d35be4971049c5e5b67ae1d680287e08e856baf5d4078c679e4cf34dc89aee7"
+      },
+      {
+        "source": "tools/sequence-mapper/primer-ui.mjs",
+        "target": "tools/sequence-mapper/primer-ui.mjs",
+        "bytes": 46245,
+        "sha256": "5c411d50d022e8533e403128e0e806cbf2f34cf8cc67b129b3d124ea6beee9e2"
+      },
+      {
+        "source": "tools/sequence-mapper/tool.css",
+        "target": "tools/sequence-mapper/tool.css",
+        "bytes": 20169,
+        "sha256": "8a0fc2abd868bd4682830d27d86f9b50beb5ee6ed3da65c52cf232a895cccfc2"
+      },
+      {
+        "source": "tools/sequence-mapper/view/primer-cells.mjs",
+        "target": "tools/sequence-mapper/view/primer-cells.mjs",
+        "bytes": 1328,
+        "sha256": "edeca85cb149530b48a647c61125e5c8ac70859fb7e6fa470d545d31865d3647"
+      },
+      {
+        "source": "tools/sequence-mapper/view/sequence-view.mjs",
+        "target": "tools/sequence-mapper/view/sequence-view.mjs",
+        "bytes": 11050,
+        "sha256": "c7f921286e6beb509ca55486a3f577e8ceea5cb65965235d4bead214e54777ab"
+      },
+      {
+        "source": "tools/sequence-mapper/view/viewer.mjs",
+        "target": "tools/sequence-mapper/view/viewer.mjs",
+        "bytes": 28193,
+        "sha256": "353268ae24dc94a4356320ebe8a472d7e5c38faa6e3293d4f4ecf4937a26ce44"
+      },
+      {
+        "source": "tools/sequence-mapper/workers/analysis-worker.mjs",
+        "target": "tools/sequence-mapper/workers/analysis-worker.mjs",
+        "bytes": 3796,
+        "sha256": "aff317cc07ade4fc13d0dabbf9a6b6aa21370989b8ba3214f8abc2c2560bd06e"
+      },
+      {
+        "source": "tools/sequence-mapper/workers/load-worker.mjs",
+        "target": "tools/sequence-mapper/workers/load-worker.mjs",
+        "bytes": 3805,
+        "sha256": "71011717474aea3536db3ac75859b508f45bf679d18bdb52429d6aeb29110e67"
+      },
+      {
+        "source": "tools/sequence-mapper/workers/map-worker.mjs",
+        "target": "tools/sequence-mapper/workers/map-worker.mjs",
+        "bytes": 553,
+        "sha256": "05af3ef2dd6143eee4165c70a37b8767311f2fee48b9fb9c923cd27cbc2bdca8"
+      },
+      {
+        "source": "tools/sequence-mapper/workers/selection-worker.mjs",
+        "target": "tools/sequence-mapper/workers/selection-worker.mjs",
+        "bytes": 279,
+        "sha256": "03c2104fed54dea10d42c9ea2c5896bab15326787bea71b1f93522c018ea68fc"
+      }
+    ],
+    "selected": [
+      {
+        "source": "portal/index.html",
+        "target": "index.html",
+        "bytes": 22253,
+        "sha256": "7c227a6a1c553db2aeef030c45498cf28bf490bedf69000499f37da1bb9662d2"
+      },
+      {
+        "source": "portal/info/plot.html",
+        "target": "info/plot.html",
+        "bytes": 4664,
+        "sha256": "436d640402ee736e063b121d3e62b09197dfc055adff22ce0efcc479c242499e"
+      },
+      {
+        "source": "portal/info/oligo-mix.html",
+        "target": "info/oligo-mix.html",
+        "bytes": 8203,
+        "sha256": "0fc4aa9ba524fcb7c54e054756582cd0ab9697f82f8938cb233ece2a7a7232d7"
+      },
+      {
+        "source": "portal/info/sequence.html",
+        "target": "info/sequence.html",
+        "bytes": 5658,
+        "sha256": "17f284759fd4c2122db68896124041293260b34484be50a2dc26146e5fe4ab78"
+      },
+      {
+        "source": "portal/info/dilution.html",
+        "target": "info/dilution.html",
+        "bytes": 7963,
+        "sha256": "e36ba230bbac232b836ce4a2de2fb12b51a173056787d2770f4f1392ff78b726"
+      },
+      {
+        "source": "portal/info/nucleic-acid.html",
+        "target": "info/nucleic-acid.html",
+        "bytes": 13532,
+        "sha256": "08b3738533b982e1ee58fdb55069a37a12f8d2eb4c1b471e3d483a87805b9d60"
+      },
+      {
+        "source": "portal/info/detection-capability.html",
+        "target": "info/detection-capability.html",
+        "bytes": 9068,
+        "sha256": "8220985bbe2737f6ad0a07689cdf40ba77bbd5c38a2e24ada07b5118e5a16126"
+      },
+      {
+        "source": "portal/info/amplification-analysis.html",
+        "target": "info/amplification-analysis.html",
+        "bytes": 5251,
+        "sha256": "4ac5397ffc6d1b7a96e53315d534a0f05f9138201d8db42eb9bbe89a1fda8cbd"
+      },
+      {
+        "source": "portal/info/method-comparison.html",
+        "target": "info/method-comparison.html",
+        "bytes": 7446,
+        "sha256": "024442cd7b337d8b650fa7072da8201485b8f0dffc16899707fc4de44f5d7e9b"
+      },
+      {
+        "source": "portal/info/oligo-analysis.html",
+        "target": "info/oligo-analysis.html",
+        "bytes": 6174,
+        "sha256": "17519aaac3adf23c3f9875bd089faaf28aae046290b70ac442a6911e6d95332c"
+      },
+      {
+        "source": "portal/info/oligo-thermodynamics.html",
+        "target": "info/oligo-thermodynamics.html",
+        "bytes": 5377,
+        "sha256": "8353375c44f4d145977333805f6812d895a1720f8c37c4200c4f0ac310861372"
+      },
+      {
+        "source": "portal/contact.html",
+        "target": "contact.html",
+        "bytes": 3783,
+        "sha256": "c152d877edee700201a9f6cd21ab2654b762785a8a06b8dab3ed1764c9335d8f"
+      },
+      {
+        "source": "portal/info/sequence-mapper.html",
+        "target": "info/sequence-mapper.html",
+        "bytes": 3301,
+        "sha256": "901dc57045afc9abdfeefa919e38445d0344394d6e9fa18280136476a523c70b"
+      },
+      {
+        "source": "tools/sequence-mapper/annotation-ui.mjs",
+        "target": "tools/sequence-mapper/annotation-ui.mjs",
+        "bytes": 8792,
+        "sha256": "2188278a193578f7692293b09cbce1b57b4c4d4b6405f0f5642c503b080d1db0"
+      },
+      {
+        "source": "tools/sequence-mapper/app.mjs",
+        "target": "tools/sequence-mapper/app.mjs",
+        "bytes": 53010,
+        "sha256": "255a41ec3cb1b6fbd50a5173709d7341257f5d06dd813a9ee8347d905ebd2bf5"
+      },
+      {
+        "source": "tools/sequence-mapper/core/features.mjs",
+        "target": "tools/sequence-mapper/core/features.mjs",
+        "bytes": 4704,
+        "sha256": "36a494d5910a72bb0b0a0147a3528ea1257ebd26acb9b0f6c840e11614c2e879"
+      },
+      {
+        "source": "tools/sequence-mapper/index.html",
+        "target": "tools/sequence-mapper/index.html",
+        "bytes": 30811,
+        "sha256": "18c4124a42011beeea920288e80d833443afdf4ce2c4035829ddd0327836d575"
+      },
+      {
+        "source": "tools/sequence-mapper/tool.css",
+        "target": "tools/sequence-mapper/tool.css",
+        "bytes": 20415,
+        "sha256": "071751478367d7a51b9fcb08cd7d753c3be6dedc7c83baaa5055b199b47f2206"
+      },
+      {
+        "source": "tools/sequence-mapper/view/viewer.mjs",
+        "target": "tools/sequence-mapper/view/viewer.mjs",
+        "bytes": 28468,
+        "sha256": "82aa6ecfe68166d83318bbb8c6386a0cebf08e35b9479444e5fd30437a99d0b4"
+      }
+    ],
+    "addedTargets": []
   }
 }

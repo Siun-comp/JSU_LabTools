@@ -18,11 +18,28 @@ function ranges(loc,length,flip){
  const list=a<=b?[{start:a-1,end:b}]:[{start:a-1,end:length},{start:0,end:b}];
  return list.map(x=>({...x,flip}));
 }
+// Pieces in reading order (5'->3' of the feature): complement(...) reverses what it wraps, so complement(join(a,b))
+// and join(complement(b),complement(a)) both read b then a, each on the minus strand (AP-277).
+function inOrder(loc,length){
+ const m=/^(complement|join|order)\((.*)\)$/.exec(loc);
+ if(m){if(m[1]==='complement'){const r=inOrder(m[2],length);return r&&r.reverse().map(x=>({...x,minus:!x.minus}));}
+  const all=[];for(const part of splitTop(m[2])){const r=inOrder(part.trim(),length);if(!r)return null;all.push(...r);}return all;}
+ const base=ranges(loc,length,false);return base&&base.map(({start,end})=>({start,end,minus:false}));
+}
 export function parseLocation(text,length){
  const loc=text.replace(/\s+/g,''),r=ranges(loc,length,false);if(!r?.length)return null;
  const strand=r.every(x=>x.flip)?-1:r.every(x=>!x.flip)?1:0;
- return {ranges:r.map(({start,end})=>({start,end})),strand};
+ return {ranges:r.map(({start,end})=>({start,end})),strand,reading:inOrder(loc,length)};
 }
+// Reading order for any annotation: GenBank ones carry it; imported ones (pieces written ascending) read backwards on minus.
+export const readingOrder=f=>f.reading??(f.strand<0?[...f.ranges].reverse().map(r=>({...r,minus:true})):f.ranges.map(r=>({...r,minus:false})));
+const COMP={A:'T',C:'G',G:'C',T:'A',R:'Y',Y:'R',S:'S',W:'W',K:'M',M:'K',B:'V',V:'B',D:'H',H:'D',N:'N','-':'-'};
+// The annotation's own sequence from the reference, pieces joined in reading order, 5'->3'.
+export function annotationSequence(f,ref){
+ let out='';for(const p of readingOrder(f)){let s='';for(let i=p.start;i<p.end;i++)s+=String.fromCharCode(ref[i]).toUpperCase();if(p.minus){let r='';for(let i=s.length-1;i>=0;i--)r+=COMP[s[i]]??'N';s=r;}out+=s;}
+ return out;
+}
+export const annotationLength=f=>f.ranges.reduce((s,r)=>s+r.end-r.start,0);
 export function parseFeatures(text,length){
  const list=[];let skipped=0;if(!text)return {list,skipped};
  let cur=null,key=null;

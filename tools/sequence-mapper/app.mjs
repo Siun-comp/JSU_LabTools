@@ -14,25 +14,29 @@ import {setupFind} from './find-ui.mjs';
 import {setupList} from './list-ui.mjs';
 import {SequenceView} from './view/sequence-view.mjs';
 import {setupAnnotations} from './annotation-ui.mjs';
+import {readingOrder} from './core/features.mjs';
 import {gatherChunk,subsetData,MAX_LIST_BASES,mergeRecords,recordFacts} from './core/list.mjs';
-export const TOOL_VERSION='0.1.0-beta.4';
+export const TOOL_VERSION='0.1.0-beta.5';
 const $=id=>document.getElementById(id),dec=new TextDecoder();
 const state={files:{reference:null,queries:[],aligned:null},loaded:null,S:null,R:null,order:null,workers:[],busy:false,analysis:null,statsId:0,cols:null,stats:null,navIndex:-1,selectedRecord:-1,dropped:new Set(),picked:new Set(),anchor:-1};
 const viewer=new Viewer($('viewer'),{onZoom:i=>{$('zoom').value=i;},onHover:hover,onSelect:selectRow,onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id),onPrimerClear:()=>primers.clearActive(),onRangeClear:()=>primers.clearRange()});
-const sequenceView=new SequenceView($('sequence-view'),{onHover:t=>{$('hover-line').textContent=t??'';},onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id),onPrimerClear:()=>primers.clearActive(),onRangeClear:()=>primers.clearRange()});
+const sequenceView=new SequenceView($('sequence-view'),{onHover:t=>{$('hover-line').textContent=t??'';$('hover-line').title=t??'';},onRange:r=>primers.onRange(r),onPrimer:id=>primers.onPrimerClick(id),onPrimerClear:()=>primers.clearActive(),onRangeClear:()=>primers.clearRange()});
 const activeView=()=>state.single?sequenceView:viewer,circular=()=>!!state.single&&state.loaded?.reference?.topology==='circular';
-const annotations=setupAnnotations({views:()=>[viewer,sequenceView]});
+// A row of the Annotation tab: go to its first piece and make it the selection, as the find scope does (AP-277).
+function selectAnnotation(f){const r=f.ranges[0],{colOf}=state.cols,c0=colOf[r.start],c1=colOf[r.end-1]+1;showTab('viewer');const v=activeView();v.scrollToColumn((c0+c1)/2);
+ if(state.single)v.selectRange({c0,c1,source:'reference',row:-1,strand:'+'});else v.selectRange({c0,c1,from:-1,to:-1,source:'reference',row:-1,strand:'+'});}
+const annotations=setupAnnotations({views:()=>[viewer,sequenceView],reference:()=>state.ref,refId:()=>state.refName,select:f=>selectAnnotation(f)});
 const primers=setupPrimers({get viewer(){return activeView();},importedAnnotations:()=>annotations.imported(),onClear:()=>find.release(),circular,reference:()=>state.ref,consensus:()=>state.single?null:state.stats?.consensus??null,cols:()=>state.cols,ready:()=>!!state.stats,baseOrder:()=>state.baseOrder,analysis:()=>state.analysis,showTab,referenceInfo:()=>state.loaded.reference,referenceId:()=>state.refName,referenceInList:()=>!!state.refFromList,scopeText:bindingScope,saveText,hoverText:t=>{$('hover-line').textContent=t;},forceRecords(list,label){state.forced=new Set(list);$('forced-text').textContent=`${label} ${list.length.toLocaleString()}건만 표시`;$('forced-chip').hidden=false;applyFilter(true);},project:(row,buf,c0,c1)=>projectRow(state.S,state.order[row],state.cols,buf,c0,c1),rowName:row=>accessionOf(state.names[state.order[row]])});
 viewer.onPrimerEdit=sequenceView.onPrimerEdit=id=>primers.edit(id);
 const find=setupFind({get viewer(){return activeView();},circular,single:()=>!!state.single,annotations:()=>annotations.visible(),analysis:()=>state.analysis,ready:()=>!!state.stats&&!$('result').hidden,cols:()=>state.cols,order:()=>state.order,reference:()=>state.ref,consensus:()=>state.stats.consensus,primers:()=>primers.state.list,nameOf:i=>state.names[i],rowName:row=>state.names[state.order[row]],showTab,forceRecords(list,label){state.forced=new Set(list);$('forced-text').textContent=`${label} ${list.length.toLocaleString()}건만 표시`;$('forced-chip').hidden=false;applyFilter(true);}});
 const list=setupList({changed:updateJudge,view:openSingle});
-function showTab(name){for(const n of ['viewer','primers','binding']){$('pane-'+n).hidden=n!==name;$('tab-'+n).setAttribute('aria-selected',n===name);}fitHeights();}
+function showTab(name){for(const n of ['viewer','primers','binding','annotations']){$('pane-'+n).hidden=n!==name;$('tab-'+n).setAttribute('aria-selected',n===name);}fitHeights();}
 // The viewer ends inside the window so its horizontal scrollbar is on the first screen.
 const MIN_VIEW_H=420,MAX_VIEW_H=1000,BELOW_VIEW=34;
 function fitHeights(){const r=$('result');if(r.hidden)return;const top=e=>e.getBoundingClientRect().top+scrollY,s=[...r.querySelectorAll('.viewer-scroll')].find(e=>e.offsetParent),set=(k,v)=>{if(r.style.getPropertyValue(k)!==v)r.style.setProperty(k,v);};if(s)set('--viewer-h',Math.min(MAX_VIEW_H,Math.max(MIN_VIEW_H,Math.floor(innerHeight-top(s)-BELOW_VIEW)))+'px');set('--side-h',Math.max(MIN_VIEW_H,Math.floor(innerHeight-top(r.querySelector('.side'))-8))+'px');}
 new ResizeObserver(fitHeights).observe(document.body);addEventListener('resize',fitHeights);
 $('info-toggle').addEventListener('click',e=>{const open=$('info-panel').hidden;$('info-panel').hidden=!open;e.currentTarget.setAttribute('aria-expanded',open);});
-for(const n of ['viewer','primers','binding'])$('tab-'+n).addEventListener('click',()=>showTab(n));
+for(const n of ['viewer','primers','binding','annotations'])$('tab-'+n).addEventListener('click',()=>showTab(n));
 $('forced-clear').addEventListener('click',()=>{state.forced=null;$('forced-chip').hidden=true;applyFilter(true);});
 
 $('tool-version').textContent='v'+TOOL_VERSION;
@@ -292,8 +296,8 @@ function hover(p){
  else if(!over){let q=p.col;while(q<state.cols.total&&state.cols.refOfCol[q]<0)q++;const at=state.cols.refOfCol[q];if(at>=0)t+=` · 위치 ${toDisplay(at).toLocaleString()} 앞 · 해당 서열 ${state.stats.insRows[at].toLocaleString()}개`;else t+=` · Reference 끝 뒤 · 해당 서열 ${state.stats.insRows[state.ref.length].toLocaleString()}개`;}
  if(p.row>=0){const i=state.order[p.row],b=new Uint8Array(1);projectRow(state.S,i,state.cols,b,p.col,p.col+1);t+=` · ${accessionOf(state.names[i])}: ${b[0]?String.fromCharCode(b[0]):'정렬 밖'}`;}
  // Over an annotation: what it is comes first (AP-275).
- if(p.annotation){const f=p.annotation;t=`${f.type} ${f.label}${f.product&&f.product!==f.label?' · '+f.product:''} · ${f.ranges.map(x=>`${(x.start+1).toLocaleString()}–${x.end.toLocaleString()}`).join(', ')} ${f.strand<0?'−':f.strand>0?'+':''} · ${f.source??'Reference GenBank'} | `+t;}
- line.textContent=t;
+ if(p.annotation){const f=p.annotation,order=readingOrder(f),k=p.annotationPiece?order.findIndex(x=>x.start===p.annotationPiece.start):-1,piece=order.length>1&&k>=0?` · 조각 ${k+1}/${order.length}`:'';t=`${f.type} ${f.label}${f.product&&f.product!==f.label?' · '+f.product:''}${piece} · ${f.ranges.map(x=>`${(x.start+1).toLocaleString()}–${x.end.toLocaleString()}`).join(', ')} ${f.strand<0?'−':f.strand>0?'+':''} · ${f.source??'Reference GenBank'} | `+t;}
+ line.textContent=t;line.title=t;
 }
 // Ctrl adds or removes one record, Shift takes the rows between the last click and this one. The clicked row shows its details.
 function pickRows(row,mods={}){

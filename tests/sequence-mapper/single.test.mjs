@@ -5,10 +5,13 @@ import {referenceGenbank,primerGff3,primerCsv,primerRows,endOf,PRIMER_COLUMNS} f
 import {RecordStore,readInto} from '../../tools/sequence-mapper/core/parse.mjs';
 const B=s=>new TextEncoder().encode(s);
 // Locations
-const at=(l,n=1000)=>parseLocation(l,n);
-assert.deepEqual(at('5..20'),{ranges:[{start:4,end:20}],strand:1});assert.deepEqual(at('complement(5..20)'),{ranges:[{start:4,end:20}],strand:-1});assert.deepEqual(at('7'),{ranges:[{start:6,end:7}],strand:1});assert.deepEqual(at('<5..>20').ranges,[{start:4,end:20}]);
-assert.deepEqual(at('join(1..5,10..20)').ranges,[{start:0,end:5},{start:9,end:20}]);assert.deepEqual(at('complement(join(1..5,10..20))'),{ranges:[{start:0,end:5},{start:9,end:20}],strand:-1});assert.deepEqual(at('join(complement(10..20),complement(1..5))').strand,-1);assert.equal(at('order(1..5,10..20)').ranges.length,2);
+const at=(l,n=1000)=>parseLocation(l,n),rs=x=>({ranges:x.ranges,strand:x.strand});
+assert.deepEqual(rs(at('5..20')),{ranges:[{start:4,end:20}],strand:1});assert.deepEqual(rs(at('complement(5..20)')),{ranges:[{start:4,end:20}],strand:-1});assert.deepEqual(rs(at('7')),{ranges:[{start:6,end:7}],strand:1});assert.deepEqual(at('<5..>20').ranges,[{start:4,end:20}]);
+assert.deepEqual(at('join(1..5,10..20)').ranges,[{start:0,end:5},{start:9,end:20}]);assert.deepEqual(rs(at('complement(join(1..5,10..20))')),{ranges:[{start:0,end:5},{start:9,end:20}],strand:-1});assert.deepEqual(at('join(complement(10..20),complement(1..5))').strand,-1);assert.equal(at('order(1..5,10..20)').ranges.length,2);
 assert.equal(at('join(1..5,complement(10..20))').strand,0);
+// Reading order (AP-277): complement reverses what it wraps, so both minus-strand forms read 10..20 first.
+assert.deepEqual(at('complement(join(1..5,10..20))').reading,[{start:9,end:20,minus:true},{start:0,end:5,minus:true}]);assert.deepEqual(at('join(complement(10..20),complement(1..5))').reading,[{start:9,end:20,minus:true},{start:0,end:5,minus:true}]);
+assert.deepEqual(at('join(990..1000,1..5)').reading,[{start:989,end:1000,minus:false},{start:0,end:5,minus:false}]);assert.deepEqual(at('complement(join(990..1000,1..5))').reading.map(x=>x.start),[0,989]);
 assert.deepEqual(at('join(990..1000,1..5)').ranges,[{start:989,end:1000},{start:0,end:5}]);assert.deepEqual(at('990..5').ranges,[{start:989,end:1000},{start:0,end:5}]);
 assert.equal(at('J00194.1:1..5'),null);assert.equal(at('5^6'),null);assert.equal(at('5..2000'),null);assert.equal(at('0..5'),null);
 // Features

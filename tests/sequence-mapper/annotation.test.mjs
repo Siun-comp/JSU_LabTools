@@ -35,4 +35,11 @@ const opts={referenceLength:300,referenceId:'SYN_REF.1',source:{id:1,name:'t.gff
 {const seq=new TextEncoder().encode('ACGT'.repeat(75)),imp=readAnnotationFile('##gff-version 3\nSYN_REF.1\ts\tCDS\t20\t50\t.\t-\t0\tID=c1;Name=synD;product=protein D\nSYN_REF.1\ts\tCDS\t100\t180\t.\t-\t0\tID=c1',opts).list;
  const gb=referenceGenbank({reference:{name:'SYN_REF.1 s',sequence:seq,features:null,source:null},primers:[],annotations:imp,date:new Date(Date.UTC(2026,10,13))});
  assert.match(gb,/\n {5}CDS {13}complement\(join\(20\.\.50,100\.\.180\)\)\n {21}\/label="synD"\n {21}\/product="protein D"\n {21}\/note="JSU Sequence Mapper: imported from t\.gff3"\n/);}
-console.log('PASS: Sequence Mapper reference annotations: GenBank types, GFF3/CSV import and errors, GenBank export of imported annotations.');
+// Annotation sequence (AP-277): pieces joined in reading order, minus strand as reverse complement, from GenBank or a file
+{const {annotationSequence,annotationLength}=await import('../../tools/sequence-mapper/core/features.mjs');
+ const ref=new TextEncoder().encode('ACGTTGCAAC'),feat=loc=>parseFeatures(`FEATURES             Location/Qualifiers\n     CDS             ${loc}\n                     /gene="x"`,10).list[0];
+ assert.equal(annotationSequence(feat('join(1..3,6..8)'),ref),'ACGGCA');
+ assert.equal(annotationSequence(feat('complement(join(1..3,6..8))'),ref),'TGCCGT');assert.equal(annotationSequence(feat('join(complement(6..8),complement(1..3))'),ref),'TGCCGT');
+ assert.equal(annotationSequence({strand:-1,ranges:[{start:0,end:3},{start:5,end:8}]},ref),'TGCCGT');assert.equal(annotationSequence({strand:1,ranges:[{start:5,end:8}]},new TextEncoder().encode('acgttgcaac')),'GCA');
+ assert.equal(annotationLength(feat('complement(join(1..3,6..8))')),6);}
+console.log('PASS: Sequence Mapper reference annotations: GenBank types, GFF3/CSV import and errors, GenBank export of imported annotations, annotation sequence.');

@@ -178,9 +178,11 @@ export class Viewer{
    for(const p of f.pieces){const l=X(p.c0),r=X(p.c1),head=p===last&&f.strand?Math.min(7,Math.max(2,(r-l)/2)):0;x.beginPath();
     if(f.strand>=0){x.moveTo(l,top);x.lineTo(r-head,top);x.lineTo(r,mid);x.lineTo(r-head,top+hh);x.lineTo(l,top+hh);}else{x.moveTo(r,top);x.lineTo(l+head,top);x.lineTo(l,mid);x.lineTo(l+head,top+hh);x.lineTo(r,top+hh);}
     x.closePath();x.fillStyle=color;x.fill();}
-   // The name stays in sight: inside the widest piece, moved right when that piece starts left of the screen.
-   const wide=f.pieces.reduce((a,p)=>p.c1-p.c0>a.c1-a.c0?p:a),wl=Math.max(X(wide.c0),this.nameW+2),wr=X(wide.c1),tw=x.measureText(f.label).width;x.fillStyle='#1f2d3a';
-   if(tw+14<wr-wl)x.fillText(f.label,wl+(f.strand<0?9:4),mid+.5);else x.fillText(f.label,X(f.c1)+3,mid+.5);}
+   // The name goes in every piece wide enough for it (moved right when a piece starts left of the screen); narrow
+   // pieces stay blank, and a feature with no wide piece gets its name after its end (AP-277).
+   const tw=x.measureText(f.label).width;let named=false;x.fillStyle='#1f2d3a';
+   for(const p of f.pieces){const wl=Math.max(X(p.c0),this.nameW+2),wr=X(p.c1);if(tw+14<wr-wl){x.fillText(f.label,wl+(f.strand<0?9:4),mid+.5);named=true;}}
+   if(!named)x.fillText(f.label,X(f.c1)+3,mid+.5);}
  }
  seqTrack(x,seq,y,hh,c0,c1,off,other){const cell=this.cell;
   if(cell>=GLYPH_MIN){const a=this.glyphs(),d=this.dpr,cw=Math.ceil(cell*d),rh=ROW*d;for(let c=c0;c<c1;c++){const v=seq[c];if(!v)continue;const g=this.atlasIndex[v];if(g<0)continue;x.drawImage(a,g*cw,v===other[c]?0:rh,cw,rh,this.nameW+off+(c-c0)*cell,y,cell,hh);}return;}
@@ -189,8 +191,9 @@ export class Viewer{
  locate(e){const b=this.canvas.getBoundingClientRect(),px=e.clientX-b.left,py=e.clientY-b.top,v=this.view;if(!v||!this.data)return null;
   const TOP=this.top,col=px>=this.nameW?v.c0+Math.floor((px-this.nameW-v.off)/this.cell):-1,row=py>=TOP?v.r0+Math.floor((py-TOP-v.yoff)/ROW):-1,laneTop=H.overview+H.ruler,inLanes=py>=laneTop&&py<laneTop+this.lanes*LANE,consTop=laneTop+this.lanes*LANE,refTop=consTop+H.consensus+H.coverage+H.identity,annTop=refTop+H.reference,inAnn=py>=annTop&&py<annTop+this.annLanes*ALANE;
   let primer=null;if(inLanes&&col>=0){const lane=Math.floor((py-laneTop)/LANE);primer=this.shown?.find(p=>p.lane===lane&&col>=p.c0&&col<p.c1)??null;}
-  let annotation=null;if(inAnn&&col>=0){const lane=Math.floor((py-annTop)/ALANE),on=this.annShown.filter(f=>f.lane===lane);annotation=on.find(f=>f.pieces.some(q=>col>=q.c0&&col<q.c1))??on.find(f=>col>=f.c0&&col<f.c1)??null;}
-  return {px,py,col:col<this.data.cols.total?col:-1,row:row<this.data.order.length?row:-1,primer,annotation,track:py<H.overview?'overview':py>=consTop&&py<consTop+H.consensus?'consensus':py>=TOP?'row':inAnn?'annotation':py>=refTop?'reference':'other'};}
+  let annotation=null,annotationPiece=null;if(inAnn&&col>=0){const lane=Math.floor((py-annTop)/ALANE),on=this.annShown.filter(f=>f.lane===lane);annotation=on.find(f=>f.pieces.some(q=>col>=q.c0&&col<q.c1))??on.find(f=>col>=f.c0&&col<f.c1)??null;
+   if(annotation){const k=annotation.pieces.findIndex(q=>col>=q.c0&&col<q.c1);annotationPiece=k>=0?annotation.ranges[k]:null;}}
+  return {px,py,col:col<this.data.cols.total?col:-1,row:row<this.data.order.length?row:-1,primer,annotation,annotationPiece,track:py<H.overview?'overview':py>=consTop&&py<consTop+H.consensus?'consensus':py>=TOP?'row':inAnn?'annotation':py>=refTop?'reference':'other'};}
  nearSplit(p){return p&&Math.abs(p.px-this.nameW)<=4;}
  move(e){const p=this.locate(e);if(this.drag?.resize){if(p)this.setNameWidth(p.px);return;}this.canvas.style.cursor=this.nearSplit(p)?'col-resize':'';if(this.drag)return;this.onHover?.(p);}
  down(e){if(e.button)return;const p=this.locate(e);if(!p)return;if(this.nearSplit(p)){e.preventDefault();this.drag={resize:true};this.request();return;}if(p.track==='overview'&&p.px>=this.nameW){this.scrollToColumn((p.px-this.nameW)/(this.width-this.nameW)*this.data.cols.total);return;}
