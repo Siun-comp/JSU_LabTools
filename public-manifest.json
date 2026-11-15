@@ -1,5 +1,5 @@
 {
-  "version": "1.9.0",
+  "version": "1.9.1",
   "files": [
     {
       "source": "portal/index.html",
@@ -400,6 +400,18 @@
     {
       "source": "tools/amplification-analysis/runtime/assets/xlsx-CKwrMZHi.js",
       "target": "tools/amplification-analysis/assets/xlsx-CKwrMZHi.js"
+    },
+    {
+      "source": "tools/amplification-analysis/runtime/assets/ChartView-DgPZBWXf.js",
+      "target": "tools/amplification-analysis/assets/ChartView-DgPZBWXf.js"
+    },
+    {
+      "source": "tools/amplification-analysis/runtime/assets/index-BPzcOlUU.css",
+      "target": "tools/amplification-analysis/assets/index-BPzcOlUU.css"
+    },
+    {
+      "source": "tools/amplification-analysis/runtime/assets/index-D9sv9xvq.js",
+      "target": "tools/amplification-analysis/assets/index-D9sv9xvq.js"
     },
     {
       "source": "tools/amplification-analysis/runtime/favicon-16.png",

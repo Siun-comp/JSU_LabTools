@@ -17,26 +17,61 @@ const oligo=contract.oligoDimerRelease;
 const methodPatch=contract.methodComparisonPatchRelease;
 assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,'1.5.1');assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
 const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+const aaBeta2=contract.amplificationBeta2Release;
+assert.equal(aaBeta2.previousSHA,'942d03946be96bd7019134a44d78a117ec1b9f73');
+assert.equal(aaBeta2.portalVersion,manifest.version);assert.equal(aaBeta2.previousPortalVersion,'1.9.0');
+assert.equal(aaBeta2.toolVersion,T['amplification-analysis'].version);assert.equal(aaBeta2.previousToolVersion,'0.1.0-beta.1');
+assert.equal(aaBeta2.analysisSchema,16);assert.equal(aaBeta2.previousAnalysisSchema,15);assert.equal(aaBeta2.selectedDataSchema,9);
+assert.equal(aaBeta2.previousPublic.length,280);
+const aaBeta2Added=aaBeta2.addedTargets.map(e=>e.target);
+assert.deepEqual([...aaBeta2Added].sort(),['ChartView-DgPZBWXf.js','index-BPzcOlUU.css','index-D9sv9xvq.js'].map(p=>'tools/amplification-analysis/assets/'+p),'Only the three new AA build files are added');
+assert.deepEqual(manifest.files.filter(e=>!aaBeta2Added.includes(e.target)),aaBeta2.previousPublic.map(({source,target})=>({source,target})),'AA 0.2.0-beta.1 keeps every public path, including the 0.1.0-beta.1 build files');
+for(const e of aaBeta2.addedTargets){const b=await readFile(resolve(dist,e.target));assert.equal(hash(b),e.sha256,'Reviewed AA 0.2.0-beta.1 build file: '+e.target);assert.equal(b.length,e.bytes);assert.equal(manifest.files.find(f=>f.target===e.target).source,e.source);}
+assert.deepEqual(aaBeta2.selected.map(e=>e.target).sort(),['index.html','contact.html','tools/amplification-analysis/index.html',...aaBeta2.previousPublic.filter(e=>/^info\/.*\.html$/.test(e.target)).map(e=>e.target)].sort(),'Only portal version text, the AA row, the AA information page and the AA entry page change');
+const beforeAABeta2=new Map();
+for(const entry of aaBeta2.previousPublic){
+ const current=await readFile(resolve(dist,entry.target));
+ const changed=aaBeta2.selected.find(e=>e.target===entry.target);
+ if(changed)assert.equal(hash(current),changed.sha256,'Reviewed AA 0.2.0-beta.1 change: '+entry.target);
+ const previous=changed?execFileSync('git',['-C',gitRoot,'show',aaBeta2.previousSHA+':'+entry.source],{maxBuffer:256*1024*1024}):current;
+ assert.equal(hash(previous),entry.sha256,'Bytes before AA 0.2.0-beta.1: '+entry.target);
+ beforeAABeta2.set(entry.target,previous);
+}
+for(const e of aaBeta2.selected.filter(e=>(/^info\/.*\.html$/.test(e.target)||e.target==='contact.html')&&e.target!=='info/amplification-analysis.html'))assert.equal(beforeAABeta2.get(e.target).toString().replace('포털 v1.9.0','포털 v1.9.1').replace(e.target==='contact.html'?'<dt id="amplification-analysis">Amplification Analysis</dt><dd>v0.1.0-beta.1</dd>':'\u0000','<dt id="amplification-analysis">Amplification Analysis</dt><dd>v0.2.0-beta.1</dd>'),(await readFile(resolve(dist,e.target))).toString(),'Information pages change only portal version text; contact also the AA version: '+e.target);
+{
+ // Home: only the Amplification Analysis row (version, check date, purpose) and the portal version text.
+ const rowOf=h=>[...h.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].map(m=>m[0]).find(r=>r.includes('<h2>Amplification Analysis</h2>'));
+ const before=beforeAABeta2.get('index.html').toString(),now=await readFile(resolve(dist,'index.html'),'utf8');
+ const oldRow=rowOf(before),newRow=rowOf(now);
+ assert.equal(oldRow.replace('도구 v0.1.0-beta.1','도구 v0.2.0-beta.1').replace('datetime="2026-10-06">확인 2026-10-06','datetime="2026-11-15">확인 2026-11-15').replace('<td class="purpose">증폭 곡선 · Threshold · STD 정량 · 개별 4PL/5PL</td>','<td class="purpose">CFX 내보내기 · 증폭 곡선 · 반복 · STD 정량 · 4PL/5PL</td>'),newRow,'Reviewed AA row');
+ assert.equal(before.replace(oldRow,newRow).replace('포털 v1.9.0','포털 v1.9.1'),now,'Home changes only the AA row and portal version');
+ // AA entry page: only the main script and stylesheet names; the 0.1.0-beta.1 build files stay public.
+ const entryNow=await readFile(resolve(dist,'tools/amplification-analysis/index.html'),'utf8');
+ assert.equal(beforeAABeta2.get('tools/amplification-analysis/index.html').toString().replace('./assets/index-BMz3UKwI.js','./assets/index-D9sv9xvq.js').replace('./assets/index-BXl38kwM.css','./assets/index-BPzcOlUU.css'),entryNow,'AA entry page changes only its script and stylesheet');
+ const aaInfo=await readFile(resolve(dist,'info/amplification-analysis.html'),'utf8');
+ for(const text of ['v0.2.0-beta.1 · 베타','2026-11-15','CFX Maestro','Quantification Data','well 배치표','Channel 1~5','다른 파일의 well은 묶지 않습니다','schema 16','v0.1.0-beta.1에서는 열리지 않습니다','.pcrd 직접 열기','변곡점은 Ct/Cq가 아니며','포털 v1.9.1'])assert(aaInfo.includes(text),'AA 0.2.0-beta.1 information: '+text);
+ assert(!aaInfo.includes('임시 결과'),'4/5PL results are saved now');
+}
 const layout=contract.portalLayoutRelease;
 assert.equal(layout.previousSHA,'7f76085535f4708ef74d3a9cf6744ddc612c3e99');
-assert.equal(layout.portalVersion,manifest.version);assert.equal(layout.previousPortalVersion,'1.8.8');
+assert.equal(layout.portalVersion,aaBeta2.previousPortalVersion);assert.equal(layout.previousPortalVersion,'1.8.8');
 assert.equal(layout.previousPublic.length,280);assert.deepEqual(layout.addedTargets,[]);
-assert.deepEqual(layout.previousPublic.map(({source,target})=>({source,target})),manifest.files,'Portal 1.9.0 keeps every public path');
+assert.deepEqual(layout.previousPublic.map(({source,target})=>({source,target})),aaBeta2.previousPublic.map(({source,target})=>({source,target})),'Portal 1.9.0 keeps every public path');
 assert.deepEqual(layout.selected.map(e=>e.target).sort(),['index.html','assets/portal.css','contact.html',...layout.previousPublic.filter(e=>/^info\/.*\.html$/.test(e.target)).map(e=>e.target)].sort(),'Only the portal list, its stylesheet and portal version text change');
 const beforeLayout=new Map();
 for(const entry of layout.previousPublic){
- const current=await readFile(resolve(dist,entry.target));
+ const current=beforeAABeta2.get(entry.target);
  const changed=layout.selected.find(e=>e.target===entry.target);
  if(changed)assert.equal(hash(current),changed.sha256,'Reviewed portal 1.9.0 change: '+entry.target);
  const previous=changed?execFileSync('git',['-C',gitRoot,'show',layout.previousSHA+':'+entry.source]):current;
  assert.equal(hash(previous),entry.sha256,'Portal bytes before portal 1.9.0: '+entry.target);
  beforeLayout.set(entry.target,previous);
 }
-for(const e of layout.selected.filter(e=>/^info\/.*\.html$/.test(e.target)||e.target==='contact.html'))assert.equal(beforeLayout.get(e.target).toString().replace('포털 v1.8.8','포털 v1.9.0'),(await readFile(resolve(dist,e.target))).toString(),'Information and contact pages change only portal version text: '+e.target);
+for(const e of layout.selected.filter(e=>/^info\/.*\.html$/.test(e.target)||e.target==='contact.html'))assert.equal(beforeLayout.get(e.target).toString().replace('포털 v1.8.8','포털 v1.9.0'),beforeAABeta2.get(e.target).toString(),'Information and contact pages change only portal version text: '+e.target);
 {
  // Portal 1.9.0 moves the same tool rows into four stage groups; only the stage cell and two text arrows (now the shared icons) differ.
  const rowsOf=h=>[...h.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].map(m=>m[0]);
- const oldRows=rowsOf(beforeLayout.get('index.html').toString()),newRows=rowsOf(await readFile(resolve(dist,'index.html'),'utf8'));
+ const oldRows=rowsOf(beforeLayout.get('index.html').toString()),newRows=rowsOf(beforeAABeta2.get('index.html').toString());
  const ext=oldRows[0].match(/열기 (<svg[\s\S]*?<\/svg>)/)[1],more=oldRows[0].match(/정보 (<svg[\s\S]*?<\/svg>)/)[1];
  const expected=oldRows.map(r=>r.replace(/>열기 ↗</,()=>'>열기 '+ext+'<').replace(/>정보 →</,()=>'>정보 '+more+'<'));
  const stages=newRows.map(r=>r.match(/^<tr class="available"><th class="stage-cell" rowspan="(\d)" scope="rowgroup"><span class="stage-label">([^<]+)<\/span>/)).filter(Boolean);
@@ -322,7 +357,7 @@ for(const e of update.previousPublic.filter(e=>e.target!=='index.html'&&!update.
 }
 const nucCore=await readFile(resolve(dist,'tools/nucleic-acid-calculator/core.mjs'),'utf8');
 for(const marker of [`VERSION='${T['nucleic-acid'].algorithm}'`,"'neb-web'","'thermo-web'","615.94","602200000000000000000000n"])assert(nucCore.includes(marker),'Selected nucleic web reference: '+marker);
-const info=await readFile(resolve(dist,'info/amplification-analysis.html'),'utf8');
+const info=beforeAABeta2.get('info/amplification-analysis.html').toString();
 for(const text of ['베타','Excel 붙여넣기 사용자 확인','3행 형광','1, 2, 3','실제 사용 중','임시 결과','작업 재열기 후 다시 분석','시약 이름 차이','외삽'])assert(info.includes(text),'Support statement: '+text);
 assert(!/<(?:script|input|textarea|form|iframe)\b/i.test(info),'Information page is read-only');
 assert(!/localhost|127\.0\.0\.1|(?:^|["' >])[A-Z]:[\\/]|validation\//i.test(info+home),'No internal file paths');
@@ -337,7 +372,8 @@ for(const path of (await files(dist)).filter(p=>p.endsWith('.html')&&!p.startsWi
  }
 }
 const appBase=resolve(dist,'tools/amplification-analysis');
-for(const e of contract.appFiles)assert.equal(hash(await readFile(resolve(appBase,e.path))),e.sha256,'Frozen beta runtime');
+for(const e of contract.appFiles)assert.equal(hash(beforeAABeta2.get('tools/amplification-analysis/'+e.path)??await readFile(resolve(appBase,e.path))),e.sha256,'Frozen beta runtime');
+for(const e of contract.appFiles.filter(e=>e.path!=='index.html'))assert.equal(hash(await readFile(resolve(appBase,e.path))),e.sha256,'0.1.0-beta.1 build file still public: '+e.path);
 const appIndex=await readFile(resolve(appBase,'index.html'),'utf8');
 const main=appIndex.match(/src="([^"]+\.js)"/)[1];
 const mainText=await readFile(resolve(appBase,main),'utf8');
