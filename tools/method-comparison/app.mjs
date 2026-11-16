@@ -3,7 +3,8 @@ import {installHelp} from './help-ui.mjs';
 import {helpButton} from './help-content.mjs';
 import {plotLegend} from './plot-legend.mjs';
 import {baObservation,baObservations} from './ba-observation.mjs';
-import {resultContract,specimenData,rawData,outputSelection,ANALYSIS_NAMES,equalityAvailable} from './result-contract.mjs';
+import {resultContract,specimenData,rawData,outputSelection,ANALYSIS_NAMES,REGRESSION_NAMES,equalityAvailable,pbFacts} from './result-contract.mjs';
+import {runRCheck,relativeDifference,MATCH_TOLERANCE} from './r-check.mjs';
 import {numericScreen} from './numeric-screen.mjs';
 import {comparisonHTML} from './comparison-view.mjs';
 import {analyses,comparisonFacts,olsDiagnostics,configuration} from './comparison.mjs';
@@ -14,7 +15,7 @@ import {barChart,detectionBars,agreementBars,medianBars} from './bar-chart.mjs';
 import {NOTES} from './notes.mjs';
 import {exportReport,reportData} from './report-export.mjs';
 import {unifiedReportData} from './unified-report.mjs';
-import {exampleData,EXAMPLE_DESCRIPTION} from './example.mjs';
+import {exampleData,EXAMPLE_DESCRIPTION,quantitativeExampleData,QUANT_EXAMPLE_DESCRIPTION,EXAMPLE_GUIDES} from './example.mjs';
 import {installGraphCopy} from './graph-copy.mjs';
 import {readXlsx} from './import.mjs';
 const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -23,7 +24,7 @@ const table=(headers,rows,actions=null)=>`<div class="table-wrap"><table><thead>
 const helpUI=installHelp();
 let snapshot=null,sourceRecords=null,revision=0,tab='qual',page=0,rowMode='all',selected=[],summary=null;
 function dirty(message='입력이 변경되었습니다. 분석을 다시 누르세요.'){revision++;snapshot=null;$('results').hidden=true;$('copy').disabled=true;$('copy-status').textContent='';$('export').disabled=true;$('export-status').textContent='';$('status').textContent=message;}
-$('input').addEventListener('input',()=>{sourceRecords=null;$('source').textContent='직접 입력 / 붙여넣기';dirty();});
+$('input').addEventListener('input',()=>{sourceRecords=null;exampleKind=null;showGuide();$('source').textContent='직접 입력 / 붙여넣기';dirty();});
 for(const id of ['ct-cuts','median-cuts','confidence','ci-method','pi-level'])$(id).addEventListener('input',()=>dirty());
 for(const id of ['independent','same-scale','comparison-unit','lambda-source','deming-lambda','lambda-basis','ba-lower','ba-upper','reference-unit','product-unit'])$(id).addEventListener('input',()=>dirty());
 function syncConditions(){
@@ -41,14 +42,27 @@ $('ba-tolerance').addEventListener('change',()=>{syncConditions();dirty();});syn
 const comparisonOptions=()=>({xUnit:$('reference-unit').value,yUnit:$('product-unit').value,independent:$('independent').checked,sameScale:$('same-scale').checked,unit:$('comparison-unit').value,lambdaSource:$('lambda-source').value,lambda:$('deming-lambda').value,basis:$('lambda-basis').value,toleranceRequired:$('ba-tolerance').checked,lower:$('ba-tolerance').checked?$('ba-lower').value:'',upper:$('ba-tolerance').checked?$('ba-upper').value:''});
 const dateControl=initDateBoundaries($('date-boundaries'),()=>dirty());
 function serialize(records){const field=v=>/[\t\r\n"]/.test(String(v))?'"'+String(v).replaceAll('"','""')+'"':String(v);return records.map(r=>r.cells.map(field).join('\t')).join('\n');}
-$('file').addEventListener('change',async()=>{const file=$('file').files[0];if(!file)return;const start=revision;$('status').textContent='파일을 읽고 있습니다.';$('analyze').disabled=true;try{if(file.size>20*1024*1024)throw Error('파일은 20 MB 이하로 입력하세요.');let imported;if(/\.xlsx$/i.test(file.name))imported=await readXlsx(await file.arrayBuffer());else imported={...readDelimited(await file.text()),sheet:'6열 입력'};if(start!==revision){$('status').textContent='파일 읽기 중 편집한 입력을 유지했습니다. 필요하면 파일을 다시 불러오세요.';return;}$('input').value=serialize(imported.records);sourceRecords=imported.records;$('input').scrollTop=0;$('source').textContent=`${file.name} / ${imported.sheet} / ${imported.header.description} / 원래 행 번호 유지`;dirty('파일을 불러왔습니다. 분석을 누르세요.');}catch(e){$('status').textContent=e.message;}finally{$('analyze').disabled=false;$('file').value='';}});
-$('clear').onclick=()=>{if($('input').value&&!confirm('입력과 분석 결과를 비울까요?'))return;$('input').value='';sourceRecords=null;$('source').textContent='';dirty('자료를 입력하세요.');};
-$('example').onclick=()=>{if($('input').value&&!confirm('현재 입력을 합성 예제로 바꿀까요?'))return;$('input').value=exampleData().map(r=>r.join('\t')).join('\n');sourceRecords=null;$('input').scrollTop=0;$('source').textContent=EXAMPLE_DESCRIPTION;dirty('합성 예제를 입력했습니다. 분석을 누르세요.');};
+$('file').addEventListener('change',async()=>{const file=$('file').files[0];if(!file)return;const start=revision;$('status').textContent='파일을 읽고 있습니다.';$('analyze').disabled=true;try{if(file.size>20*1024*1024)throw Error('파일은 20 MB 이하로 입력하세요.');let imported;if(/\.xlsx$/i.test(file.name))imported=await readXlsx(await file.arrayBuffer());else imported={...readDelimited(await file.text()),sheet:'6열 입력'};if(start!==revision){$('status').textContent='파일 읽기 중 편집한 입력을 유지했습니다. 필요하면 파일을 다시 불러오세요.';return;}$('input').value=serialize(imported.records);sourceRecords=imported.records;exampleKind=null;showGuide();$('input').scrollTop=0;$('source').textContent=`${file.name} / ${imported.sheet} / ${imported.header.description} / 원래 행 번호 유지`;dirty('파일을 불러왔습니다. 분석을 누르세요.');}catch(e){$('status').textContent=e.message;}finally{$('analyze').disabled=false;$('file').value='';}});
+$('clear').onclick=()=>{if($('input').value&&!confirm('입력과 분석 결과를 비울까요?'))return;exampleKind=null;showGuide();$('input').value='';sourceRecords=null;$('source').textContent='';dirty('자료를 입력하세요.');};
+// Which example (if any) is in the input box; cleared when the user edits or loads other data.
+let exampleKind=null;
+function showGuide(){const box=$('example-guide'),g=exampleKind&&EXAMPLE_GUIDES[exampleKind];box.hidden=!g;if(!g){box.innerHTML='';return;}box.innerHTML=`<details open><summary>${esc(g.title)}</summary><ol>${g.steps.map(t=>`<li>${esc(t)}</li>`).join('')}</ol><p id="example-live" class="finding" role="status"></p><p class="hint">예제 수치는 합성이며 권고값이나 실제 성능이 아닙니다.</p></details>`;}
+$('example').onclick=()=>{if($('input').value&&!confirm('현재 입력을 합성 예제로 바꿀까요?'))return;const quant=$('example-kind').value==='quant';$('input').value=(quant?quantitativeExampleData():exampleData()).map(r=>r.join('\t')).join('\n');sourceRecords=null;$('input').scrollTop=0;$('source').textContent=quant?QUANT_EXAMPLE_DESCRIPTION:EXAMPLE_DESCRIPTION;exampleKind=quant?'quant':'ct';showGuide();dirty('합성 예제를 입력했습니다. 분석을 누르세요.');};
+// Live numbers for the example guide, taken from the current analysis (never hard-coded).
+function exampleLive(){
+ const live=$('example-live');if(!live||!snapshot)return;
+ const r=resultContract(snapshot,selected,{...view(),withPB:true}),s=summary;
+ const parts=[`현재 결과: PPA ${s.ppa.k}/${s.ppa.n}, NPA ${s.npa.k}/${s.npa.n}, 양성 수치쌍 ${s.numeric.n}개.`];
+ if(r.model.slope!==null)parts.push(`OLS 기울기 ${fmt(r.model.slope)} (${snapshot.confidence*100}% CI ${ci(r.model.slopeCI)}).`);
+ if(r.pb?.slope!=null)parts.push(`Passing–Bablok 기울기 ${fmt(r.pb.slope)} (CI ${ci(r.pb.slopeCI)}), 절편 ${fmt(r.pb.intercept)} (CI ${ci(r.pb.interceptCI)}).`);
+ else if(exampleKind==='quant')parts.push('Passing–Bablok 값은 "독립 검체" 확인란을 체크하고 다시 분석하면 여기에 나옵니다.');
+ live.textContent=parts.join(' ');
+}
 $('analyze').onclick=()=>{
   try{
     const direct=sourceRecords?null:readDelimited($('input').value);
     const records=sourceRecords||direct.records;
-    if(direct&&!$('source').textContent.includes('합성 예제'))$('source').textContent='직접 입력 / 붙여넣기 · '+direct.header.description;
+    if(direct&&!$('source').textContent.includes('합성 예제')&&!$('source').textContent.includes('합성 정량 예제'))$('source').textContent='직접 입력 / 붙여넣기 · '+direct.header.description;
     if(records.length>10000)throw Error('10,000행 이하만 분석합니다.');
     const rows=normalize(records);if(!rows.length)throw Error('분석할 검체를 입력하세요.');
     const confidence=Number($('confidence').value),piLevel=Number($('pi-level').value)/100;
@@ -67,12 +81,14 @@ $('analyze').onclick=()=>{
   }catch(e){dirty(e.message);}
 };
 for(const id of ['ct-filter','date-filter'])$(id).onchange=()=>{page=0;render();};
-const view=()=>({method:$('regression-method').value,overlay:$('ols-overlay').checked,equality:$('equality-line').checked});
+// R cross-check result is kept only for the snapshot it was computed from.
+let rCheckState=null;const rCheckFor=()=>rCheckState&&rCheckState.snapshot===snapshot?rCheckState.data:null;
+const view=()=>({method:$('regression-method').value,overlay:$('ols-overlay').checked,equality:$('equality-line').checked,withPB:rowPurpose==='pb',rCheck:rCheckFor()});
 const currentResult=()=>resultContract(snapshot,selected,view());
 let rowPurpose='qual',outputRevision=0;
 function showTab(next){tab=next;document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===tab)));for(const id of ['qual','numeric','groups','median','ba','rows'])$(id).hidden=id!==tab;$('numeric-controls').hidden=tab!=='numeric';$('copy-status').textContent='';updateOutputDescription();}
 document.querySelectorAll('[data-tab]').forEach(button=>button.onclick=()=>showTab(button.dataset.tab));
-for(const id of ['regression-method','ols-overlay','equality-line'])$(id).onchange=()=>{outputRevision++;$('overlay-control').hidden=$('regression-method').value!=='deming';if(snapshot)render();};
+for(const id of ['regression-method','ols-overlay','equality-line'])$(id).onchange=()=>{outputRevision++;$('overlay-control').hidden=$('regression-method').value==='ols';if(snapshot)render();};
 const outputOptions=()=>outputSelection(tab,[...document.querySelectorAll('[data-output]:checked')].map(e=>e.dataset.output),{...view(),custom:$('output-custom').checked,details:$('output-details').checked,specimens:$('output-specimens').checked,raw:$('output-raw').checked,purpose:tab==='numeric'?view().method:tab==='ba'?'ba':tab==='rows'?rowPurpose:'qual',rowMode,listedRows:tab==='rows'?listed():undefined});
 function updateOutputDescription(){
   const o=outputOptions();
@@ -99,13 +115,13 @@ function render(){
   if(!snapshot)return;
   selected=subset(snapshot.rows,{ct:$('ct-filter').value,date:$('date-filter').value},snapshot.ct,snapshot.dates);
   summary=summarize(selected,snapshot.confidence,snapshot.method,snapshot.model);
-  const available=equalityAvailable(configuration(snapshot.comparison));$('equality-control').hidden=view().method!=='deming';$('equality-line').disabled=!available;$('equality-guidance').innerHTML=available?'같은 값의 위치를 표시합니다. 합격선이 아닙니다.':'<a href="#ba-settings">BA 설정의 같은 항목·단위·결과 정의 확인</a>과 두 축의 같은 단위/척도 입력이 필요합니다. 설정 후 다시 분석하세요.';
+  const available=equalityAvailable(configuration(snapshot.comparison));$('equality-control').hidden=view().method==='ols';$('equality-line').disabled=!available;$('equality-guidance').innerHTML=available?'같은 값의 위치를 표시합니다. 합격선이 아닙니다.':'<a href="#ba-settings">BA 설정의 같은 항목·단위·결과 정의 확인</a>과 두 축의 같은 단위/척도 입력이 필요합니다. 설정 후 다시 분석하세요.';
   const s=summary,allIds=snapshot.rows.filter(r=>!r.id).length;
   $('scope').textContent=`Reference: ${$('ct-filter').selectedOptions[0].textContent} / ${dateMode(snapshot.dates)}: ${$('date-filter').selectedOptions[0].textContent} · CI ${snapshot.confidence*100}% ${snapshot.method==='exact'?'Exact':'Wilson'} · PI ${snapshot.piLevel*100}% · 전체 입력 ID 누락 제외 ${allIds}개 · 형식 오류 제외 ${snapshot.rows.filter(r=>r.id&&r.inputErrors.length).length}개 · 전체 기준 모델 n=${snapshot.model.n}`;
   $('overview').innerHTML=[['표시 원행',s.total],['분석 적격 검체',s.eligible],['유효 정성 쌍',s.valid],['양성 수치 쌍',s.numeric.n],['정성 제외',s.excluded],['수치 제외',s.total-s.numeric.n]].map(([name,n])=>`<div class="card">${name}<strong>${n}</strong></div>`).join('');
   const audit=inputAudit(snapshot.rows);
   $('input-review').innerHTML=`<details class="interpretation"><summary>전체 입력 검증 · ID 누락 ${audit.idExcluded} / 형식 오류 ${audit.formatExcluded} · 결과 미인식 Reference ${audit.referenceUnknown} / Product ${audit.productUnknown}</summary><p class="hint">현재 필터와 관계없는 전체 입력 기준입니다. 제외 행 수는 ID 누락과 ID가 있는 형식 오류로 나눕니다. 항목별 오류는 같은 행이 중복 집계될 수 있으며 ID 누락 행도 포함합니다. 원행과 사유는 검체 목록에서 확인하세요.</p>${table(['전체 입력 검증 항목','행 수'],inputAuditEntries(snapshot.rows))}</details>`+(audit.referenceNonpositive||audit.productNonpositive?`<p class="hint">입력 확인: 0 이하 검출값 Reference ${audit.referenceNonpositive}개 / Product ${audit.productNonpositive}개 (전체 입력). 이 사유만으로 분석에서 제외하지 않습니다.</p>`:'');
-  renderQual();renderNumeric();renderGroups();renderMedian();renderRows();
+  renderQual();renderNumeric();renderGroups();renderMedian();renderRows();exampleLive();
   const comparison=comparisonHTML(snapshot,selected,summary);$('ba').innerHTML=comparison.ba+'<button type="button" data-review="ba">BA 검체 확인</button>';
   updateOutputDescription();
   for(const key of ['groups'])$(key).insertAdjacentHTML('beforeend',notesHTML(key));$('copy-status').textContent='';
@@ -116,7 +132,7 @@ function render(){
 
 function renderQual(){
   const s=summary;const indicator=k=>[k.toUpperCase()+(k==='ppa'?' (양성일치율)':k==='npa'?' (음성일치율)':' (전체일치율)'),s[k].k+' / '+s[k].n,pct(s[k].p),pci(s[k])];
-  $('qual').innerHTML='<h2>정성 결과 비교</h2><p>Reference와 Product의 양성/음성·ND 결과가 얼마나 일치하는지 확인합니다. PPA/NPA는 분자·분모와 CI를 함께 읽으세요. 확정 진단 기준이 아니라면 민감도·특이도로 바꾸어 부르지 않습니다.</p>'+table(['Reference','Product 양성','Product 음성·ND','합계'],[['양성',s.TP,s.FN,s.TP+s.FN],['음성·ND',s.FP,s.TN,s.FP+s.TN],['합계',s.TP+s.FP,s.FN+s.TN,s.valid]])+table(['지표','일치 수 / 분모','비율',snapshot.confidence*100+'% CI'],['ppa','npa'].map(indicator))+'<details class="interpretation"><summary>전체일치율 OPA 상세</summary>'+table(['지표','일치 수 / 분모','비율',snapshot.confidence*100+'% CI'],[indicator('opa')])+'</details>'+table(['Reference 양성 n','Product 유효 n','Product Invalid','Product 미입력','평가 가능률'],[[s.refPositive,s.evaluability.k,s.productInvalid,s.productMissing,s.evaluability.k+' / '+s.evaluability.n+' · '+pct(s.evaluability.p)]])+  '<p class="finding">양성 → 음성·ND 불일치 '+s.FN+'개 / 음성·ND → 양성 불일치 '+s.FP+'개. 유효 정성 n='+s.valid+'개입니다.</p><p>평가 가능률은 별도의 분모입니다. 같은 분모의 PPA와 검출률을 중복된 성능처럼 강조하지 않습니다. Invalid·미입력을 음성으로 대입하지 않습니다.</p><p>선택 범위 Invalid '+s.invalid+'개 / 결과 미입력 '+s.missingResult+'개는 정성에서 제외합니다(사유 중복 가능). ID·형식 오류는 전체 입력 검증을 확인하세요.</p><button type="button" data-review="qual" data-row-mode="discordant">정성 불일치 검체 확인</button>';
+  $('qual').innerHTML='<h2>정성 결과 비교'+helpButton('qualitative')+'</h2><p>Reference와 Product의 양성/음성·ND 결과가 얼마나 일치하는지 확인합니다. PPA/NPA는 분자·분모와 CI를 함께 읽으세요. 확정 진단 기준이 아니라면 민감도·특이도로 바꾸어 부르지 않습니다.</p>'+table(['Reference','Product 양성','Product 음성·ND','합계'],[['양성',s.TP,s.FN,s.TP+s.FN],['음성·ND',s.FP,s.TN,s.FP+s.TN],['합계',s.TP+s.FP,s.FN+s.TN,s.valid]])+table(['지표','일치 수 / 분모','비율',snapshot.confidence*100+'% CI'],['ppa','npa'].map(indicator))+'<details class="interpretation"><summary>전체일치율 OPA 상세</summary>'+table(['지표','일치 수 / 분모','비율',snapshot.confidence*100+'% CI'],[indicator('opa')])+'</details>'+table(['Reference 양성 n','Product 유효 n','Product Invalid','Product 미입력','평가 가능률'],[[s.refPositive,s.evaluability.k,s.productInvalid,s.productMissing,s.evaluability.k+' / '+s.evaluability.n+' · '+pct(s.evaluability.p)]])+  '<p class="finding">양성 → 음성·ND 불일치 '+s.FN+'개 / 음성·ND → 양성 불일치 '+s.FP+'개. 유효 정성 n='+s.valid+'개입니다.</p><p>평가 가능률은 별도의 분모입니다. 같은 분모의 PPA와 검출률을 중복된 성능처럼 강조하지 않습니다. Invalid·미입력을 음성으로 대입하지 않습니다.</p><p>선택 범위 Invalid '+s.invalid+'개 / 결과 미입력 '+s.missingResult+'개는 정성에서 제외합니다(사유 중복 가능). ID·형식 오류는 전체 입력 검증을 확인하세요.</p><button type="button" data-review="qual" data-row-mode="discordant">정성 불일치 검체 확인</button>';
 }
 function chart(rows,residual=false){
   const model=snapshot.model,pairs=rows.filter(r=>r.pair).map(r=>({...r,...evaluateRow(r,model)}));
@@ -143,7 +159,39 @@ function chart(rows,residual=false){
   return svg+`<text x="290" y="317" text-anchor="middle">Reference 검출값</text><text x="15" y="165" transform="rotate(-90 15 165)" text-anchor="middle">${residual?'Product 전체 기준 잔차':'Product 검출값'}</text>${legend.markup}</svg>`;
 }
 function piDescription(pi){return !pi.n?(pi.unavailable?'계산 불가':'대상 없음'):!pi.outliers?'PI 이탈 없음':`상한 ${pi.upper} / 하한 ${pi.lower}`;}
-function renderNumeric(){ $('numeric').innerHTML=numericScreen(currentResult(),chart); }
+function renderNumeric(){ $('numeric').innerHTML=numericScreen(currentResult(),chart);bindRCheck(); }
+const R_ERRORS={runtime_version_mismatch:'R 환경 버전이 고정 버전과 달라 계산을 막았습니다.',package_integrity_mismatch:'R 패키지 파일의 SHA-256이 고정값과 달라 계산을 막았습니다.',package_unavailable:'R 패키지 파일을 불러오지 못했습니다.',input_blocked:'수치쌍이 3개 이상 필요합니다.'};
+function bindRCheck(){
+ const button=$('r-check-run');if(!button)return;
+ button.onclick=async()=>{
+  const start=snapshot;if(!start)return;
+  const r=resultContract(start,selected,{...view(),withPB:true}),status=$('r-check-status');
+  const pairs=start.rows.filter(p=>p.eligible&&p.pair&&Number.isFinite(p.x)&&Number.isFinite(p.y)),x=pairs.map(p=>p.x),y=pairs.map(p=>p.y);
+  const lambda=r.deming&&r.deming.slope!==null?r.config.lambda:0;
+  button.disabled=true;
+  try{
+   const R=await runRCheck({x,y,level:start.confidence,lambda},m=>{status.textContent=m;});
+   if(snapshot!==start)return;
+   const rows=[],notes=[],add=(name,a,b)=>rows.push([name,a,b,relativeDifference(a,b)]);
+   const m=r.model;add('OLS 기울기',m.slope,R.ols.slope);add('OLS 기울기 CI 하한',m.slopeCI?.[0]??null,R.ols.slopeCI[0]);add('OLS 기울기 CI 상한',m.slopeCI?.[1]??null,R.ols.slopeCI[1]);add('OLS 절편',m.intercept,R.ols.intercept);add('OLS 절편 CI 하한',m.interceptCI?.[0]??null,R.ols.interceptCI[0]);add('OLS 절편 CI 상한',m.interceptCI?.[1]??null,R.ols.interceptCI[1]);
+   if(lambda>0&&R.deming){const d=r.deming,D=R.deming;add('Deming 기울기',d.slope,D.slope);add('Deming 기울기 jackknife SE',d.slopeSE,D.slopeSE);add('Deming 기울기 CI 하한',d.slopeCI?.[0]??null,D.slopeCI[0]);add('Deming 기울기 CI 상한',d.slopeCI?.[1]??null,D.slopeCI[1]);add('Deming 절편',d.intercept,D.intercept);add('Deming 절편 jackknife SE',d.interceptSE,D.interceptSE);add('Deming 절편 CI 하한',d.interceptCI?.[0]??null,D.interceptCI[0]);add('Deming 절편 CI 상한',d.interceptCI?.[1]??null,D.interceptCI[1]);
+    notes.push(`Deming CI는 도구 방식(jackknife SE × t(n−1))으로 R에서 다시 만든 값입니다. 참고: mcr의 기본 Deming CI는 t(n−2)를 써서 기울기 ${fmt(D.mcrDefaultSlopeCI[0])} ~ ${fmt(D.mcrDefaultSlopeCI[1])}로 조금 다릅니다.`);}
+   else notes.push('Deming은 λ 근거가 설정되지 않았거나 계산할 수 없어 R 대조에서 뺐습니다.');
+   const p=r.pb;
+   if(!p)notes.push('Passing–Bablok은 독립 검체 확인이 없어 계산하지 않았습니다.');
+   else if(!R.pb)notes.push('R mcr은 음수 값이 있는 자료의 Passing–Bablok을 계산하지 않아 대조하지 못했습니다.');
+   else if(p.slope!==null){add('PB 기울기',p.slope,R.pb.slope);add('PB 절편',p.intercept,R.pb.intercept);
+    if(p.slopeCI){add('PB 기울기 CI 하한',p.slopeCI[0],R.pb.slopeCI[0]);add('PB 기울기 CI 상한',p.slopeCI[1],R.pb.slopeCI[1]);add('PB 절편 CI 하한',p.interceptCI[0],R.pb.interceptCI[0]);add('PB 절편 CI 상한',p.interceptCI[1],R.pb.interceptCI[1]);}
+    else notes.push(R.pb.slopeCI.every(v=>!Number.isFinite(v))?'Passing–Bablok CI는 도구와 R 모두 계산하지 못했습니다(검체 수 부족).':'Passing–Bablok CI: 도구는 계산 불가, R은 값을 냈습니다. 확인이 필요합니다.');}
+   const compared=rows.filter(v=>v[3]!==null),off=compared.filter(v=>v[3]>MATCH_TOLERANCE),worst=compared.length?Math.max(...compared.map(v=>v[3])):null;
+   const summaryText=!compared.length?'R 대조: 비교할 수 있는 값이 없습니다.':off.length?`R 대조: 비교한 ${compared.length}개 값 중 ${off.length}개가 1e-9보다 큰 차이를 보였습니다. 계산 조건을 확인하세요.`:`R 대조: 비교한 ${compared.length}개 값이 모두 일치했습니다(상대 차이 최대 ${worst.toExponential(1)}).`;
+   if(pairs.length!==m.n)notes.push(`확인: R 대조 수치쌍 ${pairs.length}개와 전체 모델 n=${m.n}이 다릅니다.`);
+   rCheckState={snapshot:start,data:{environment:R.environment,rows,notes,summary:summaryText,n:pairs.length}};
+   outputRevision++;renderNumeric();updateOutputDescription();
+  }catch(e){status.textContent=R_ERRORS[e.message]||'R 환경을 준비하지 못했습니다. 인터넷 연결을 확인하고 다시 누르세요. (도구 자체 계산 결과는 그대로입니다.)';}
+  finally{if(button.isConnected)button.disabled=false;}
+ };
+}
 function renderGroups(){
   const view=(kind,title,cuts)=>{
     const gs=kind==='date'&&!selected.some(r=>r.eligible&&r.date)?[]:groups(selected,kind,cuts,snapshot.confidence,snapshot.method,snapshot.model);
@@ -154,7 +202,7 @@ function renderGroups(){
       '<details class="group-details"><summary>구간별 정성 일치도·수치 관계·잔차·PI</summary>'+
       table(['구간','유효 정성 n','NPA',`${snapshot.confidence*100}% NPA CI`,'양성 수치쌍 n','그룹 Pearson r','그룹 OLS 기울기','수치쌍 Ref 평균','수치쌍 Product 평균','전체 기준 잔차 평균','PI 계산 가능','이탈 / 계산 가능','이탈률','평균 초과량','PI 상태','수치 해석 참고'],gs.map(g=>{const s=g.summary;return [g.label,s.valid,pct(s.npa.p),pci(s.npa),s.numeric.n,fmt(s.numeric.r),fmt(s.numeric.slope),fmt(s.numeric.xMean),fmt(s.numeric.yMean),fmt(s.pi.residualMean),s.pi.n,`${s.pi.outliers} / ${s.pi.n}`,pct(s.pi.rate),fmt(s.pi.meanExcess),piDescription(s.pi),numericCaution(s.numeric.n)];}))+'</details>';
   };
-  $('groups').innerHTML='<h2>구간별 검출률과 경향</h2><p class="hint">막대는 유효 결과 중 검출률입니다. Reference 양성 중 Product 유효 결과의 비율인 평가 가능률도 표에서 함께 확인하세요. ND·Negative는 미검출이며 Invalid·미입력은 검출률 분모에 포함하지 않습니다. 형식 오류는 전체 입력 검증에서 확인합니다. CI는 표에 표시하며 막대그래프에서는 생략합니다.</p>'+
+  $('groups').innerHTML='<h2>구간별 검출률과 경향'+helpButton('groups')+'</h2><p class="hint">막대는 유효 결과 중 검출률입니다. Reference 양성 중 Product 유효 결과의 비율인 평가 가능률도 표에서 함께 확인하세요. ND·Negative는 미검출이며 Invalid·미입력은 검출률 분모에 포함하지 않습니다. 형식 오류는 전체 입력 검증에서 확인합니다. CI는 표에 표시하며 막대그래프에서는 생략합니다.</p>'+
     '<p class="hint">표시 범위 안에서 비교합니다. 같은 Reference 구간을 선택한 뒤 날짜 그래프를 보면 검체 구성 차이를 줄여 살펴볼 수 있습니다. 날짜 차이만으로 원인이나 수집기관을 추정하지 않습니다.</p>'+
     view('ct','Reference 검출값 구간',snapshot.ct)+`<p class="hint">분석 적격 검체 중 Reference 수치 없음 ${summary.xMissing}개는 검출값 구간에서만 제외됩니다.</p>`+
     view('date',dateMode(snapshot.dates),snapshot.dates)+`<p class="hint">분석 적격 검체 중 채취일 없음 ${summary.dateMissing}개는 날짜 구간에서만 제외됩니다.</p>`;
@@ -173,11 +221,12 @@ function rowData(r){
 }
 function renderRows(){
   const rows=listed(),max=Math.max(0,Math.ceil(rows.length/100)-1);page=Math.min(page,max);
-  const pageRows=rows.slice(page*100,page*100+100),baContext=['ba','deming'].includes(rowPurpose)?currentResult():null,data=specimenData(pageRows,snapshot.model,rowPurpose,false,baContext),full=specimenData(pageRows,snapshot.model,rowPurpose,true,baContext);
+  const pageRows=rows.slice(page*100,page*100+100),baContext=['ba','deming','pb'].includes(rowPurpose)?currentResult():null,data=specimenData(pageRows,snapshot.model,rowPurpose,false,baContext),full=specimenData(pageRows,snapshot.model,rowPurpose,true,baContext);
   const showRows=d=>table(d.headers,d.rows.map(r=>r.map(v=>typeof v==='number'?fmt(v):v??'—')));
-  $('rows').innerHTML='<h2>목적별 검체 확인</h2><div class="toolbar"><label>검토 목적<select id="row-purpose">'+[['qual','정성'],['ols','OLS PI·잔차'],['deming','Deming 관계'],['ba','BA 직접 차이']].map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></label><label>표시할 검체<select id="row-mode">'+SPECIMEN_MODES.map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></label></div><p>'+(['id-excluded','format-excluded'].includes(rowMode)?'전체 입력 기준의 제외 목록':'현재 선택 범위 목록')+' · 복사 대상 '+rows.length+'개. 같은 ID도 원행으로 구별합니다.</p>'+showRows(data)+'<details class="interpretation"><summary>현재 페이지 개별 계산 상세</summary>'+showRows(full)+'</details><details class="interpretation"><summary>현재 페이지 입력 원문</summary>'+showRows(rawData(pageRows))+'</details><div class="pager"><button id="previous" '+(page===0?'disabled':'')+'>이전</button><span>'+rows.length+'개 · '+(rows.length?page*100+1:0)+'–'+Math.min(rows.length,(page+1)*100)+' 표시</span><button id="next" '+(page===max?'disabled':'')+'>다음</button></div>';
+  $('rows').innerHTML='<h2>목적별 검체 확인</h2><div class="toolbar"><label>검토 목적<select id="row-purpose">'+[['qual','정성'],['ols','OLS PI·잔차'],['deming','Deming 관계'],['pb','Passing–Bablok 관계'],['ba','BA 직접 차이']].map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></label><label>표시할 검체<select id="row-mode">'+SPECIMEN_MODES.map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></label></div><p>'+(['id-excluded','format-excluded'].includes(rowMode)?'전체 입력 기준의 제외 목록':'현재 선택 범위 목록')+' · 복사 대상 '+rows.length+'개. 같은 ID도 원행으로 구별합니다.</p>'+showRows(data)+'<details class="interpretation"><summary>현재 페이지 개별 계산 상세</summary>'+showRows(full)+'</details><details class="interpretation"><summary>현재 페이지 입력 원문</summary>'+showRows(rawData(pageRows))+'</details><div class="pager"><button id="previous" '+(page===0?'disabled':'')+'>이전</button><span>'+rows.length+'개 · '+(rows.length?page*100+1:0)+'–'+Math.min(rows.length,(page+1)*100)+' 표시</span><button id="next" '+(page===max?'disabled':'')+'>다음</button></div>';
   if(rowPurpose==='ba'){const b=baObservations(baContext);$('rows').insertAdjacentHTML('afterbegin','<p class="hint">BA LoA는 현재 선택 범위 전체 수치쌍 '+b.n+'개에서 계산한 한계입니다. 밖 검체 목록만으로 다시 계산하지 않습니다. 사전 허용 차이 위치와 별개이며 오류·불합격 판정이 아닙니다.</p>');}
   if(rowPurpose==='deming')$('rows').insertAdjacentHTML('afterbegin',`<p class="hint">${esc(DEMING_SPECIMEN_NOTE)} ${helpButton('deming-specimen')} ${baContext.deming?.slope!=null?'개별 계산 상세에서 확인하세요.':'Deming 계산 불가: '+esc(baContext.config.demingReasons.join(' ')||baContext.deming?.reasons?.join(' ')||'적합 조건을 확인하세요.')}</p>`);
+  if(rowPurpose==='pb')$('rows').insertAdjacentHTML('afterbegin',`<p class="hint">전체 고정 Passing–Bablok의 예상 Product와 관측값−예상값(Y방향 차이)입니다. 직접 차이 Product−Reference와 다르며 오류·불합격 판정이 아닙니다. ${baContext.pb?.slope!=null?'개별 계산 상세에서 확인하세요.':'Passing–Bablok 계산 불가: '+esc(baContext.pbReasons.join(' ')||baContext.pb?.reasons?.join(' ')||'조건을 확인하세요.')}</p>`);
   $('row-purpose').value=rowPurpose;$('row-mode').value=rowMode;
   $('row-purpose').onchange=()=>{rowPurpose=$('row-purpose').value;outputRevision++;page=0;renderRows();updateOutputDescription();};
   $('row-mode').onchange=()=>{rowMode=$('row-mode').value;outputRevision++;page=0;renderRows();updateOutputDescription();$('copy-status').textContent='';};
@@ -187,8 +236,9 @@ $('copy').onclick=async()=>{
   if(!snapshot)return;
   const current=snapshot,rev=revision,copyTab=tab,scope=$('scope').textContent,ov=outputRevision,r=currentResult(),o=outputOptions();
   const audit=inputAudit(snapshot.rows),meta=[['검사법 비교 분석',VERSION],['입력',snapshot.source],['표시 범위',scope],['분석',ANALYSIS_NAMES[tab]],['전체 입력 ID 누락 제외',audit.idExcluded],['전체 입력 형식 오류 제외',audit.formatExcluded],['현재 분석 적격 n',summary.eligible],['현재 유효 정성 n',summary.valid],['현재 양성 수치쌍 n',summary.numeric.n]];
-  if(tab==='numeric')meta.push(['회귀 보기',r.method==='deming'?'Deming':'OLS'],['전체 고정 모델 n',r.model.n],...(r.method==='deming'?[...r.facts('deming'),['OLS 회귀선 중첩',r.overlay?'ON':'OFF'],['Y=X 기준선',r.equality?'ON — 동일 항목·단위·결과 정의 확인':'OFF']]:[]));if(tab==='ba')meta.push(...r.facts('ba'));
+  if(tab==='numeric')meta.push(['회귀 보기',REGRESSION_NAMES[r.method]],['전체 고정 모델 n',r.model.n],...(r.method==='pb'?[...pbFacts(r),['OLS 회귀선 중첩',r.overlay?'ON':'OFF'],['Y=X 기준선',r.equality?'ON — 동일 항목·단위·결과 정의 확인':'OFF']]:[]),...(r.method==='deming'?[...r.facts('deming'),['OLS 회귀선 중첩',r.overlay?'ON':'OFF'],['Y=X 기준선',r.equality?'ON — 동일 항목·단위·결과 정의 확인':'OFF']]:[]));if(tab==='ba')meta.push(...r.facts('ba'));
   if(tab==='rows'&&rowPurpose==='ba')meta.push(...r.facts('ba'),['BA 위치 기준 수치쌍 n',r.ba?.n??r.selectedN],['95% LoA 하한',fmt(r.ba?.loa?.[0]??null)],['95% LoA 상한',fmt(r.ba?.loa?.[1]??null)],['위치 해석','현재 선택 범위 전체에서 계산한 LoA. 목록만으로 다시 계산하지 않음. LoA 밖은 오류·불합격 판정 아님']);
+  if(tab==='rows'&&rowPurpose==='pb')meta.push(...pbFacts(r),['전체 고정 Passing–Bablok n',r.pb?.n??r.model.n],['전체 PB 기울기',r.pb?.slope??'계산 불가'],['전체 PB 절편',r.pb?.intercept??'계산 불가']);
   if(tab==='rows'&&rowPurpose==='deming')meta.push(...r.facts('deming'),['전체 고정 Deming n',r.deming?.n??r.model.n],['Reference 단위/척도',r.config.xUnit],['Product 단위/척도',r.config.yUnit],['전체 Deming 기울기',r.deming?.slope??'계산 불가'],['전체 Deming 절편',r.deming?.intercept??'계산 불가'],['상세 해석',DEMING_SPECIMEN_NOTE]);
   let html=table(['분석 정보','값'],meta);
   if(tab==='rows'){const d=specimenData(listed(),snapshot.model,rowPurpose,o.details,r);html+=table(d.headers,d.rows.map(v=>v.map(x=>typeof x==='number'?fmt(x):x??'—')));}

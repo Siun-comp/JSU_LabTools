@@ -42,6 +42,7 @@ window.LoDRequest=(()=>{
    box.append(make('p','모형·정규근사 조건부 구간 · 적합도/근사 적용성 검토 전 · 최종 LoD/허가 적합 판정 아님'));
    if(e.ci.warnings.length)box.append(make('p','CI 끝점이 시험 농도 범위를 벗어납니다. 구간을 자르지 않고 표시합니다.'));
    if(e.status!=='candidate')box.append(make('p',labels[e.status]||'추정할 수 없습니다.'));
+   if(e.status==='candidate'&&result.quantile)drawQuantile(result.quantile,result.input.data.unit);
    if(e.status==='candidate'){
 
     const notes={EXTRAPOLATED:'시험 농도 범위 밖 후보값(외삽)입니다.',NO_RESIDUAL_DF:'잔차 자유도가 없어 적합도를 평가할 수 없습니다.',R_WARNING:'R 경고가 발생했습니다. 결과 검토가 필요합니다.',R_STDERR:'실행 환경 메시지가 발생했습니다. 환경 검토가 필요합니다.'};
@@ -71,6 +72,18 @@ window.LoDRequest=(()=>{
   if(result.input.source?.kind==='file')details.append(make('p',`파일: ${result.input.source.filename} · SHA-256: ${result.input.source.sha256}`));
   box.append(details);
  }
+ // Detection-probability table: same fitted model as the candidate above, values shown as computed.
+ function drawQuantile(t,unit){
+  box.append(make('h3','검출 확률별 농도 (같은 모형, 참고)'));
+  if(t.pending){box.append(make('p','검출 확률별 농도 계산 중…'));return;}
+  if(t.error){box.append(make('p',t.error));return;}
+  const pct=v=>(v*100).toFixed(0)+'%',num=v=>v===null?'보류':Number(v).toPrecision(6);
+  const wrap=make('div','');wrap.className='scroll';const table=make('table','');table.setAttribute('aria-label','검출 확률별 농도');
+  const head=make('tr','');for(const h of ['검출 확률',`농도 (${unit||'단위 미기재'})`,'95% CI','비고'])head.append(Object.assign(make('th',h),{scope:'col'}));const thead=make('thead','');thead.append(head);table.append(thead);
+  const body=make('tbody','');for(const r of t.rows){const tr=make('tr','');for(const v of ['C'+Math.round(r.probability*100)+' ('+pct(r.probability)+')',num(r.estimate),r.ciStatus==='calculated'?num(r.lower)+' – '+num(r.upper):'보류',r.ciReasons.map(c=>LoDQuantile.REASONS[c]||c).join(' · ')||''])tr.append(make('td',v));body.append(tr);}table.append(body);wrap.append(table);box.append(wrap);
+  box.append(make('p','목표 검출확률 행의 값은 위 모형 후보값·CI와 같은지 확인한 뒤 표시합니다. C50은 곡선의 가운데(반응이 가장 가파른 곳)이며, C50과 C95가 가까울수록 곡선이 가파릅니다. 어느 확률의 농도를 LoD로 쓸지는 사용자가 정하며, 자동으로 고르지 않습니다.'));
+  if(t.rows.some(r=>r.extrapolated))box.append(make('p','시험 농도 범위 밖의 값은 모형 외삽이며 CI를 계산하지 않습니다. 값을 숨기지 않고 표시합니다.'));
+ }
  function cancel(){serial++;controller?.abort();controller=null;run.disabled=!available;stop.hidden=true;}
  stop.onclick=()=>{cancel();if(result){result.pending=false;result.executionError='계산을 취소했습니다. 다시 실행할 수 있습니다.';}draw();};
  button.onclick=()=>{cancel();result=build(MinimalInputs.snapshot('lod'));fingerprint=current();draw();};
@@ -85,6 +98,10 @@ window.LoDRequest=(()=>{
    if(e.curve!==undefined&&e.curve!==null&&!LoDCurveContract.valid(e.curve,result.request.c))throw Error('invalid_response');
    if(!LoDGOFContract.valid(e.gof,e,q))throw Error('invalid_response');
    result.execution=e;p.querySelector('.input-feedback').textContent='브라우저 R 계산 완료 · 최종 LoD 미확정';
+   // Detection-probability table from the same model; a failure here never changes the LoD result.
+   if(e.status==='candidate'&&window.LoDQuantile){result.quantile={pending:true};draw();
+    try{const t=await LoDQuantile.run(q,{signal});if(id!==serial||current()!==fp)return;result.quantile=LoDQuantile.consistent(t,e)?t:{error:t.status==='calculated'?'검출 확률별 농도가 LoD 계산과 일치하지 않아 표시하지 않습니다.':'검출 확률별 농도를 계산하지 못했습니다.'};}
+    catch(err){if(id===serial&&current()===fp)result.quantile={error:'검출 확률별 농도: '+(err.message==='aborted'?'계산을 취소했습니다.':BrowserRRuntime.message(err))};}}
   }catch(e){if(id===serial&&current()===fp){const messages={input_blocked:'계산 입력 범위를 확인하세요(N은 행당 최대 10억).',busy:'다른 계산이 실행 중입니다. 잠시 후 다시 실행하세요.',invalid_response:'계산 응답을 검증하지 못했습니다.',runtime_version_mismatch:'검증한 계산 환경 버전과 달라 계산을 차단했습니다.',startup_timeout:'계산 환경 준비 제한시간(60초)을 초과했습니다. 네트워크 연결을 확인하고 다시 실행하세요.',calculation_timeout:'계산 제한시간(20초)을 초과했습니다. 다시 실행하세요.',aborted:'계산을 취소했습니다.'};result.executionError=messages[e.message]||BrowserRRuntime.message(e);}}
   finally{if(id===serial){result.pending=false;controller=null;run.disabled=!available;stop.hidden=true;draw();}}
  };

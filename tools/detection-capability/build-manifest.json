@@ -1,6 +1,6 @@
 {
-  "version": "0.9.1-beta.5",
-  "date": "2026-10-13",
+  "version": "0.9.2-beta.1",
+  "date": "2026-11-16",
   "developer": "Jang Si Un",
   "entry": "index.html",
   "deployment": "JSU LabTools GitHub Pages portal derivative beta",
@@ -63,8 +63,8 @@
     },
     {
       "name": "lod-request.js",
-      "bytes": 14647,
-      "sha256": "b29815341944364ed86222b7e96812742dcd90adc8999e0b5ee64b99dd7cbfa6"
+      "bytes": 17212,
+      "sha256": "a069eb2f2a8c0b28061a9e307d79bc96b953e8a3ec8980e2ec955c851788fbaa"
     },
     {
       "name": "lob-analysis.js",
@@ -138,18 +138,18 @@
     },
     {
       "name": "result-export.js",
-      "bytes": 22912,
-      "sha256": "507251326d1fb94f142e4098ecf89b36ad2800ee01ba7b5c582a6ed68bfe0e29"
+      "bytes": 23353,
+      "sha256": "84ab097882d8e540a5465dac660e5a2b26bc733f38e9628dd356faa750108408"
     },
     {
       "name": "app-release.js",
-      "bytes": 9927,
-      "sha256": "60fd911e8d024d770d264d9c39de2a0d5156884eec5d158a0c5b762384cfbb6d"
+      "bytes": 10998,
+      "sha256": "c4117b282c93e7150280db111830e23bec28bc1892c48506776151dedfd58ba0"
     },
     {
       "name": "index.html",
-      "bytes": 12711,
-      "sha256": "cd2677858c44b575318166355a4cb6dc1a8ece947fbc0c12d374c3e813b9f069"
+      "bytes": 12950,
+      "sha256": "e9d89b4c0f47207101a298d8e9b2b2f54ecc822de55c8fe4368ed71a43acfbcb"
     },
     {
       "name": "downloads/Molecular_Detection_Minimal_Template_v3_layout.xlsx",
@@ -228,8 +228,8 @@
     },
     {
       "name": "tool.css",
-      "bytes": 10857,
-      "sha256": "94ee35b3847009a68797a4467edf673a55b95571513dfd1f557cfbbda999709c"
+      "bytes": 11269,
+      "sha256": "214ca118f1034fa3173318826ae9a84e40e17437a7b7241b47299a68e32b649c"
     },
     {
       "name": "input-ux.js",
@@ -270,11 +270,31 @@
       "name": "licenses/GPL-3.txt",
       "bytes": 35149,
       "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    },
+    {
+      "name": "lod-quantile-source.js",
+      "bytes": 3705,
+      "sha256": "ea7864bb33efc299567cac818aa8165b9b74ee3573865ae95a2bea8bb29189e1"
+    },
+    {
+      "name": "lod-quantile.js",
+      "bytes": 4586,
+      "sha256": "a2247646c62c23dd6c1bcd138f39a8fd39e4d22e504ff3f141d5c19cbce830c8"
+    },
+    {
+      "name": "confirmation-plan-source.js",
+      "bytes": 2032,
+      "sha256": "35338c95e8b9442dfe3750a119cb4b11abbf3d4c91b51f35795806b994b507d9"
+    },
+    {
+      "name": "confirmation-plan.js",
+      "bytes": 7999,
+      "sha256": "0b49de80c3e351bedc25b647f4dac2e23ae55ac2fd5fb6b90f2b27d2080adb83"
     }
   ],
   "uiTheme": {
-    "version": "0.3.1",
-    "date": "2026-10-11",
+    "version": "0.3.2",
+    "date": "2026-11-16",
     "status": "portal_derivative_beta",
     "calculationAndDataFormatReview": "AP78/AP79/AP81 evidence retained; company-specific applicability is internal",
     "sourceProgramVersion": "0.9.0-beta.6",
@@ -286,7 +306,8 @@
       "AP87 input actions/count/error locations, LoQ management and raw preview tables",
       "AP88 compact LoD/confirmation input rows; separate body row-number styling from column headers",
       "AP96 explicit supported alpha, confirmation/Westgard labels and GOF diagnostic presentation",
-      "AP197 shared settings title/input/error rows, stable error border dimensions, top-aligned input table cells and narrow single-column settings"
+      "AP197 shared settings title/input/error rows, stable error border dimensions, top-aligned input table cells and narrow single-column settings",
+      "AP293 detection-probability table under the LoD result and a collapsible confirmation planning table (preset replicate counts)"
     ]
   },
   "inputValidation": {
@@ -308,11 +329,11 @@
   },
   "baselineProgramVersion": "0.9.0-beta.6",
   "releaseIdentification": {
-    "version": "0.9.1-beta.5",
-    "date": "2026-10-13",
+    "version": "0.9.2-beta.1",
+    "date": "2026-11-16",
     "status": "portal_derivative_beta",
     "baselineProgramVersion": "0.9.0-beta.6",
-    "calculationImpact": "Verified MASS 7.3-66 package acquisition with shared browser/CI loader; actual runtime provenance in outputs. Statistical R source and CI dispersion unchanged."
+    "calculationImpact": "Adds two R programs: detection-probability table (same probit/log10 fit refit from the same input, MASS::dose.p at p=0.50/0.90/0.95/0.99, same log10 Wald CI; shown only when it equals the LoD result at the target) and a confirmation planning table (pbinom, Clopper–Pearson qbeta). Existing LoD, confirmation and LoQ R programs, model, CI method and dispersion unchanged."
   },
   "gofDiagnostics": {
     "version": "1.0.0",
@@ -330,5 +351,17 @@
     "sha256": "2abe66de8f442fdc0cd221bdb0e774ea17f56ff963dc0275bcfcd2add27ee3b5",
     "metadataSHA256": "c5def108f94855ad32e799c8f868e51363267f0266a215db663fea2f72032116",
     "policy": "Same-site verified binary; no mutable index or fallback; browser and CI share loader and bytes."
+  },
+  "multiProbability": {
+    "version": "1.0.0",
+    "probabilities": [
+      0.5,
+      0.9,
+      0.95,
+      0.99
+    ],
+    "quantileSourceSHA256": "0b6970b4d30f7978fd20253d4ac33771eda22a8f80c0e01cd8c6b5cdb11dbfe1",
+    "planSourceSHA256": "f771e0ed1d578d2a45164e7caf8961d0b617ee78c16e01f480253b19a1b1f993",
+    "existingLoDSourceSHA256": "53d11ec6b9226192b83c1eb0e6d07c63f0f788a4b225268d3591d8f3736cb9be"
   }
 }

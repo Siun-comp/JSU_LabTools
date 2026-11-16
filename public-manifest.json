@@ -1,5 +1,5 @@
 {
-  "version": "1.9.2",
+  "version": "1.9.3",
   "files": [
     {
       "source": "portal/index.html",
@@ -164,6 +164,22 @@
     {
       "source": "tools/detection-capability/lod-browser.js",
       "target": "tools/detection-capability/lod-browser.js"
+    },
+    {
+      "source": "tools/detection-capability/lod-quantile-source.js",
+      "target": "tools/detection-capability/lod-quantile-source.js"
+    },
+    {
+      "source": "tools/detection-capability/lod-quantile.js",
+      "target": "tools/detection-capability/lod-quantile.js"
+    },
+    {
+      "source": "tools/detection-capability/confirmation-plan-source.js",
+      "target": "tools/detection-capability/confirmation-plan-source.js"
+    },
+    {
+      "source": "tools/detection-capability/confirmation-plan.js",
+      "target": "tools/detection-capability/confirmation-plan.js"
     },
     {
       "source": "tools/detection-capability/lod-request.js",
@@ -652,6 +668,58 @@
     {
       "source": "tools/method-comparison/practical-data.mjs",
       "target": "tools/method-comparison/practical-data.mjs"
+    },
+    {
+      "source": "tools/method-comparison/passing-bablok.mjs",
+      "target": "tools/method-comparison/passing-bablok.mjs"
+    },
+    {
+      "source": "tools/method-comparison/r-check.mjs",
+      "target": "tools/method-comparison/r-check.mjs"
+    },
+    {
+      "source": "tools/method-comparison/licenses/GPL-2.txt",
+      "target": "tools/method-comparison/licenses/GPL-2.txt"
+    },
+    {
+      "source": "tools/method-comparison/licenses/GPL-3.txt",
+      "target": "tools/method-comparison/licenses/GPL-3.txt"
+    },
+    {
+      "source": "tools/method-comparison/runtime/Rcpp_1.1.2.tgz",
+      "target": "tools/method-comparison/runtime/Rcpp_1.1.2.tgz"
+    },
+    {
+      "source": "tools/method-comparison/runtime/Rcpp_1.1.2.metadata.json",
+      "target": "tools/method-comparison/runtime/Rcpp_1.1.2.metadata.json"
+    },
+    {
+      "source": "tools/method-comparison/runtime/Rcpp_1.1.2.source.tar.gz",
+      "target": "tools/method-comparison/runtime/Rcpp_1.1.2.source.tar.gz"
+    },
+    {
+      "source": "tools/method-comparison/runtime/robslopes_1.1.4.tgz",
+      "target": "tools/method-comparison/runtime/robslopes_1.1.4.tgz"
+    },
+    {
+      "source": "tools/method-comparison/runtime/robslopes_1.1.4.metadata.json",
+      "target": "tools/method-comparison/runtime/robslopes_1.1.4.metadata.json"
+    },
+    {
+      "source": "tools/method-comparison/runtime/robslopes_1.1.4.source.tar.gz",
+      "target": "tools/method-comparison/runtime/robslopes_1.1.4.source.tar.gz"
+    },
+    {
+      "source": "tools/method-comparison/runtime/mcr_1.3.3.1.tgz",
+      "target": "tools/method-comparison/runtime/mcr_1.3.3.1.tgz"
+    },
+    {
+      "source": "tools/method-comparison/runtime/mcr_1.3.3.1.metadata.json",
+      "target": "tools/method-comparison/runtime/mcr_1.3.3.1.metadata.json"
+    },
+    {
+      "source": "tools/method-comparison/runtime/mcr_1.3.3.1.source.tar.gz",
+      "target": "tools/method-comparison/runtime/mcr_1.3.3.1.source.tar.gz"
     },
     {
       "source": "tools/oligo-thermodynamics/analysis-core.mjs",

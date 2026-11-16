@@ -108,3 +108,10 @@
 @media(max-width:1100px){.detection-header .masthead,.tool-intro,#project-files,.detection-main{padding-left:26px;padding-right:26px}.tool-intro{gap:16px}.tool-meta{max-width:280px}.source-release{flex-wrap:wrap}#project-status{max-width:520px}}
 /* Desktop browser enlargement: keep navigation reachable without clipping. */
 @media(max-width:900px){.tool-intro{flex-direction:column;gap:12px}.tool-meta{text-align:left}.source-release{justify-content:flex-start}#project-files{align-items:flex-start;flex-direction:column;gap:10px}#project-status{text-align:left;max-width:none}.analysis-navigation{align-items:flex-start;flex-direction:column;gap:5px;padding-bottom:8px}.view-links{padding-left:14px}.detection-main .card{padding:18px}.detection-main .file-panel{padding:13px 16px}}
+.plan fieldset{border:1px solid #c9d6e2;margin:8px 0;padding:6px 10px}
+.plan-preset{display:inline-flex;align-items:center;margin-right:14px}
+.plan label{display:block;margin:6px 0}
+.plan .plan-preset{display:inline-flex}
+.plan h4{margin:12px 0 4px}
+.plan .plan-preset{white-space:nowrap;gap:4px;margin:4px 16px 4px 0}
+.plan .plan-preset input{width:18px;height:18px;min-width:0;min-height:0;margin:0;padding:0}

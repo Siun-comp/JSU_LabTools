@@ -17,33 +17,68 @@ const oligo=contract.oligoDimerRelease;
 const methodPatch=contract.methodComparisonPatchRelease;
 assert.equal(methodPatch.previousSHA,'c327726c97a43133c1fbe4c91540960b91ff21e0');assert.equal(methodPatch.portalVersion,'1.5.1');assert.equal(methodPatch.toolVersion,'0.3.1');assert.equal(methodPatch.previousPublic.length,142);
 const gitRoot=existsSync(resolve(root,'.git'))?root:resolve(root,'release/p1/repository');
+// Portal 1.9.3: method comparison 0.5.0 (Passing–Bablok, R cross-check) and LoD 0.9.2-beta.1 (detection-probability table, plan).
+const analyse=contract.analyseItRelease;
+assert.equal(analyse.previousSHA,'69d8567df22218b0e05c9f744ea56a9ba0c37c28');
+assert.equal(analyse.portalVersion,manifest.version);assert.equal(analyse.previousPortalVersion,'1.9.2');
+assert.equal(analyse.methodComparison.version,T['method-comparison'].version);assert.equal(analyse.methodComparison.previousVersion,'0.4.1');
+assert.equal(analyse.detectionCapability.version,T['detection-capability'].version);assert.equal(analyse.detectionCapability.previousVersion,'0.9.1-beta.5');
+assert.equal(analyse.previousPublic.length,283);
+const analyseAdded=analyse.addedTargets.map(e=>e.target);
+assert.equal(analyseAdded.length,17);assert(analyseAdded.every(t=>t.startsWith('tools/method-comparison/')||t.startsWith('tools/detection-capability/')),'Only the two tools gain files');
+assert.deepEqual(manifest.files.filter(e=>!analyseAdded.includes(e.target)),analyse.previousPublic.map(({source,target})=>({source,target})),'Portal 1.9.3 keeps every public path');
+for(const e of analyse.addedTargets){const b=await readFile(resolve(dist,e.target));assert.equal(hash(b),e.sha256,'Reviewed portal 1.9.3 added file: '+e.target);assert.equal(b.length,e.bytes);}
+assert(analyse.selected.every(e=>['index.html','contact.html'].includes(e.target)||/^info\/.*\.html$/.test(e.target)||e.target.startsWith('tools/method-comparison/')||e.target.startsWith('tools/detection-capability/')),'Only portal version text, the two tool rows/pages and the two tools change');
+for(const name of ['comparison.mjs','math.mjs','headers.mjs','import.mjs','ba-observation.mjs','report-template.xlsx','vendor/jszip.min.js'])assert(!analyse.selected.some(e=>e.target==='tools/method-comparison/'+name),'Preserved method-comparison bytes: '+name);
+for(const name of ['lod-browser-source.js','continuous-browser-source.js','lod-browser.js','continuous-browser.js','browser-r-runtime.js','mass-package.js','lod-ci-contract.js','confirmation-contract.js'])assert(!analyse.selected.some(e=>e.target==='tools/detection-capability/'+name),'Existing LoD R programs and transport unchanged: '+name);
+const beforeAnalyse=new Map();
+for(const entry of analyse.previousPublic){
+ const current=await readFile(resolve(dist,entry.target));
+ const changed=analyse.selected.find(e=>e.target===entry.target);
+ if(changed)assert.equal(hash(current),changed.sha256,'Reviewed portal 1.9.3 change: '+entry.target);
+ const previous=changed?execFileSync('git',['-C',gitRoot,'show',analyse.previousSHA+':'+entry.source],{maxBuffer:256*1024*1024}):current;
+ assert.equal(hash(previous),entry.sha256,'Bytes before portal 1.9.3: '+entry.target);
+ beforeAnalyse.set(entry.target,previous);
+}
+for(const e of analyse.selected.filter(e=>(/^info\/.*\.html$/.test(e.target)||e.target==='contact.html')&&!['info/method-comparison.html','info/detection-capability.html'].includes(e.target))){
+ let before=beforeAnalyse.get(e.target).toString().replace('포털 v1.9.2','포털 v1.9.3');
+ if(e.target==='contact.html')before=before.replace('<dd>v0.9.1-beta.5</dd>','<dd>v0.9.2-beta.1</dd>').replace('<dt id="method-comparison">검사법 비교 분석</dt><dd>v0.4.1</dd>','<dt id="method-comparison">검사법 비교 분석</dt><dd>v0.5.0</dd>');
+ assert.equal(before,(await readFile(resolve(dist,e.target))).toString(),'Portal 1.9.3 changes only version text: '+e.target);
+}
+{
+ const rowOf=(h,n)=>[...h.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].map(m=>m[0]).find(r=>r.includes('<h2>'+n+'</h2>'));
+ const before=beforeAnalyse.get('index.html').toString(),now=await readFile(resolve(dist,'index.html'),'utf8');
+ const mc=[rowOf(before,'검사법 비교 분석'),rowOf(now,'검사법 비교 분석')],dc=[rowOf(before,'LoB · LoD · LoQ 분석'),rowOf(now,'LoB · LoD · LoQ 분석')];
+ assert.equal(mc[1],analyse.methodComparisonRow,'Reviewed method comparison row');assert.equal(dc[1],analyse.detectionCapabilityRow,'Reviewed LoB · LoD · LoQ row');
+ assert.equal(before.replace(mc[0],mc[1]).replace(dc[0],dc[1]).replace('포털 v1.9.2','포털 v1.9.3'),now,'Home changes only the two rows and the portal version');
+}
 const plotV25=contract.plotVersionRelease;
 assert.equal(plotV25.previousSHA,'6486af05baec4c175d417ae4076c71b78f453fcb');
-assert.equal(plotV25.portalVersion,manifest.version);assert.equal(plotV25.previousPortalVersion,'1.9.1');
+assert.equal(plotV25.portalVersion,analyse.previousPortalVersion);assert.equal(plotV25.previousPortalVersion,'1.9.1');
 assert.equal(plotV25.plotVersion,T.plot.version);assert.equal(plotV25.previousPlotVersion,'2.3.0');assert.equal(plotV25.checkedOn,T.plot.infoDate);
 assert.equal(plotV25.previousPublic.length,283);assert.deepEqual(plotV25.addedTargets,[]);
-assert.deepEqual(plotV25.previousPublic.map(({source,target})=>({source,target})),manifest.files,'Plot 2.5.0 text update keeps every public path');
+assert.deepEqual(plotV25.previousPublic.map(({source,target})=>({source,target})),analyse.previousPublic.map(({source,target})=>({source,target})),'Plot 2.5.0 text update keeps every public path');
 assert.deepEqual(plotV25.selected.map(e=>e.target).sort(),['index.html','contact.html',...plotV25.previousPublic.filter(e=>/^info\/.*\.html$/.test(e.target)).map(e=>e.target)].sort(),'Only the Plot row, the Plot information page and portal version text change');
 const beforePlotV25=new Map();
 for(const entry of plotV25.previousPublic){
- const current=await readFile(resolve(dist,entry.target));
+ const current=beforeAnalyse.get(entry.target);
  const changed=plotV25.selected.find(e=>e.target===entry.target);
  if(changed)assert.equal(hash(current),changed.sha256,'Reviewed portal 1.9.2 change: '+entry.target);
  const previous=changed?execFileSync('git',['-C',gitRoot,'show',plotV25.previousSHA+':'+entry.source],{maxBuffer:256*1024*1024}):current;
  assert.equal(hash(previous),entry.sha256,'Bytes before portal 1.9.2: '+entry.target);
  beforePlotV25.set(entry.target,previous);
 }
-for(const e of plotV25.selected.filter(e=>(/^info\/.*\.html$/.test(e.target)||e.target==='contact.html')&&e.target!=='info/plot.html'))assert.equal(beforePlotV25.get(e.target).toString().replace('포털 v1.9.1','포털 v1.9.2').replace(e.target==='contact.html'?'<dt id="plot">IsoAmplar Plot Analysis T</dt><dd>v2.3.0</dd>':'\u0000','<dt id="plot">IsoAmplar Plot Analysis T</dt><dd>v2.5.0</dd>'),(await readFile(resolve(dist,e.target))).toString(),'Information pages change only portal version text; contact also the Plot version: '+e.target);
+for(const e of plotV25.selected.filter(e=>(/^info\/.*\.html$/.test(e.target)||e.target==='contact.html')&&e.target!=='info/plot.html'))assert.equal(beforePlotV25.get(e.target).toString().replace('포털 v1.9.1','포털 v1.9.2').replace(e.target==='contact.html'?'<dt id="plot">IsoAmplar Plot Analysis T</dt><dd>v2.3.0</dd>':'\u0000','<dt id="plot">IsoAmplar Plot Analysis T</dt><dd>v2.5.0</dd>'),beforeAnalyse.get(e.target).toString(),'Information pages change only portal version text; contact also the Plot version: '+e.target);
 {
  // Home: only the Plot row's version and check date, and the portal version text.
  const rowOf=h=>[...h.matchAll(/<tr class="available">[\s\S]*?<\/tr>/g)].map(m=>m[0]).find(r=>r.includes('<h2>IsoAmplar Plot Analysis T</h2>'));
- const before=beforePlotV25.get('index.html').toString(),now=await readFile(resolve(dist,'index.html'),'utf8');
+ const before=beforePlotV25.get('index.html').toString(),now=beforeAnalyse.get('index.html').toString();
  const oldRow=rowOf(before),newRow=rowOf(now);
  assert.equal(newRow,plotV25.plotRow,'Reviewed Plot 2.5.0 row');
  assert.equal(oldRow.replace('화면 v2.3.0 · 문서 v2.3.0','화면 v2.5.0 · 문서 v2.5.0').replace('datetime="2026-11-06">확인 2026-11-06','datetime="2026-11-15">확인 2026-11-15'),newRow,'Plot row changes only version and check date');
  assert.equal(before.replace(oldRow,newRow).replace('포털 v1.9.1','포털 v1.9.2'),now,'Home changes only the Plot row and portal version');
  // Plot information page: version facts, two new feature paragraphs (v2.5, v2.4) and the portal version.
- const info=await readFile(resolve(dist,'info/plot.html'),'utf8'),oldInfo=beforePlotV25.get('info/plot.html').toString();
+ const info=beforeAnalyse.get('info/plot.html').toString(),oldInfo=beforePlotV25.get('info/plot.html').toString();
  const v25=info.match(/<p>v2\.5에서는[\s\S]*?<\/p><p>v2\.4에서는[\s\S]*?<\/p>/)[0];
  const facts=s=>s.match(/<dl class="facts">[\s\S]*?<\/dl>/)[0];
  assert.equal(oldInfo.replace(facts(oldInfo),facts(info)).replace('<p>v2.3에서는',v25+'<p>v2.3에서는').replace('포털 v1.9.1','포털 v1.9.2'),info,'Plot information page changes only its version facts, the v2.5/v2.4 paragraphs and the portal version');

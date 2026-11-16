@@ -9,7 +9,7 @@ const R=JSON.parse(await readFile(new URL('./release-versions.json',import.meta.
 const local=JSON.parse(await readFile(resolve(dist,'tools/detection-capability/build-manifest.json'),'utf8'));
 assert.equal(manifest.files.length,R.portal.files);
 assert.equal(local.version,D.version);
-assert.equal(local.files.length,53);
+assert.equal(local.files.length,57);for(const n of ["lod-quantile-source.js","lod-quantile.js","confirmation-plan-source.js","confirmation-plan.js"])assert(local.files.some(f=>f.name===n),"0.9.2 file "+n);
 assert.equal(local.baselineProgramVersion,D.baseline);
 assert.equal(local.uiTheme.version,D.ui);
 assert.equal(local.releaseIdentification.version,local.version);
@@ -56,4 +56,5 @@ assert.equal(local.runtimePackage.version,'7.3-66');
 assert.equal(local.files.find(e=>e.name==='runtime/MASS_7.3-66.tgz').sha256,local.runtimePackage.sha256);
 assert.equal(local.files.find(e=>e.name==='runtime/MASS_7.3-66.metadata.json').sha256,local.runtimePackage.metadataSHA256);
 for(const term of ['MASS v7.3-66','SHA-256','과거 결과의 버전'])assert(guide.includes(term));
-console.log('PASS: LoBDQ beta.5 asset hashes, fixed MASS 7.3-66 browser/CI loader, source/license assets, actual provenance and Korean guide.');
+assert.equal(local.multiProbability.existingLoDSourceSHA256,local.gofDiagnostics.sourceSHA256,"Existing LoD R program unchanged");for(const marker of ["lod-quantile.js","confirmation-plan.js"])assert(entry.includes(marker));
+console.log(`PASS: LoBDQ ${D.version} asset hashes, detection-probability table and plan files, fixed MASS 7.3-66 browser/CI loader, source/license assets, actual provenance and Korean guide.`);
